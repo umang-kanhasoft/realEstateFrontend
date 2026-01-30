@@ -4,13 +4,18 @@ import { SITE_CONFIG } from '@/utils/constants';
 import {
   KeyboardArrowUp as ArrowUpIcon,
   Email as EmailIcon,
+  Facebook,
   Facebook as FacebookIcon,
+  Instagram,
   Instagram as InstagramIcon,
+  LinkedIn,
   LinkedIn as LinkedInIcon,
   LocationOn as LocationIcon,
   Phone as PhoneIcon,
   Send as SendIcon,
   Twitter as TwitterIcon,
+  X,
+  YouTube,
   YouTube as YouTubeIcon,
 } from '@mui/icons-material';
 import {
@@ -19,6 +24,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material';
@@ -49,259 +55,78 @@ const Footer = (): JSX.Element => {
   ];
 
   return (
-    <Box component="footer" className="bg-secondary-900 text-white">
-      {/* Main Footer */}
-      <Container maxWidth="xl" className="py-16">
-        <Grid container spacing={6}>
-          {/* Company Info */}
+    <Box sx={{ borderTop: "1px solid #eee", pt: 8, pb: 4 }}>
+      <Container maxWidth="xl">
+        <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 900, color: "#007bb5", mb: 2 }}
             >
-              <Link href="/" className="mb-6 inline-block">
-                <Box className="flex items-center gap-2">
-                  <Box className="bg-primary-600 flex h-12 w-12 items-center justify-center rounded-lg font-heading text-xl font-bold text-white">
-                    VS
-                  </Box>
-                  <span className="font-heading text-2xl font-bold text-white">
-                    VitalSpace
-                  </span>
-                </Box>
-              </Link>
-              <Typography className="text-secondary-400 mb-6">
-                {SITE_CONFIG.description}
-              </Typography>
-              <Box className="space-y-3">
-                <a
-                  href={`tel:${SITE_CONFIG.phone}`}
-                  className="text-secondary-400 flex items-center gap-3 transition-colors hover:text-white"
-                >
-                  <PhoneIcon fontSize="small" className="text-primary-500" />
-                  {SITE_CONFIG.phone}
-                </a>
-                <a
-                  href={`mailto:${SITE_CONFIG.email}`}
-                  className="text-secondary-400 flex items-center gap-3 transition-colors hover:text-white"
-                >
-                  <EmailIcon fontSize="small" className="text-primary-500" />
-                  {SITE_CONFIG.email}
-                </a>
-                <div className="text-secondary-400 flex items-start gap-3">
-                  <LocationIcon
-                    fontSize="small"
-                    className="text-primary-500 mt-0.5"
-                  />
-                  <span>{SITE_CONFIG.address}</span>
-                </div>
-              </Box>
-            </motion.div>
+              {" "}
+              VITAL space{" "}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ maxWidth: "300px" }}
+            >
+              A trustworthy one stop solution for all your property needs.We
+              ensure you buy / rent property that meets all your requirements.
+            </Typography>
           </Grid>
-
-          {/* Quick Links */}
-          <Grid item xs={12} sm={6} md={2}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Typography variant="h6" className="mb-4 font-semibold">
-                Quick Links
+          <Grid item xs={6} md={2}>
+            <Typography fontWeight={700} mb={2}>
+              {" "}
+              Quick Link{" "}
+            </Typography>
+            {["Home", "About Us", "Career", "Blogs", "FAQs"].map((l) => (
+              <Typography
+                key={l}
+                variant="body2"
+                sx={{ mb: 1, color: "#555" }}
+              >
+                {" "}
+                {l}{" "}
               </Typography>
-              <Box component="ul" className="space-y-2">
-                {quickLinks.map(link => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-secondary-400 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </Box>
-            </motion.div>
+            ))}
           </Grid>
-
-          {/* Services */}
-          <Grid item xs={12} sm={6} md={2}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Typography variant="h6" className="mb-4 font-semibold">
-                Our Services
-              </Typography>
-              <Box component="ul" className="space-y-2">
-                {services.map(service => (
-                  <li key={service.label}>
-                    <Link
-                      href={service.href}
-                      className="text-secondary-400 transition-colors hover:text-white"
-                    >
-                      {service.label}
-                    </Link>
-                  </li>
-                ))}
-              </Box>
-            </motion.div>
-          </Grid>
-
-          {/* Newsletter */}
-          <Grid item xs={12} md={4}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Typography variant="h6" className="mb-4 font-semibold">
-                Subscribe to Newsletter
-              </Typography>
-              <Typography className="text-secondary-400 mb-4">
-                Get the latest property listings and real estate news delivered
-                to your inbox.
-              </Typography>
-              <Box className="flex gap-2">
-                <TextField
-                  placeholder="Enter your email"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.3)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'primary.main',
-                      },
-                    },
-                    '& .MuiOutlinedInput-input': {
-                      color: 'white',
-                      '&::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)',
-                      },
-                    },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  sx={{
-                    minWidth: 'auto',
-                    px: 3,
-                    borderRadius: '8px',
-                  }}
+          <Grid item xs={6} md={2}>
+            <Typography fontWeight={700} mb={2}>
+              {" "}
+              Trending Projects{" "}
+            </Typography>
+            {["The Regal", "Satatya Syrii-2", "The Gold By Samor"].map(
+              (l) => (
+                <Typography
+                  key={l}
+                  variant="body2"
+                  sx={{ mb: 1, color: "#555" }}
                 >
-                  <SendIcon />
-                </Button>
-              </Box>
-
-              {/* Social Links */}
-              <Box className="mt-6">
-                <Typography className="text-secondary-400 mb-3 text-sm">
-                  Follow us on social media
+                  {" "}
+                  {l}{" "}
                 </Typography>
-                <Box className="flex gap-2">
-                  <IconButton
-                    href={SITE_CONFIG.socialLinks.facebook}
-                    target="_blank"
-                    className="hover:bg-primary-600 bg-white/10 text-white"
-                    size="small"
-                  >
-                    <FacebookIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    href={SITE_CONFIG.socialLinks.twitter}
-                    target="_blank"
-                    className="hover:bg-primary-600 bg-white/10 text-white"
-                    size="small"
-                  >
-                    <TwitterIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    href={SITE_CONFIG.socialLinks.instagram}
-                    target="_blank"
-                    className="hover:bg-primary-600 bg-white/10 text-white"
-                    size="small"
-                  >
-                    <InstagramIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    href={SITE_CONFIG.socialLinks.linkedin}
-                    target="_blank"
-                    className="hover:bg-primary-600 bg-white/10 text-white"
-                    size="small"
-                  >
-                    <LinkedInIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    href={SITE_CONFIG.socialLinks.youtube}
-                    target="_blank"
-                    className="hover:bg-primary-600 bg-white/10 text-white"
-                    size="small"
-                  >
-                    <YouTubeIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </Box>
-            </motion.div>
+              )
+            )}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography fontWeight={700} mb={2}>
+              {" "}
+              Connect with Us{" "}
+            </Typography>
+            <Typography variant="body2"> +91 99984 70000 </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {" "}
+              info@vitalspace.in
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <Facebook /> <Instagram /> <LinkedIn /> <X /> <YouTube />
+            </Stack>
           </Grid>
         </Grid>
       </Container>
-
-      {/* Bottom Bar */}
-      <Box className="border-t border-white/10">
-        <Container maxWidth="xl">
-          <Box className="flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
-            <Typography className="text-secondary-400 text-center text-sm md:text-left">
-              © {currentYear} VitalSpace. All rights reserved.
-            </Typography>
-            <Box className="flex flex-wrap justify-center gap-4 text-sm">
-              <Link
-                href="/privacy-policy"
-                className="text-secondary-400 transition-colors hover:text-white"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms-of-service"
-                className="text-secondary-400 transition-colors hover:text-white"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/sitemap"
-                className="text-secondary-400 transition-colors hover:text-white"
-              >
-                Sitemap
-              </Link>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Scroll to Top Button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={scrollToTop}
-        className="bg-primary-600 hover:bg-primary-700 fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-colors"
-      >
-        <ArrowUpIcon />
-      </motion.button>
     </Box>
+
   );
 };
 
