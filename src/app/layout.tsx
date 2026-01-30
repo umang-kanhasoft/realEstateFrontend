@@ -112,7 +112,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-screen bg-white antialiased" id="__next">
+      <body className="min-h-screen bg-white antialiased" id="__next" style={{ backgroundColor: "#fff" }}>
         <AppProvider>
           <ThemeContextProvider>
             <PropertyProvider>

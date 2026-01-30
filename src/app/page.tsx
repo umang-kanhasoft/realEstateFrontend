@@ -1,12 +1,8 @@
-import About from '@/components/sections/About';
-import CTASection from '@/components/sections/CTASection';
 import FeaturedProperties from '@/components/sections/FeaturedProperties';
 import Hero from '@/components/sections/Hero';
-import Newsletter from '@/components/sections/Newsletter';
-import Services from '@/components/sections/Services';
-import Stats from '@/components/sections/Stats';
-import Testimonials from '@/components/sections/Testimonials';
+import NewProjects from '@/components/sections/NewProjects';
 import { Metadata } from 'next';
+import Faq from '@/components/sections/Faq';
 
 export const metadata: Metadata = {
   title:
@@ -28,12 +24,8 @@ export default function HomePage(): JSX.Element {
     <>
       <Hero />
       <FeaturedProperties />
-      <About />
-      <Services />
-      <Stats />
-      <Testimonials />
-      <CTASection />
-      <Newsletter />
+      <NewProjects />
+      <Faq />
     </>
   );
 }
