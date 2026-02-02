@@ -220,17 +220,17 @@ const FeaturedProperties = (): JSX.Element => {
       <Container maxWidth="xl" sx={{ my: 10 }}>
         <Box
           sx={{
-            bgcolor: "#a7e1ff",
+            backgroundImage: "url(/images/banner2.webp)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
             borderRadius: "40px",
-            py: 6,
+            pt: { xs: 4, md: 15 },
+            pb: { xs: 4, md: 12 },
+            px: { xs: 7, md: 10 },
             textAlign: "center",
           }}
-        >
-          <Typography variant="h3" fontWeight={800} color="#0d2e5e">
-            {" "}
-            Your Dream Property just a click away{" "}
-          </Typography>
-        </Box>
+        />
       </Container>
     </>
   );

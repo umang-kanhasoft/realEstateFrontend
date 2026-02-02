@@ -144,14 +144,17 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 3 }}>
+    <Container maxWidth={false} sx={{ mt: 3 }}>
       <Box
         sx={{
-          bgcolor: "#52b2e7",
+          backgroundImage: "url(/images/banner1.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           borderRadius: "40px",
-          pt: 8,
-          pb: 12,
-          px: 4,
+          pt: { xs: 10, md: 20 },
+          pb: { xs: 8, md: 10 },
+          px: { xs: 2, md: 6 },
           textAlign: "center",
           color: "white",
           position: "relative",
@@ -159,9 +162,9 @@ const Hero: React.FC = () => {
         }}
       >
         <Typography
-          variant="h3"
+          variant="h4"
           sx={{
-            fontWeight: 700,
+            fontWeight: 600,
             mb: 6,
             fontSize: { xs: "2.5rem", md: "3.5rem" },
           }}
