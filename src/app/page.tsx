@@ -3,6 +3,7 @@ import Hero from '@/components/sections/Hero';
 import NewProjects from '@/components/sections/NewProjects';
 import { Metadata } from 'next';
 import Faq from '@/components/sections/Faq';
+import InstallPrompt from '@/components/common/InstallPrompt';
 
 export const metadata: Metadata = {
   title:
@@ -26,6 +27,7 @@ export default function HomePage(): JSX.Element {
       <FeaturedProperties />
       <NewProjects />
       <Faq />
+      <InstallPrompt />
     </>
   );
 }
