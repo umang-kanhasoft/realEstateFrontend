@@ -10,7 +10,9 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
+import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { CheckCircle } from '@mui/icons-material';
@@ -164,58 +166,77 @@ const FeaturedProperties = (): JSX.Element => {
             See All{" "}
           </Button>
         </Stack>
-        <Grid container spacing={3}>
-          {featuredProperties.map((proj: any, idx: any) => (
-            <Grid item xs={12} md={4} key={idx}>
-              <Card
-                sx={{
-                  display: "flex",
-                  padding: "10px",
-                  border: "1px solid #eee",
-                  boxShadow: "none",
-                  height: "136px",
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  sx={{
-                    width: 160,
-                    height: "110px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
-                  }}
-                  image={proj?.image}
-                />
-                <CardContent sx={{ padding: 0, marginLeft: 2 }}>
-                  <Stack direction="row" alignItems="center" spacing={0.5}>
-                    <Typography variant="subtitle1" fontWeight={700}>
-                      {" "}
-                      {proj.title}{" "}
-                    </Typography>
-                    <CheckCircle sx={{ color: "#4da9ff", fontSize: 16 }} />
-                  </Stack>
-                  <Typography variant="caption" color="text.secondary">
-                    {" "}
-                    {proj.builder}{" "}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    display="block"
+        <Box sx={{ position: 'relative', px: 2 }}>
+            <Swiper
+              modules={[Navigation]}
+              spaceBetween={24}
+              navigation
+              breakpoints={{
+                0: {
+                  slidesPerView: 1,
+                },
+                600: {
+                  slidesPerView: 2,
+                },
+                960: {
+                  slidesPerView: 3,
+                },
+              }}
+              onSwiper={(swiper: SwiperType) => setSwiperRef(swiper)}
+            >
+              {featuredProperties.map((proj: any, idx: any) => (
+                <SwiperSlide key={idx} style={{ padding: '8px' }}>
+                  <Card
+                    sx={{
+                      display: "flex",
+                      padding: "10px",
+                      border: "1px solid #eee",
+                      boxShadow: "none",
+                      height: "136px",
+                      width: '100%'
+                    }}
                   >
-                    {" "}
-                    {proj.config}{" "}
-                  </Typography>
-                  <Typography variant="caption"> {proj.location} </Typography>
-                  <Typography variant="body1" fontWeight={700} sx={{ mt: 1 }}>
-                    {" "}
-                    {proj.price}{" "}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    <CardMedia
+                      component="img"
+                      sx={{
+                        width: 160,
+                        height: "110px",
+                        objectFit: "cover",
+                        borderRadius: "10px",
+                      }}
+                      image={proj?.image}
+                    />
+                    <CardContent sx={{ padding: 0, marginLeft: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Typography variant="subtitle1" fontWeight={700}>
+                          {" "}
+                          {proj.title}{" "}
+                        </Typography>
+                        <CheckCircle sx={{ color: "#4da9ff", fontSize: 16 }} />
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary">
+                        {" "}
+                        {proj.builder}{" "}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        display="block"
+                      >
+                        {" "}
+                        {proj.config}{" "}
+                      </Typography>
+                      <Typography variant="caption"> {proj.location} </Typography>
+                      <Typography variant="body1" fontWeight={700} sx={{ mt: 1 }}>
+                        {" "}
+                        {proj.price}{" "}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+        </Box>
       </Container>
       <Container maxWidth="xl" sx={{ my: 10 }}>
         <Box
