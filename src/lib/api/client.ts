@@ -1,4 +1,9 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 
 import { env } from '@/config/env';
 
@@ -31,7 +36,7 @@ class ApiClient {
 
   private setupInterceptors(): void {
     this.client.interceptors.request.use(
-      (config) => {
+      config => {
         // Add auth token if available
         const token = this.getAuthToken();
         if (token) {
@@ -39,14 +44,17 @@ class ApiClient {
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      error => Promise.reject(error)
     );
 
     this.client.interceptors.response.use(
-      (response) => response,
+      response => response,
       (error: AxiosError<ApiResponse>) => {
         const apiError: ApiError = {
-          message: error.response?.data?.message || error.message || 'An error occurred',
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            'An error occurred',
           status: error.response?.status,
           code: error.code,
         };
@@ -72,28 +80,64 @@ class ApiClient {
     }
   }
 
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<ApiResponse<T>> = await this.client.get(url, config);
+  async get<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response: AxiosResponse<ApiResponse<T>> = await this.client.get(
+      url,
+      config
+    );
     return response.data;
   }
 
-  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<ApiResponse<T>> = await this.client.post(url, data, config);
+  async post<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response: AxiosResponse<ApiResponse<T>> = await this.client.post(
+      url,
+      data,
+      config
+    );
     return response.data;
   }
 
-  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<ApiResponse<T>> = await this.client.put(url, data, config);
+  async put<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response: AxiosResponse<ApiResponse<T>> = await this.client.put(
+      url,
+      data,
+      config
+    );
     return response.data;
   }
 
-  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<ApiResponse<T>> = await this.client.patch(url, data, config);
+  async patch<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response: AxiosResponse<ApiResponse<T>> = await this.client.patch(
+      url,
+      data,
+      config
+    );
     return response.data;
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<ApiResponse<T>> = await this.client.delete(url, config);
+  async delete<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response: AxiosResponse<ApiResponse<T>> = await this.client.delete(
+      url,
+      config
+    );
     return response.data;
   }
 }

@@ -22,13 +22,17 @@ export const getImageUrl = (imageKey: string): string => {
   return imageMap[imageKey] || imageMap['default-property'];
 };
 
-export const getOptimizedImageUrl = (url: string, width?: number, quality?: number): string => {
+export const getOptimizedImageUrl = (
+  url: string,
+  width?: number,
+  quality?: number
+): string => {
   // For Cloudinary URLs, add transformation parameters
   if (url.includes('cloudinary.com')) {
     const transformations = [];
     if (width) transformations.push(`w_${width}`);
     if (quality) transformations.push(`q_${quality}`);
-    
+
     if (transformations.length > 0) {
       return url.replace('/upload/', `/upload/${transformations.join(',')}/`);
     }

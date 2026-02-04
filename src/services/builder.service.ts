@@ -43,8 +43,13 @@ export interface BuildersListResponseData {
 class BuilderService {
   private readonly basePath = '/builders';
 
-  async getBuilders(limit = 10, offset = 0): Promise<ApiResponse<BuildersListResponseData>> {
-    return apiClient.get<BuildersListResponseData>(`${this.basePath}?limit=${limit}&offset=${offset}`);
+  async getBuilders(
+    limit = 10,
+    offset = 0
+  ): Promise<ApiResponse<BuildersListResponseData>> {
+    return apiClient.get<BuildersListResponseData>(
+      `${this.basePath}?limit=${limit}&offset=${offset}`
+    );
   }
 
   async getBuilderById(id: string): Promise<ApiResponse<BuilderDetail>> {

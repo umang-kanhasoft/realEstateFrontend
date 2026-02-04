@@ -106,6 +106,15 @@ export interface ContactFormData {
   preferredContact: 'email' | 'phone' | 'both';
 }
 
+export interface InquiryFormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  propertyId?: string;
+  propertyType?: string;
+}
+
 export interface NewsletterFormData {
   email: string;
 }

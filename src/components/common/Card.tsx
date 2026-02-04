@@ -4,7 +4,7 @@ import { classNames } from '@/utils/helpers';
 import { Paper, PaperProps } from '@mui/material';
 import { forwardRef, ReactNode } from 'react';
 
-interface CardProps extends Omit<PaperProps, 'elevation'> {
+interface CardProps extends Omit<PaperProps, 'elevation' | 'variant'> {
   children: ReactNode;
   className?: string;
   hover?: boolean;
@@ -31,7 +31,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
     },
     ref
   ) => {
-    const baseStyles = 'rounded-2xl overflow-hidden';
+    const baseStyles = 'rounded-xl md:rounded-2xl overflow-hidden';
 
     const hoverStyles = hover
       ? 'transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover'

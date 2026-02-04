@@ -1,13 +1,14 @@
 import { ApiProjectDetail, ApiProjectListItem, Property } from '@/types';
+import { ConstructionStatus, LandmarkType } from '@/types/enums';
 
 const mapBackendStatusToUiStatus = (status: string): Property['status'] => {
   switch (status) {
-    case 'under_construction':
-    case 'nearing_completion':
-      return 'Under Construction';
-    case 'ready_to_move':
+    case ConstructionStatus.UNDER_CONSTRUCTION:
+    case ConstructionStatus.NEARING_COMPLETION:
+      return 'Under Construction'; // Keep UI string as is for now, or use mapped value
+    case ConstructionStatus.READY_TO_MOVE:
       return 'Ready to Move';
-    case 'new_launch':
+    case ConstructionStatus.NEW_LAUNCH:
       return 'New Launch';
     default:
       return 'New Launch';
@@ -24,7 +25,7 @@ export const mapProjectToProperty = (project: ApiProjectListItem): Property => {
     builder: project.builder?.name || 'Unknown Builder',
     builderId: project.builder?.id || '',
     location: project.locality || project.area || project.city,
-    area: project.area,
+    area: project.locality || project.city,
     price: project.priceStartingFrom || 0,
     pricePerSqFt: project.pricePerSqFt || 0,
     type: (unitTypeLabel as Property['type']) || '3BHK',
@@ -69,20 +70,24 @@ export const mapProjectDetailToProperty = (
 
   const transport = project.location.landmarks
     .filter(l =>
-      ['transport', 'metro', 'airport'].includes(String(l.type).toLowerCase())
+      [
+        LandmarkType.TRANSPORT,
+        LandmarkType.METRO,
+        LandmarkType.AIRPORT,
+      ].includes(String(l.type).toLowerCase() as LandmarkType)
     )
     .map(l => l.name);
 
   const schools = project.location.landmarks
-    .filter(l => String(l.type).toLowerCase() === 'school')
+    .filter(l => String(l.type).toLowerCase() === LandmarkType.SCHOOL)
     .map(l => l.name);
 
   const hospitals = project.location.landmarks
-    .filter(l => String(l.type).toLowerCase() === 'hospital')
+    .filter(l => String(l.type).toLowerCase() === LandmarkType.HOSPITAL)
     .map(l => l.name);
 
   const parks = project.location.landmarks
-    .filter(l => String(l.type).toLowerCase() === 'park')
+    .filter(l => String(l.type).toLowerCase() === LandmarkType.PARK)
     .map(l => l.name);
 
   const firstConfig = project.pricingAndInventory.configurations?.[0];

@@ -64,11 +64,11 @@ const Newsletter = (): JSX.Element => {
         >
           <Typography
             variant="h4"
-            className="text-secondary-900 mb-4 font-heading font-bold"
+            className="mb-4 font-heading text-2xl font-bold text-secondary-900 md:text-3xl"
           >
             Stay Updated with Latest Listings
           </Typography>
-          <Typography className="text-secondary-600 mb-8">
+          <Typography className="mb-8 text-secondary-600">
             Subscribe to our newsletter and get the latest property listings,
             market insights, and real estate news delivered to your inbox.
           </Typography>
@@ -85,17 +85,18 @@ const Newsletter = (): JSX.Element => {
               onChange={e => setEmail(e.target.value)}
               fullWidth
               disabled={status === 'loading' || status === 'success'}
+              className="rounded-xl bg-white"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <EmailIcon className="text-secondary-400" />
                   </InputAdornment>
                 ),
+                className: 'rounded-xl', // Ensures internal input radius matches
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '12px',
+                  '& fieldset': { border: 'none' }, // Optional: remove default MUI border if desired, or relying on custom styling
                 },
               }}
             />
@@ -106,21 +107,11 @@ const Newsletter = (): JSX.Element => {
               endIcon={
                 status === 'success' ? <CheckCircleIcon /> : <SendIcon />
               }
-              sx={{
-                minWidth: '160px',
-                borderRadius: '12px',
-                px: 4,
-                background:
-                  status === 'success'
-                    ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)'
-                    : 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-                '&:hover': {
-                  background:
-                    status === 'success'
-                      ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
-                      : 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
-                },
-              }}
+              className={`min-w-[160px] rounded-xl px-4 py-3 font-semibold normal-case transition-all duration-300 ${
+                status === 'success'
+                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500'
+                  : 'bg-gradient-to-br from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700'
+              }`}
             >
               {status === 'loading'
                 ? 'Subscribing...'
@@ -138,14 +129,14 @@ const Newsletter = (): JSX.Element => {
             >
               <Alert
                 severity={status === 'success' ? 'success' : 'error'}
-                className="mx-auto max-w-lg"
+                className="mx-auto max-w-lg rounded-xl shadow-sm"
               >
                 {message}
               </Alert>
             </motion.div>
           )}
 
-          <Typography variant="body2" className="text-secondary-500 mt-4">
+          <Typography variant="body2" className="mt-4 text-secondary-500">
             We respect your privacy. Unsubscribe at any time.
           </Typography>
         </motion.div>

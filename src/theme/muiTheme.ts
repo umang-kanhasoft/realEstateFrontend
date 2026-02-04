@@ -6,6 +6,77 @@ import {
   ThemeOptions,
 } from '@mui/material/styles';
 
+// Module augmentation to allow custom colors in the theme
+declare module '@mui/material/styles' {
+  interface Palette {
+    accent: {
+      gold: string;
+      green: string;
+      orange: string;
+    };
+  }
+  interface PaletteOptions {
+    accent?: {
+      gold: string;
+      green: string;
+      orange: string;
+    };
+  }
+
+  interface PaletteColor {
+    50?: string;
+    100?: string;
+    200?: string;
+    300?: string;
+    400?: string;
+    500?: string;
+    600?: string;
+    700?: string;
+    800?: string;
+    900?: string;
+  }
+
+  interface SimplePaletteColorOptions {
+    50?: string;
+    100?: string;
+    200?: string;
+    300?: string;
+    400?: string;
+    500?: string;
+    600?: string;
+    700?: string;
+    800?: string;
+    900?: string;
+  }
+}
+
+// Define the full color scales matching Tailwind config
+const primaryColors = {
+  50: '#eff6ff',
+  100: '#dbeafe',
+  200: '#bfdbfe',
+  300: '#93c5fd',
+  400: '#60a5fa',
+  500: '#3b82f6',
+  600: '#2563eb',
+  700: '#1d4ed8',
+  800: '#1e40af',
+  900: '#1e3a8a',
+};
+
+const secondaryColors = {
+  50: '#f8fafc',
+  100: '#f1f5f9',
+  200: '#e2e8f0',
+  300: '#cbd5e1',
+  400: '#94a3b8',
+  500: '#64748b',
+  600: '#475569',
+  700: '#334155',
+  800: '#1e293b',
+  900: '#0f172a',
+};
+
 const baseThemeOptions: ThemeOptions = {
   typography: {
     fontFamily: 'var(--font-inter), system-ui, sans-serif',
@@ -96,9 +167,9 @@ const baseThemeOptions: ThemeOptions = {
           },
         },
         containedPrimary: {
-          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+          background: `linear-gradient(135deg, ${primaryColors[800]} 0%, ${primaryColors[500]} 100%)`,
           '&:hover': {
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+            background: `linear-gradient(135deg, ${primaryColors[900]} 0%, ${primaryColors[600]} 100%)`,
           },
         },
         outlined: {
@@ -130,7 +201,7 @@ const baseThemeOptions: ThemeOptions = {
           '& .MuiOutlinedInput-root': {
             borderRadius: '8px',
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#3b82f6',
+              borderColor: primaryColors[500],
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
               borderWidth: '2px',
@@ -169,24 +240,31 @@ const lightThemeOptions: ThemeOptions = {
   palette: {
     mode: 'light',
     primary: {
-      main: '#1e40af',
-      light: '#3b82f6',
-      dark: '#1e3a8a',
+      main: primaryColors[600], // Default 'main' mapping
+      light: primaryColors[400],
+      dark: primaryColors[800],
       contrastText: '#ffffff',
+      ...primaryColors, // Spread all shades
     },
     secondary: {
-      main: '#64748b',
-      light: '#94a3b8',
-      dark: '#475569',
+      main: secondaryColors[500],
+      light: secondaryColors[300],
+      dark: secondaryColors[700],
       contrastText: '#ffffff',
+      ...secondaryColors, // Spread all shades
+    },
+    accent: {
+      gold: '#d4a853',
+      green: '#10b981',
+      orange: '#f59e0b',
     },
     background: {
       default: '#f8fafc',
       paper: '#ffffff',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: secondaryColors[900],
+      secondary: secondaryColors[600],
     },
     error: {
       main: '#ef4444',
@@ -209,16 +287,23 @@ const darkThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
     primary: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#1e40af',
+      main: primaryColors[500],
+      light: primaryColors[400],
+      dark: primaryColors[600],
       contrastText: '#ffffff',
+      ...primaryColors,
     },
     secondary: {
-      main: '#94a3b8',
-      light: '#cbd5e1',
-      dark: '#64748b',
+      main: secondaryColors[400],
+      light: secondaryColors[300],
+      dark: secondaryColors[500],
       contrastText: '#000000',
+      ...secondaryColors,
+    },
+    accent: {
+      gold: '#d4a853',
+      green: '#10b981',
+      orange: '#f59e0b',
     },
     background: {
       default: '#0f172a',
@@ -226,7 +311,7 @@ const darkThemeOptions: ThemeOptions = {
     },
     text: {
       primary: '#f1f5f9',
-      secondary: '#94a3b8',
+      secondary: secondaryColors[400],
     },
     error: {
       main: '#f87171',

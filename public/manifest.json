@@ -1,7 +1,7 @@
 {
-  "name": "VitalSpace - Premium Real Estate",
-  "short_name": "VitalSpace",
-  "description": "Find your dream property with VitalSpace - Premium Real Estate Solutions",
+  "name": "Real Estate - Premium Real Estate",
+  "short_name": "Real Estate",
+  "description": "Find your dream property with Real Estate - Premium Real Estate Solutions",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

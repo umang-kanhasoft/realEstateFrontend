@@ -2,7 +2,7 @@
 
 import Card from '@/components/common/Card';
 import { useProperty } from '@/hooks/useProperty';
-import { Property } from '@/types';
+import { Property, PropertyImage } from '@/types';
 import { formatArea, formatPrice, getPropertyTypeLabel } from '@/utils/helpers';
 import {
   SquareFoot as AreaIcon,
@@ -23,10 +23,7 @@ interface PropertyCardProps {
   variant?: 'default' | 'compact' | 'horizontal';
 }
 
-const PropertyCard = ({
-  property,
-  variant = 'default',
-}: PropertyCardProps): JSX.Element => {
+const PropertyCard = ({ property }: PropertyCardProps): JSX.Element => {
   const {
     state: { favorites, compareList },
     addToFavorites,
@@ -60,7 +57,10 @@ const PropertyCard = ({
   };
 
   const primaryImage =
-    property.images.find(img => img.isPrimary) || property.images[0];
+    typeof property.images[0] === 'string'
+      ? property.images[0]
+      : (property.images as PropertyImage[])[0]?.url ||
+        '/images/placeholder-property.jpg';
 
   return (
     <Link href={`/properties/${property.slug}`}>
@@ -71,7 +71,7 @@ const PropertyCard = ({
         {/* Image Container */}
         <Box className="relative h-64 w-full overflow-hidden">
           <Image
-            src={primaryImage?.url || '/images/placeholder-property.jpg'}
+            src={primaryImage}
             alt={property.title}
             fill
             className={`object-cover transition-all duration-500 group-hover:scale-110 ${
@@ -83,7 +83,7 @@ const PropertyCard = ({
 
           {/* Loading Skeleton */}
           {!isImageLoaded && (
-            <Box className="bg-secondary-200 absolute inset-0 animate-pulse" />
+            <Box className="absolute inset-0 animate-pulse bg-secondary-200" />
           )}
 
           {/* Overlay */}
@@ -92,12 +92,12 @@ const PropertyCard = ({
           {/* Badges */}
           <Box className="absolute left-4 top-4 flex flex-wrap gap-2">
             <Chip
-              label={property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
+              label={property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
               size="small"
               className={`font-semibold ${
-                property.listingType === 'sale'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-blue-500 text-white'
+                property.listingType === 'rent'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-green-500 text-white'
               }`}
             />
             {property.isNew && (
@@ -144,7 +144,7 @@ const PropertyCard = ({
                 onClick={handleCompareClick}
                 className={`shadow-md backdrop-blur-sm ${
                   isInCompare
-                    ? 'bg-primary-500 hover:bg-primary-600 text-white'
+                    ? 'bg-primary-500 text-white hover:bg-primary-600'
                     : 'bg-white/90 hover:bg-white'
                 }`}
               >
@@ -170,45 +170,61 @@ const PropertyCard = ({
         {/* Content */}
         <Box className="p-5">
           {/* Property Type */}
-          <Typography
-            variant="caption"
-            className="text-primary-600 mb-1 font-medium uppercase tracking-wider"
-          >
-            {getPropertyTypeLabel(property.propertyType)}
-          </Typography>
+          {property.propertyType && (
+            <Typography
+              variant="caption"
+              className="mb-1 font-medium uppercase tracking-wider text-primary-600"
+            >
+              {getPropertyTypeLabel(property.propertyType)}
+            </Typography>
+          )}
 
           {/* Title */}
           <Typography
             variant="h6"
-            className="text-secondary-900 group-hover:text-primary-600 mb-2 line-clamp-1 font-semibold transition-colors"
+            className="mb-2 line-clamp-1 font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
           >
             {property.title}
           </Typography>
 
           {/* Location */}
-          <Box className="text-secondary-500 mb-4 flex items-center gap-1">
+          <Box className="mb-4 flex items-center gap-1 text-secondary-500">
             <LocationIcon fontSize="small" />
             <Typography variant="body2" className="line-clamp-1">
-              {property.address.city}, {property.address.state}
+              {property.location ||
+                (property.address?.city
+                  ? `${property.address.city}, ${property.address.state}`
+                  : 'Location not available')}
             </Typography>
           </Box>
 
           {/* Features */}
-          <Box className="border-secondary-100 flex items-center justify-between border-t pt-4">
-            <Box className="text-secondary-600 flex items-center gap-1">
-              <BedIcon fontSize="small" />
-              <Typography variant="body2">{property.bedrooms} Beds</Typography>
-            </Box>
-            <Box className="text-secondary-600 flex items-center gap-1">
-              <BathtubIcon fontSize="small" />
-              <Typography variant="body2">
-                {property.bathrooms} Baths
-              </Typography>
-            </Box>
-            <Box className="text-secondary-600 flex items-center gap-1">
+          <Box className="flex items-center justify-between border-t border-secondary-100 pt-4">
+            {property.bedrooms !== undefined && (
+              <Box className="flex items-center gap-1 text-secondary-600">
+                <BedIcon fontSize="small" />
+                <Typography variant="body2">
+                  {property.bedrooms} Beds
+                </Typography>
+              </Box>
+            )}
+            {property.bathrooms !== undefined && (
+              <Box className="flex items-center gap-1 text-secondary-600">
+                <BathtubIcon fontSize="small" />
+                <Typography variant="body2">
+                  {property.bathrooms} Baths
+                </Typography>
+              </Box>
+            )}
+            <Box className="flex items-center gap-1 text-secondary-600">
               <AreaIcon fontSize="small" />
               <Typography variant="body2">
-                {formatArea(property.area, property.areaUnit)}
+                {property.size
+                  ? `${property.size} ${property.areaUnit || 'sqft'}`
+                  : formatArea(
+                      property.area || '0',
+                      property.areaUnit || 'sqft'
+                    )}
               </Typography>
             </Box>
           </Box>

@@ -52,15 +52,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           endAdornment: endAdornment && (
             <InputAdornment position="end">{endAdornment}</InputAdornment>
           ),
+          // Applying Tailwind classes to the input root
+          className: 'bg-white rounded-xl hover:border-primary-500',
         }}
+        // Using sx only for specific internal targeting where className might struggle with specificity override on MuiOutlinedInput structure
         sx={{
           '& .MuiOutlinedInput-root': {
             borderRadius: '12px',
             backgroundColor: 'white',
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'primary.main',
+              // borderColor: 'var(--color-primary-600)', // Could be handled by TW, but MUI specific
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderWidth: '2px',
+              // borderColor: 'var(--color-primary-600)',
             },
           },
+          // Tailwind equivalent for focused state coloring would be handled via standard MUI theme or global css overrides usually.
+          // But here we keep minimal sx to ensure 'white' background persists.
         }}
       />
     );

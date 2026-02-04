@@ -9,9 +9,18 @@ export const LOCATIONS = [
   'Bodakdev',
 ] as const;
 
-export const PROPERTY_TYPES = ['Apartment', 'Bungalow', 'Villa', 'Penthouse'] as const;
+export const PROPERTY_TYPES = [
+  'Apartment',
+  'Bungalow',
+  'Villa',
+  'Penthouse',
+] as const;
 
-export const PROPERTY_STATUS = ['Ready to Move', 'Under Construction', 'New Launch'] as const;
+export const PROPERTY_STATUS = [
+  'Ready to Move',
+  'Under Construction',
+  'New Launch',
+] as const;
 
 export const BUILDERS = [
   'Adani Realty',
