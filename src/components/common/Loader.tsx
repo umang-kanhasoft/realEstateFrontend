@@ -30,12 +30,13 @@ const Loader = ({
       <CircularProgress
         size={sizeMap[size]}
         thickness={4}
-        sx={{
-          color: 'primary.main',
-        }}
+        className="text-primary-600"
       />
       {text && (
-        <Typography variant="body2" className="text-secondary-600 mt-4">
+        <Typography
+          variant="body2"
+          className="mt-4 font-medium text-secondary-600"
+        >
           {text}
         </Typography>
       )}

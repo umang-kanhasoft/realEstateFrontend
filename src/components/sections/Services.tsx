@@ -17,54 +17,60 @@ const services = [
     title: 'Buy Property',
     description:
       'Find your dream home from our extensive collection of premium properties across India.',
-    icon: <HomeWorkIcon sx={{ fontSize: 40 }} />,
+    icon: <HomeWorkIcon className="text-[40px]" />,
     color: '#3b82f6',
     bgColor: '#eff6ff',
+    className: 'text-blue-500 bg-blue-50',
   },
   {
     id: 2,
     title: 'Sell Property',
     description:
       'Get the best value for your property with our expert market analysis and wide network.',
-    icon: <AccountBalanceIcon sx={{ fontSize: 40 }} />,
+    icon: <AccountBalanceIcon className="text-[40px]" />,
     color: '#10b981',
     bgColor: '#ecfdf5',
+    className: 'text-emerald-500 bg-emerald-50',
   },
   {
     id: 3,
     title: 'Rent Property',
     description:
       'Discover quality rental homes or find reliable tenants for your property.',
-    icon: <VpnKeyIcon sx={{ fontSize: 40 }} />,
+    icon: <VpnKeyIcon className="text-[40px]" />,
     color: '#f59e0b',
     bgColor: '#fffbeb',
+    className: 'text-amber-500 bg-amber-50',
   },
   {
     id: 4,
     title: 'Property Management',
     description:
       'Comprehensive property management services for hassle-free ownership experience.',
-    icon: <HandshakeIcon sx={{ fontSize: 40 }} />,
+    icon: <HandshakeIcon className="text-[40px]" />,
     color: '#8b5cf6',
     bgColor: '#f5f3ff',
+    className: 'text-violet-500 bg-violet-50',
   },
   {
     id: 5,
     title: 'Interior Design',
     description:
       'Transform your space with our expert interior design and renovation services.',
-    icon: <DesignServicesIcon sx={{ fontSize: 40 }} />,
+    icon: <DesignServicesIcon className="text-[40px]" />,
     color: '#ec4899',
     bgColor: '#fdf2f8',
+    className: 'text-pink-500 bg-pink-50',
   },
   {
     id: 6,
     title: 'Legal Assistance',
     description:
       'Complete legal support for property documentation, verification, and registration.',
-    icon: <GavelIcon sx={{ fontSize: 40 }} />,
+    icon: <GavelIcon className="text-[40px]" />,
     color: '#06b6d4',
     bgColor: '#ecfeff',
+    className: 'text-cyan-500 bg-cyan-50',
   },
 ];
 
@@ -81,28 +87,19 @@ const Services = (): JSX.Element => {
         >
           <Typography
             variant="overline"
-            sx={{
-              color: '#1e40af',
-              fontWeight: 600,
-              letterSpacing: 2,
-              fontSize: '0.875rem',
-            }}
+            className="text-sm font-semibold tracking-[2px] text-blue-800"
           >
             Our Services
           </Typography>
           <Typography
             variant="h2"
-            className="mt-2 font-heading font-bold"
-            sx={{
-              fontSize: { xs: '2rem', md: '2.75rem' },
-              color: '#0f172a',
-            }}
+            className="mt-2 font-heading text-3xl font-bold text-slate-900 md:text-[2.75rem]"
           >
             Complete Real Estate Solutions
           </Typography>
           <Typography
             variant="body1"
-            sx={{ color: '#64748b', mt: 2, maxWidth: 600, mx: 'auto' }}
+            className="mx-auto mt-2 max-w-[600px] text-slate-500"
           >
             From buying and selling to property management and legal assistance,
             we offer comprehensive services for all your real estate needs.
@@ -119,25 +116,10 @@ const Services = (): JSX.Element => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Box
-                  className="group h-full cursor-pointer rounded-2xl p-8 transition-all duration-300"
-                  sx={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    '&:hover': {
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                      transform: 'translateY(-8px)',
-                      borderColor: 'transparent',
-                    },
-                  }}
-                >
+                <Box className="group h-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-300 hover:-translate-y-2 hover:border-transparent hover:shadow-2xl hover:shadow-black/10">
                   {/* Icon */}
                   <Box
-                    className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110"
-                    sx={{
-                      backgroundColor: service.bgColor,
-                      color: service.color,
-                    }}
+                    className={`mb-6 flex h-20 w-20 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 ${service.className}`}
                   >
                     {service.icon}
                   </Box>
@@ -145,14 +127,13 @@ const Services = (): JSX.Element => {
                   {/* Content */}
                   <Typography
                     variant="h5"
-                    className="mb-3 font-semibold transition-colors group-hover:text-blue-700"
-                    sx={{ color: '#0f172a' }}
+                    className="mb-3 font-semibold text-slate-900 transition-colors group-hover:text-blue-700"
                   >
                     {service.title}
                   </Typography>
                   <Typography
                     variant="body1"
-                    sx={{ color: '#64748b', lineHeight: 1.7, mb: 4 }}
+                    className="mb-4 leading-relaxed text-slate-500"
                   >
                     {service.description}
                   </Typography>
@@ -160,7 +141,7 @@ const Services = (): JSX.Element => {
                   {/* Link */}
                   <Box
                     className="flex items-center gap-2 font-semibold transition-all duration-300 group-hover:gap-3"
-                    sx={{ color: service.color }}
+                    style={{ color: service.color }}
                   >
                     Learn More
                     <ArrowForwardIcon fontSize="small" />
@@ -184,21 +165,7 @@ const Services = (): JSX.Element => {
             variant="outlined"
             size="large"
             endIcon={<ArrowForwardIcon />}
-            sx={{
-              px: 4,
-              py: 1.5,
-              borderRadius: '12px',
-              borderWidth: 2,
-              borderColor: '#1e40af',
-              color: '#1e40af',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': {
-                borderWidth: 2,
-                backgroundColor: '#1e40af',
-                color: 'white',
-              },
-            }}
+            className="rounded-xl border-2 border-primary-700 px-8 py-3 font-semibold normal-case text-primary-700 hover:border-2 hover:bg-primary-700 hover:text-white"
           >
             Explore All Services
           </Button>

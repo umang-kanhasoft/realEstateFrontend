@@ -30,6 +30,15 @@
       "rules": {
         "@typescript-eslint/no-explicit-any": "off"
       }
+    },
+    {
+      "files": ["*.js", "*.cjs", "*.mjs"],
+      "parserOptions": {
+        "project": null
+      },
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
     }
   ],
   "ignorePatterns": [
@@ -37,6 +46,9 @@
     ".next",
     "out",
     "public/sw.js",
-    "public/workbox-*.js"
+    "public/workbox-*.js",
+    "*.config.js",
+    "*.config.cjs",
+    "*.config.mjs"
   ]
 }

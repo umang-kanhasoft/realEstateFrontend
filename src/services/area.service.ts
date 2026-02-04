@@ -3,6 +3,7 @@ import { apiClient, ApiResponse } from '@/lib/api/client';
 export interface AreaStats {
   id: string;
   name: string;
+  city: string;
   avgPricePerSqFt: number;
   appreciationRate: number;
   demandLevel: 'High' | 'Medium' | 'Low';
@@ -35,16 +36,26 @@ export interface PropertyTypeDistribution {
 class AreaService {
   private readonly basePath = '/areas';
 
-  async getAreas(limit = 10, offset = 0): Promise<ApiResponse<AreaStatsListResponseData>> {
-    return apiClient.get<AreaStatsListResponseData>(`${this.basePath}?limit=${limit}&offset=${offset}`);
+  async getAreas({
+    limit = 10,
+    offset = 0,
+  }): Promise<ApiResponse<AreaStatsListResponseData>> {
+    const data = await apiClient.get<AreaStatsListResponseData>(
+      `${this.basePath}?limit=${limit}&offset=${offset}`
+    );
+    return data;
   }
 
   async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
     return apiClient.get<DashboardStats>(`${this.basePath}/dashboard`);
   }
 
-  async getPropertyTypeDistribution(): Promise<ApiResponse<PropertyTypeDistribution[]>> {
-    return apiClient.get<PropertyTypeDistribution[]>(`${this.basePath}/distribution`);
+  async getPropertyTypeDistribution(): Promise<
+    ApiResponse<PropertyTypeDistribution[]>
+  > {
+    return apiClient.get<PropertyTypeDistribution[]>(
+      `${this.basePath}/distribution`
+    );
   }
 }
 

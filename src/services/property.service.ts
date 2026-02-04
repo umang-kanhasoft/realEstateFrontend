@@ -1,9 +1,5 @@
 import { apiClient, ApiResponse } from '@/lib/api/client';
-import {
-  ApiProjectDetail,
-  ApiProjectListItem,
-  ProjectsListResponseData,
-} from '@/types';
+import { ApiProjectDetail, ProjectsListResponseData } from '@/types';
 
 export interface PropertyFilters {
   limit?: number;
@@ -67,7 +63,9 @@ export interface PropertyFilters {
 class PropertyService {
   private readonly basePath = '/projects';
 
-  async getProperties(filters?: PropertyFilters): Promise<ApiResponse<ProjectsListResponseData>> {
+  async getProperties(
+    filters?: PropertyFilters
+  ): Promise<ApiResponse<ProjectsListResponseData>> {
     const params = new URLSearchParams();
 
     if (filters) {
@@ -88,16 +86,24 @@ class PropertyService {
     return apiClient.get<ApiProjectDetail>(`${this.basePath}/${id}`);
   }
 
-  async getPropertyBySlug(slug: string): Promise<ApiResponse<ApiProjectDetail>> {
+  async getPropertyBySlug(
+    slug: string
+  ): Promise<ApiResponse<ApiProjectDetail>> {
     return apiClient.get<ApiProjectDetail>(`${this.basePath}/slug/${slug}`);
   }
 
-  async getFeaturedProperties(limit = 10): Promise<ApiResponse<ProjectsListResponseData>> {
+  async getFeaturedProperties(
+    limit = 10
+  ): Promise<ApiResponse<ProjectsListResponseData>> {
     return this.getProperties({ limit, city: 'Ahmedabad' });
   }
 
-  async searchProperties(query: string): Promise<ApiResponse<ProjectsListResponseData>> {
-    return apiClient.get<ProjectsListResponseData>(`${this.basePath}/search?q=${encodeURIComponent(query)}`);
+  async searchProperties(
+    query: string
+  ): Promise<ApiResponse<ProjectsListResponseData>> {
+    return apiClient.get<ProjectsListResponseData>(
+      `${this.basePath}/search?q=${encodeURIComponent(query)}`
+    );
   }
 }
 

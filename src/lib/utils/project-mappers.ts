@@ -1,20 +1,25 @@
 import { ApiProjectListItem, Property } from '@/types';
+import { ConstructionStatus } from '@/types/enums';
 
-export const mapBackendStatusToUiStatus = (status: string): Property['status'] => {
+export const mapBackendStatusToUiStatus = (
+  status: string
+): Property['status'] => {
   switch (status) {
-    case 'under_construction':
-    case 'nearing_completion':
+    case ConstructionStatus.UNDER_CONSTRUCTION:
+    case ConstructionStatus.NEARING_COMPLETION:
       return 'Under Construction';
-    case 'ready_to_move':
+    case ConstructionStatus.READY_TO_MOVE:
       return 'Ready to Move';
-    case 'new_launch':
+    case ConstructionStatus.NEW_LAUNCH:
       return 'New Launch';
     default:
       return 'New Launch';
   }
 };
 
-export const mapProjectListItemToProperty = (project: ApiProjectListItem): Property => {
+export const mapProjectListItemToProperty = (
+  project: ApiProjectListItem
+): Property => {
   const unitTypeLabel = project.unitTypes?.[0]?.label;
   const image = project.mainImageUrl || 'property-luxury';
 
@@ -24,7 +29,7 @@ export const mapProjectListItemToProperty = (project: ApiProjectListItem): Prope
     builder: project.builder?.name || '',
     builderId: project.builder?.id || '',
     location: project.locality || project.area || project.city,
-    area: project.area,
+    area: project.locality || project.city,
     price: project.priceStartingFrom ?? 0,
     pricePerSqFt: project.pricePerSqFt ?? 0,
     type: (unitTypeLabel as Property['type']) || '3BHK',
@@ -44,6 +49,6 @@ export const mapProjectListItemToProperty = (project: ApiProjectListItem): Prope
     completionTime: project.completionTime ?? 0,
     description: '',
     floorPlans: [],
-    unitType: project.unitTypes,
+    unitTypes: project.unitTypes,
   };
 };

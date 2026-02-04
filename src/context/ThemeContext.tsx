@@ -19,11 +19,11 @@ import {
   useReducer,
 } from 'react';
 
-const THEME_STORAGE_KEY = 'vitalspace-theme';
+const THEME_STORAGE_KEY = 'realestate-theme';
 
 const initialState: ThemeState = {
   mode: 'light',
-  primaryColor: '#1e40af',
+  primaryColor: '#0d9488', // Matching var(--color-primary-600) default
   fontSize: 'medium',
 };
 

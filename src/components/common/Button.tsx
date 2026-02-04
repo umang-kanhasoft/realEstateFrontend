@@ -1,25 +1,7 @@
-'use client';
-
 import { ButtonProps } from '@/types';
-import { classNames } from '@/utils/helpers';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Button as MuiButton } from '@mui/material';
 import Link from 'next/link';
 import { forwardRef, MouseEvent } from 'react';
-
-const variantStyles = {
-  primary:
-    'bg-gradient-to-r from-primary-700 to-primary-500 text-white hover:from-primary-800 hover:to-primary-600',
-  secondary: 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200',
-  outline: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50',
-  ghost: 'text-secondary-600 hover:bg-secondary-100',
-  link: 'text-primary-600 hover:text-primary-700 underline-offset-4 hover:underline',
-};
-
-const sizeStyles = {
-  small: 'px-4 py-2 text-sm',
-  medium: 'px-6 py-3 text-base',
-  large: 'px-8 py-4 text-lg',
-};
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -35,58 +17,89 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       onClick,
       type = 'button',
       href,
-      className,
+      className = '',
       ...props
     },
     ref
   ) => {
-    const baseStyles =
-      'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    // Map custom variants to Tailwind classes
+    let variantClasses = '';
 
-    const buttonClasses = classNames(
-      baseStyles,
-      variantStyles[variant],
-      sizeStyles[size],
-      fullWidth && 'w-full',
-      className
-    );
+    switch (variant) {
+      case 'primary':
+        variantClasses =
+          'bg-primary-600 text-white hover:bg-primary-700 shadow-sm';
+        break;
+      case 'secondary':
+        variantClasses =
+          'bg-secondary-100 text-secondary-700 hover:bg-secondary-200';
+        break;
+      case 'outline':
+        variantClasses =
+          'border-2 border-primary-600 text-primary-600 hover:bg-primary-50';
+        break;
+      case 'ghost':
+        variantClasses =
+          'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900';
+        break;
+      case 'link':
+        variantClasses =
+          'text-primary-600 hover:underline px-0 min-w-0 bg-transparent hover:bg-transparent shadow-none';
+        break;
+    }
+
+    const sizeClasses = {
+      small: 'px-3 py-1.5 text-sm',
+      medium: 'px-5 py-2.5 text-base',
+      large: 'px-6 py-3.5 text-lg',
+    };
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
       if (loading || disabled) return;
       onClick?.(event);
     };
 
-    const content = (
-      <>
-        {loading && (
-          <CircularProgress size={20} className="mr-2" color="inherit" />
-        )}
-        {!loading && startIcon && <span className="mr-2">{startIcon}</span>}
+    const buttonContent = (
+      <MuiButton
+        ref={ref}
+        type={type} // Only valid for button element
+        onClick={!href ? handleClick : undefined}
+        disabled={disabled || loading}
+        fullWidth={fullWidth}
+        startIcon={
+          loading ? <CircularProgress size={20} color="inherit" /> : startIcon
+        }
+        endIcon={!loading && endIcon}
+        className={`rounded-lg font-semibold normal-case transition-all duration-200 ${variantClasses} ${sizeClasses[size === 'small' ? 'small' : size === 'medium' ? 'medium' : 'large']} ${disabled ? 'cursor-not-allowed !border-gray-200 !bg-gray-100 !text-gray-400 !shadow-none' : ''} ${className} `}
+        // Resetting default MUI styles that conflict or aren't needed
+        sx={{
+          textTransform: 'none',
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: 'none',
+          },
+        }}
+        {...(!href ? props : {})}
+      >
         {children}
-        {!loading && endIcon && <span className="ml-2">{endIcon}</span>}
-      </>
+      </MuiButton>
     );
 
     if (href && !disabled) {
       return (
-        <Link href={href} className={buttonClasses}>
-          {content}
+        <Link href={href} className="inline-block w-full no-underline">
+          {/* When wrapping in Link, we might not want MuiButton to handle 'type' attribute or non-visual props heavily */}
+          {/* But MuiButton component="div" or similar is sometimes better to avoid hydration issues if Link contains button */}
+          {/* Correct approach: Link wraps the MuiButton, but MuiButton should be a span or div if inside a Link 
+                to avoid button > a > button scenario if not careful. 
+                However, Next.js Link > button is valid HTML5.
+            */}
+          {buttonContent}
         </Link>
       );
     }
 
-    return (
-      <button
-        ref={ref}
-        type={type}
-        className={buttonClasses}
-        disabled={disabled || loading}
-        onClick={handleClick}
-        {...props}
-      >
-        {content}
-      </button>
-    );
+    return buttonContent;
   }
 );
 

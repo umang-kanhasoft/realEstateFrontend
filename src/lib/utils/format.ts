@@ -1,11 +1,12 @@
 export function formatCurrency(
   amount: number,
-  currency = 'USD',
-  locale = 'en-US'
+  currency = 'INR',
+  locale = 'en-IN'
 ): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
+    notation: 'compact',
     maximumFractionDigits: 0,
   }).format(amount);
 }

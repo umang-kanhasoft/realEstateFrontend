@@ -238,7 +238,7 @@ const ContactForm = (): JSX.Element => {
         {/* Preferred Contact Method */}
         <Grid item xs={12}>
           <FormControl component="fieldset">
-            <FormLabel component="legend" className="text-secondary-700 mb-2">
+            <FormLabel component="legend" className="mb-2 text-secondary-700">
               Preferred Contact Method
             </FormLabel>
             <RadioGroup
