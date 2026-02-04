@@ -2,7 +2,7 @@
 
 import { AppProvider } from '@/context/AppContext';
 import { PropertyProvider } from '@/context/PropertyContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+import { ThemeContextProvider } from '@/context/ThemeContext';
 import React, { ReactNode } from 'react';
 
 interface ProvidersProps {
@@ -11,10 +11,10 @@ interface ProvidersProps {
 
 export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
-    <ThemeProvider>
+    <ThemeContextProvider>
       <AppProvider>
         <PropertyProvider>{children}</PropertyProvider>
       </AppProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 };

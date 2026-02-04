@@ -57,10 +57,10 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps): JSX.Element => {
     >
       <Box className="flex h-full flex-col">
         {/* Header */}
-        <Box className="border-secondary-100 flex items-center justify-between border-b p-4">
+        <Box className="flex items-center justify-between border-b border-secondary-100 p-4">
           <Typography
             variant="h6"
-            className="text-secondary-900 font-heading font-bold"
+            className="font-heading font-bold text-secondary-900"
           >
             Menu
           </Typography>
@@ -107,32 +107,32 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps): JSX.Element => {
         </Box>
 
         {/* Contact Info */}
-        <Box className="border-secondary-100 bg-secondary-50 border-t p-4">
+        <Box className="border-t border-secondary-100 bg-secondary-50 p-4">
           <Typography
             variant="subtitle2"
-            className="text-secondary-900 mb-3 font-semibold"
+            className="mb-3 font-semibold text-secondary-900"
           >
             Contact Us
           </Typography>
           <Box className="space-y-3">
             <a
               href={`tel:${SITE_CONFIG.phone}`}
-              className="text-secondary-600 hover:text-primary-600 flex items-center gap-3 text-sm"
+              className="flex items-center gap-3 text-sm text-secondary-600 hover:text-primary-600"
             >
               <PhoneIcon fontSize="small" className="text-primary-600" />
               {SITE_CONFIG.phone}
             </a>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="text-secondary-600 hover:text-primary-600 flex items-center gap-3 text-sm"
+              className="flex items-center gap-3 text-sm text-secondary-600 hover:text-primary-600"
             >
               <EmailIcon fontSize="small" className="text-primary-600" />
               {SITE_CONFIG.email}
             </a>
-            <div className="text-secondary-600 flex items-start gap-3 text-sm">
+            <div className="flex items-start gap-3 text-sm text-secondary-600">
               <LocationIcon
                 fontSize="small"
-                className="text-primary-600 mt-0.5"
+                className="mt-0.5 text-primary-600"
               />
               <span>{SITE_CONFIG.address}</span>
             </div>
@@ -143,7 +143,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps): JSX.Element => {
         <Box className="p-4">
           <Link
             href="/contact"
-            className="from-primary-700 to-primary-500 flex w-full items-center justify-center rounded-lg bg-gradient-to-r px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+            className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-primary-700 to-primary-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
             onClick={onClose}
           >
             Get in Touch

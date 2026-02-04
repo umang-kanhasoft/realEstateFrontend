@@ -24,8 +24,8 @@ import {
   useReducer,
 } from 'react';
 
-const FAVORITES_STORAGE_KEY = 'vitalspace-favorites';
-const RECENTLY_VIEWED_KEY = 'vitalspace-recently-viewed';
+const FAVORITES_STORAGE_KEY = 'realestate-favorites';
+const RECENTLY_VIEWED_KEY = 'realestate-recently-viewed';
 
 const initialState: PropertyState = {
   properties: [],
@@ -84,7 +84,7 @@ const propertyReducer = (
       };
     case 'CLEAR_COMPARE_LIST':
       return { ...state, compareList: [] };
-    case 'ADD_TO_RECENTLY_VIEWED':
+    case 'ADD_TO_RECENTLY_VIEWED': {
       const filteredViewed = state.recentlyViewed.filter(
         id => id !== action.payload
       );
@@ -92,6 +92,7 @@ const propertyReducer = (
         ...state,
         recentlyViewed: [action.payload, ...filteredViewed].slice(0, 10),
       };
+    }
     default:
       return state;
   }
@@ -146,6 +147,7 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
       dispatch({ type: 'SET_PROPERTIES', payload: propertiesData });
       dispatch({ type: 'SET_ERROR', payload: null });
     } catch (error) {
+      console.error(error);
       dispatch({
         type: 'SET_ERROR',
         payload: 'Failed to fetch properties',
@@ -169,6 +171,7 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
 
         return property;
       } catch (error) {
+        console.error(error);
         dispatch({ type: 'SET_ERROR', payload: 'Failed to fetch property' });
         return null;
       } finally {
@@ -208,6 +211,7 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
         },
       });
     } catch (error) {
+      console.error(error);
       dispatch({ type: 'SET_ERROR', payload: 'Search failed' });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });

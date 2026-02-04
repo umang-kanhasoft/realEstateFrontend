@@ -6,13 +6,33 @@ interface RequestConfig {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   body?: unknown;
+  params?: Record<string, unknown>;
 }
 
 async function request<T>(
   endpoint: string,
   config: RequestConfig
 ): Promise<ApiResponse<T>> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  let url = `${API_BASE_URL}${endpoint}`;
+
+  // Add query parameters if present
+  if (config.params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(config.params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          // Handle array parameters (e.g., propertyType[]=Flat&propertyType[]=Villa)
+          value.forEach(item => searchParams.append(`${key}[]`, String(item)));
+        } else {
+          searchParams.append(key, String(value));
+        }
+      }
+    });
+    const queryString = searchParams.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -35,8 +55,10 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(endpoint: string): Promise<ApiResponse<T>> =>
-    request<T>(endpoint, { method: 'GET' }),
+  get: <T>(
+    endpoint: string,
+    params?: Record<string, unknown>
+  ): Promise<ApiResponse<T>> => request<T>(endpoint, { method: 'GET', params }),
 
   post: <T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> =>
     request<T>(endpoint, { method: 'POST', body }),

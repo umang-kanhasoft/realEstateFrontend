@@ -1,5 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import {
+  ArrowForward as ArrowForwardIcon,
+  Close as CloseIcon,
+  Search as SearchIcon,
+  Tune as TuneIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -17,13 +22,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  Tune as TuneIcon,
-  Close as CloseIcon,
-  Search as SearchIcon,
-  ArrowForward as ArrowForwardIcon,
-} from '@mui/icons-material';
-import Image from 'next/image';
+import React, { useState } from 'react';
 
 const SearchForm: React.FC = () => {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
@@ -53,13 +52,14 @@ const SearchForm: React.FC = () => {
     setFilterParams(prev => ({ ...prev, [field]: value }));
   };
 
-  const createToggleHandler = (field: keyof typeof filterParams) => (value: string) => {
-    const currentValues = filterParams[field] as string[];
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
-      : [...currentValues, value];
-    handleFilterParamChange(field, newValues);
-  };
+  const createToggleHandler =
+    (field: keyof typeof filterParams) => (value: string) => {
+      const currentValues = filterParams[field] as string[];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      handleFilterParamChange(field, newValues);
+    };
 
   const handlePropertyTypeToggle = createToggleHandler('propertyType');
   const handleBhkToggle = createToggleHandler('bhkTypes');
@@ -75,7 +75,13 @@ const SearchForm: React.FC = () => {
     });
   };
 
-  const popularLocalities = ['Adani Shantigram', 'Ambli', 'Bodakdev', 'Chharodi', 'Gota'];
+  const popularLocalities = [
+    'Adani Shantigram',
+    'Ambli',
+    'Bodakdev',
+    'Chharodi',
+    'Gota',
+  ];
   const budgetOptions = [
     { value: '20', label: '₹ 20 Lac' },
     { value: '25', label: '₹ 25 Lac' },
@@ -87,35 +93,26 @@ const SearchForm: React.FC = () => {
   ];
 
   return (
-    <Box className="relative w-full flex items-center justify-center py-16 bg-gray-100">
+    <Box className="relative flex w-full items-center justify-center bg-gray-100 py-16">
       {/* Background Banner Image */}
-      <Image
-        src="/images/hero-banner.png"
-        alt="Hero banner with a person pointing"
-        layout="fill"
-        objectFit="cover"
-        quality={100}
-        priority
-      />
-
       {/* Content Overlay */}
       <Box className="relative z-10 w-full max-w-6xl px-4">
         <Typography
-          variant="h3"
-          className="text-center font-bold text-gray-800 mb-8"
+          // variant="h3"
+          className="mb-8 text-center text-2xl font-bold text-gray-800 md:text-3xl"
         >
           Explore 1000+ Verified Properties
         </Typography>
 
         {/* Main Search Bar */}
-        <Box className="bg-white rounded-xl shadow-lg p-4">
-          <Box className="grid grid-cols-1 md:grid-cols-[1.5fr,2.5fr,1fr,1.5fr,auto] gap-4 items-center">
+        <Box className="rounded-xl bg-white p-4 shadow-lg">
+          <Box className="grid grid-cols-1 items-center gap-4 md:grid-cols-[1.5fr,2.5fr,1fr,1.5fr,auto]">
             <FormControl fullWidth size="small">
               <InputLabel>Select City</InputLabel>
               <Select
                 value={searchParams.city}
                 label="Select City"
-                onChange={(e) => handleSearchChange('city', e.target.value)}
+                onChange={e => handleSearchChange('city', e.target.value)}
               >
                 <MenuItem value="ahmedabad">Ahmedabad</MenuItem>
                 <MenuItem value="gandhinagar">Gandhinagar</MenuItem>
@@ -128,7 +125,7 @@ const SearchForm: React.FC = () => {
               variant="outlined"
               size="small"
               value={searchParams.searchQuery}
-              onChange={(e) => handleSearchChange('searchQuery', e.target.value)}
+              onChange={e => handleSearchChange('searchQuery', e.target.value)}
             />
 
             <FormControl fullWidth size="small">
@@ -136,7 +133,7 @@ const SearchForm: React.FC = () => {
               <Select
                 value={searchParams.bhk}
                 label="Select BHK"
-                onChange={(e) => handleSearchChange('bhk', e.target.value)}
+                onChange={e => handleSearchChange('bhk', e.target.value)}
               >
                 <MenuItem value="1">1 BHK</MenuItem>
                 <MenuItem value="2">2 BHK</MenuItem>
@@ -150,7 +147,7 @@ const SearchForm: React.FC = () => {
               <Select
                 value={searchParams.budget}
                 label="Select Budget"
-                onChange={(e) => handleSearchChange('budget', e.target.value)}
+                onChange={e => handleSearchChange('budget', e.target.value)}
               >
                 <MenuItem value="50L">Under 50L</MenuItem>
                 <MenuItem value="1Cr">Under 1Cr</MenuItem>
@@ -163,13 +160,17 @@ const SearchForm: React.FC = () => {
                 variant="outlined"
                 startIcon={<TuneIcon />}
                 onClick={handleClickOpen}
-                sx={{ height: '40px', borderColor: 'rgba(0, 0, 0, 0.23)', color: 'rgba(0, 0, 0, 0.87)' }}
+                sx={{
+                  height: '40px',
+                  borderColor: 'rgba(0, 0, 0, 0.23)',
+                  color: 'rgba(0, 0, 0, 0.87)',
+                }}
               >
                 Filter
               </Button>
               <Button
                 variant="contained"
-                className="bg-black hover:bg-gray-800 text-white"
+                className="bg-black text-white hover:bg-gray-800"
                 sx={{ height: '40px', boxShadow: 'none' }}
               >
                 Search
@@ -177,12 +178,15 @@ const SearchForm: React.FC = () => {
             </Box>
           </Box>
 
-          <Box className="mt-4 flex items-center gap-4 flex-wrap">
-            <Typography variant="body2" className="font-medium flex items-center">
+          <Box className="mt-4 flex flex-wrap items-center gap-4">
+            <Typography
+              variant="body2"
+              className="flex items-center font-medium"
+            >
               Popular Localities
               <ArrowForwardIcon sx={{ fontSize: 16, ml: 0.5 }} />
             </Typography>
-            {popularLocalities.map((locality) => (
+            {popularLocalities.map(locality => (
               <Chip
                 key={locality}
                 label={locality}
@@ -196,64 +200,164 @@ const SearchForm: React.FC = () => {
       </Box>
 
       {/* Filter Dialog */}
-      <Dialog open={openFilterDialog} onClose={handleClose} fullWidth maxWidth="md" PaperProps={{ className: "rounded-xl" }}>
-        <DialogTitle className="flex justify-between items-center pb-2">
-          <Typography variant="h6" className="font-bold">Filters</Typography>
-          <IconButton onClick={handleClose}><CloseIcon /></IconButton>
+      <Dialog
+        open={openFilterDialog}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{ className: 'rounded-xl' }}
+      >
+        <DialogTitle className="flex items-center justify-between pb-2">
+          <Typography variant="h6" className="font-bold">
+            Filters
+          </Typography>
+          <IconButton onClick={handleClose}>
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <Divider />
-        <DialogContent className="p-6 space-y-6">
+        <DialogContent className="space-y-6 p-6">
           {/* City & Search */}
           <Box>
-            <Typography variant="subtitle2" className="font-medium mb-2">Search City</Typography>
-            <Box className="flex gap-2 flex-wrap">
-              {['Ahmedabad', 'Gandhinagar'].map((city) => (
-                <Chip key={city} label={city} variant={searchParams.city === city.toLowerCase() ? 'filled' : 'outlined'} onClick={() => handleSearchChange('city', city.toLowerCase())} className="h-9" />
+            <Typography variant="subtitle2" className="mb-2 font-medium">
+              Search City
+            </Typography>
+            <Box className="flex flex-wrap gap-2">
+              {['Ahmedabad', 'Gandhinagar'].map(city => (
+                <Chip
+                  key={city}
+                  label={city}
+                  variant={
+                    searchParams.city === city.toLowerCase()
+                      ? 'filled'
+                      : 'outlined'
+                  }
+                  onClick={() => handleSearchChange('city', city.toLowerCase())}
+                  className="h-9"
+                />
               ))}
             </Box>
           </Box>
-          <TextField fullWidth label="Search Locality / Project / Builder" variant="outlined" size="small" value={searchParams.searchQuery} onChange={(e) => handleSearchChange('searchQuery', e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment> }} />
+          <TextField
+            fullWidth
+            label="Search Locality / Project / Builder"
+            variant="outlined"
+            size="small"
+            value={searchParams.searchQuery}
+            onChange={e => handleSearchChange('searchQuery', e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
 
           {/* Property Type */}
           <Box>
-            <Box className="flex justify-between items-center mb-2">
-              <Typography variant="subtitle2" className="font-medium">Property Type</Typography>
-              <Button size="small" className="text-gray-500 normal-case" onClick={() => handleFilterParamChange('propertyType', [])}>Clear All</Button>
+            <Box className="mb-2 flex items-center justify-between">
+              <Typography variant="subtitle2" className="font-medium">
+                Property Type
+              </Typography>
+              <Button
+                size="small"
+                className="normal-case text-gray-500"
+                onClick={() => handleFilterParamChange('propertyType', [])}
+              >
+                Clear All
+              </Button>
             </Box>
-            <Box className="flex gap-2 flex-wrap">
-              {['Flat', 'Duplex', 'Penthouse'].map((type) => (
-                <Chip key={type} label={type} variant={filterParams.propertyType.includes(type) ? 'filled' : 'outlined'} onClick={() => handlePropertyTypeToggle(type)} className="h-9" />
+            <Box className="flex flex-wrap gap-2">
+              {['Flat', 'Duplex', 'Penthouse'].map(type => (
+                <Chip
+                  key={type}
+                  label={type}
+                  variant={
+                    filterParams.propertyType.includes(type)
+                      ? 'filled'
+                      : 'outlined'
+                  }
+                  onClick={() => handlePropertyTypeToggle(type)}
+                  className="h-9"
+                />
               ))}
             </Box>
           </Box>
 
           {/* BHK */}
           <Box>
-            <Box className="flex justify-between items-center mb-2">
-              <Typography variant="subtitle2" className="font-medium">BHK</Typography>
-              <Button size="small" className="text-gray-500 normal-case" onClick={() => handleFilterParamChange('bhkTypes', [])}>Clear All</Button>
+            <Box className="mb-2 flex items-center justify-between">
+              <Typography variant="subtitle2" className="font-medium">
+                BHK
+              </Typography>
+              <Button
+                size="small"
+                className="normal-case text-gray-500"
+                onClick={() => handleFilterParamChange('bhkTypes', [])}
+              >
+                Clear All
+              </Button>
             </Box>
-            <Box className="flex gap-2 flex-wrap">
-              {['+ 1 BHK', '+ 2 BHK', '+ 3 BHK', '+ 4 BHK', '+ 5 BHK', '+ 6 BHK', '+ 7 BHK'].map((bhk) => (
-                <Chip key={bhk} label={bhk} variant={filterParams.bhkTypes.includes(bhk) ? 'filled' : 'outlined'} onClick={() => handleBhkToggle(bhk)} className="h-9" />
+            <Box className="flex flex-wrap gap-2">
+              {[
+                '+ 1 BHK',
+                '+ 2 BHK',
+                '+ 3 BHK',
+                '+ 4 BHK',
+                '+ 5 BHK',
+                '+ 6 BHK',
+                '+ 7 BHK',
+              ].map(bhk => (
+                <Chip
+                  key={bhk}
+                  label={bhk}
+                  variant={
+                    filterParams.bhkTypes.includes(bhk) ? 'filled' : 'outlined'
+                  }
+                  onClick={() => handleBhkToggle(bhk)}
+                  className="h-9"
+                />
               ))}
             </Box>
           </Box>
 
           {/* Budget Range */}
           <Box>
-            <Typography variant="subtitle2" className="font-medium mb-2">Budget</Typography>
+            <Typography variant="subtitle2" className="mb-2 font-medium">
+              Budget
+            </Typography>
             <Box className="grid grid-cols-2 gap-4">
               <FormControl fullWidth size="small">
                 <InputLabel>Min</InputLabel>
-                <Select value={filterParams.minBudget} label="Min" onChange={(e) => handleFilterParamChange('minBudget', e.target.value)}>
-                  {budgetOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
+                <Select
+                  value={filterParams.minBudget}
+                  label="Min"
+                  onChange={e =>
+                    handleFilterParamChange('minBudget', e.target.value)
+                  }
+                >
+                  {budgetOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl fullWidth size="small">
                 <InputLabel>Max</InputLabel>
-                <Select value={filterParams.maxBudget} label="Max" onChange={(e) => handleFilterParamChange('maxBudget', e.target.value)}>
-                  {budgetOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
+                <Select
+                  value={filterParams.maxBudget}
+                  label="Max"
+                  onChange={e =>
+                    handleFilterParamChange('maxBudget', e.target.value)
+                  }
+                >
+                  {budgetOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Box>
@@ -261,21 +365,57 @@ const SearchForm: React.FC = () => {
 
           {/* Possession */}
           <Box>
-            <Box className="flex justify-between items-center mb-2">
-              <Typography variant="subtitle2" className="font-medium">Possession</Typography>
-              <Button size="small" className="text-gray-500 normal-case" onClick={() => handleFilterParamChange('possession', [])}>Clear All</Button>
+            <Box className="mb-2 flex items-center justify-between">
+              <Typography variant="subtitle2" className="font-medium">
+                Possession
+              </Typography>
+              <Button
+                size="small"
+                className="normal-case text-gray-500"
+                onClick={() => handleFilterParamChange('possession', [])}
+              >
+                Clear All
+              </Button>
             </Box>
-            <Box className="flex gap-2 flex-wrap">
-              {['+ Ready to Move', '+ Upto 1 Year', '+ Upto 2 Years', '+ 2+ Years'].map((status) => (
-                <Chip key={status} label={status} variant={filterParams.possession.includes(status) ? 'filled' : 'outlined'} onClick={() => handlePossessionToggle(status)} className="h-9" />
+            <Box className="flex flex-wrap gap-2">
+              {[
+                '+ Ready to Move',
+                '+ Upto 1 Year',
+                '+ Upto 2 Years',
+                '+ 2+ Years',
+              ].map(status => (
+                <Chip
+                  key={status}
+                  label={status}
+                  variant={
+                    filterParams.possession.includes(status)
+                      ? 'filled'
+                      : 'outlined'
+                  }
+                  onClick={() => handlePossessionToggle(status)}
+                  className="h-9"
+                />
               ))}
             </Box>
           </Box>
 
           {/* Dialog Actions */}
           <Box className="flex justify-end gap-2 pt-4">
-            <Button variant="outlined" onClick={clearAllFilters} sx={{ height: 44, px: 3 }}>Clear All</Button>
-            <Button variant="contained" className="bg-black hover:bg-gray-800 text-white" onClick={handleClose} sx={{ height: 44, px: 3, boxShadow: 'none' }}>Apply</Button>
+            <Button
+              variant="outlined"
+              onClick={clearAllFilters}
+              sx={{ height: 44, px: 3 }}
+            >
+              Clear All
+            </Button>
+            <Button
+              variant="contained"
+              className="bg-black text-white hover:bg-gray-800"
+              onClick={handleClose}
+              sx={{ height: 44, px: 3, boxShadow: 'none' }}
+            >
+              Apply
+            </Button>
           </Box>
         </DialogContent>
       </Dialog>

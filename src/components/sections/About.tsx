@@ -35,7 +35,7 @@ const About = (): JSX.Element => {
                 <Box className="relative overflow-hidden rounded-2xl shadow-2xl">
                   <Image
                     src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="About VitalSpace"
+                    alt="About Real Estate"
                     width={600}
                     height={500}
                     className="object-cover"
@@ -45,17 +45,10 @@ const About = (): JSX.Element => {
                     className="absolute inset-0 flex items-center justify-center"
                     whileHover={{ scale: 1.05 }}
                   >
-                    <Box
-                      className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-white/90 shadow-xl"
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: '#1e40af',
-                          '& svg': { color: 'white' },
-                        },
-                      }}
-                    >
+                    <Box className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-white/90 shadow-xl transition-all duration-300 hover:bg-primary-700 hover:text-white">
                       <PlayArrowIcon
-                        sx={{ fontSize: 40, color: '#1e40af', ml: 0.5 }}
+                        className="ml-1 text-4xl text-primary-700"
+                        sx={{ color: 'inherit' }}
                       />
                     </Box>
                   </motion.div>
@@ -69,18 +62,9 @@ const About = (): JSX.Element => {
                   transition={{ delay: 0.3 }}
                   className="absolute -bottom-8 -right-8 hidden md:block"
                 >
-                  <Box
-                    className="rounded-2xl bg-white p-6 shadow-xl"
-                    sx={{ minWidth: 200 }}
-                  >
+                  <Box className="min-w-[200px] rounded-2xl bg-white p-6 shadow-xl">
                     <Box className="flex items-center gap-4">
-                      <Box
-                        className="flex h-16 w-16 items-center justify-center rounded-xl"
-                        sx={{
-                          background:
-                            'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-                        }}
-                      >
+                      <Box className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary-700 to-primary-500">
                         <Typography
                           variant="h4"
                           className="font-bold text-white"
@@ -104,13 +88,7 @@ const About = (): JSX.Element => {
                 </motion.div>
 
                 {/* Decorative Element */}
-                <Box
-                  className="absolute -left-6 -top-6 -z-10 h-24 w-24 rounded-2xl"
-                  sx={{
-                    background:
-                      'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-                  }}
-                />
+                <Box className="absolute -left-6 -top-6 -z-10 h-24 w-24 rounded-2xl bg-gradient-to-br from-primary-700 to-primary-500" />
               </Box>
             </motion.div>
           </Grid>
@@ -125,41 +103,22 @@ const About = (): JSX.Element => {
             >
               <Chip
                 label="About Us"
-                sx={{
-                  backgroundColor: '#eff6ff',
-                  color: '#1e40af',
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  mb: 3,
-                }}
+                className="mb-6 bg-primary-50 text-sm font-semibold text-primary-700"
               />
 
               <Typography
                 variant="h2"
-                className="mb-6 font-heading font-bold"
-                sx={{
-                  fontSize: { xs: '2rem', md: '2.75rem' },
-                  color: '#0f172a',
-                  lineHeight: 1.2,
-                }}
+                className="mb-6 font-heading text-4xl font-bold leading-[1.2] text-slate-900 md:text-[2.75rem]"
               >
                 Your Trusted Partner in
-                <Box component="span" sx={{ color: '#1e40af' }}>
-                  {' '}
-                  Real Estate
-                </Box>
+                <span className="text-primary-700"> Real Estate</span>
               </Typography>
 
               <Typography
                 variant="body1"
-                sx={{
-                  color: '#64748b',
-                  mb: 3,
-                  lineHeight: 1.8,
-                  fontSize: '1.1rem',
-                }}
+                className="mb-6 text-lg leading-relaxed text-slate-500"
               >
-                For over 15 years, VitalSpace has been helping families and
+                For over 15 years, Real Estate has been helping families and
                 investors find their perfect properties across India. We believe
                 in building lasting relationships through transparency,
                 expertise, and exceptional service.
@@ -167,15 +126,10 @@ const About = (): JSX.Element => {
 
               <Typography
                 variant="body1"
-                sx={{
-                  color: '#64748b',
-                  mb: 6,
-                  lineHeight: 1.8,
-                  fontSize: '1.1rem',
-                }}
+                className="mb-12 text-lg leading-relaxed text-slate-500"
               >
                 Our team of experienced professionals understands that every
-                property decision is significant. That's why we provide
+                property decision is significant. That&apos;s why we provide
                 personalized guidance at every step of your journey.
               </Typography>
 
@@ -190,12 +144,10 @@ const About = (): JSX.Element => {
                       transition={{ delay: index * 0.1 }}
                     >
                       <Box className="flex items-center gap-2">
-                        <CheckCircleIcon
-                          sx={{ color: '#10b981', fontSize: 20 }}
-                        />
+                        <CheckCircleIcon className="text-xl text-emerald-500" />
                         <Typography
                           variant="body2"
-                          sx={{ color: '#475569', fontWeight: 500 }}
+                          className="font-medium text-slate-600"
                         >
                           {highlight}
                         </Typography>
@@ -205,28 +157,17 @@ const About = (): JSX.Element => {
                 ))}
               </Grid>
 
-              {/* CTA Buttons */}
               <Box className="flex flex-wrap gap-4">
                 <Button
                   component={Link}
                   href="/about"
                   variant="contained"
                   size="large"
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{
-                    px: 4,
-                    py: 1.5,
-                    borderRadius: '12px',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    background:
-                      'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-                    boxShadow: '0 10px 30px rgba(30, 64, 175, 0.3)',
-                    '&:hover': {
-                      boxShadow: '0 15px 40px rgba(30, 64, 175, 0.4)',
-                    },
-                  }}
+                  endIcon={
+                    <ArrowForwardIcon className="transition-transform duration-300 group-hover:translate-x-1" />
+                  }
+                  className="group rounded-xl bg-gradient-to-br from-primary-700 to-primary-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-primary-700/30 transition-all duration-300 hover:-translate-y-px hover:shadow-primary-700/40"
+                  sx={{ textTransform: 'none' }}
                 >
                   Learn More
                 </Button>
@@ -235,21 +176,8 @@ const About = (): JSX.Element => {
                   href="/contact"
                   variant="outlined"
                   size="large"
-                  sx={{
-                    px: 4,
-                    py: 1.5,
-                    borderRadius: '12px',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    borderWidth: 2,
-                    borderColor: '#1e40af',
-                    color: '#1e40af',
-                    '&:hover': {
-                      borderWidth: 2,
-                      backgroundColor: '#eff6ff',
-                    },
-                  }}
+                  className="group rounded-xl border-2 border-primary-700 px-8 py-3 text-base font-semibold text-primary-700 transition-all duration-300 hover:-translate-y-px hover:border-2 hover:bg-primary-50"
+                  sx={{ textTransform: 'none' }}
                 >
                   Contact Us
                 </Button>

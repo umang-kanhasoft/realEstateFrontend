@@ -48,8 +48,13 @@ export interface BlogsListResponseData {
 class BlogService {
   private readonly basePath = '/blogs';
 
-  async getBlogs(limit = 10, offset = 0): Promise<ApiResponse<BlogsListResponseData>> {
-    return apiClient.get<BlogsListResponseData>(`${this.basePath}?limit=${limit}&offset=${offset}`);
+  async getBlogs(
+    limit = 10,
+    offset = 0
+  ): Promise<ApiResponse<BlogsListResponseData>> {
+    return apiClient.get<BlogsListResponseData>(
+      `${this.basePath}?limit=${limit}&offset=${offset}`
+    );
   }
 
   async getBlogById(id: string): Promise<ApiResponse<BlogDetail>> {

@@ -10,20 +10,12 @@ const CTASection = (): JSX.Element => {
   return (
     <Box
       component="section"
-      className="relative overflow-hidden py-20"
-      sx={{
-        background:
-          'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)',
-      }}
+      className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 py-20"
     >
       {/* Background Elements */}
       <Box className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute left-0 top-0 h-96 w-96 rounded-full"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-          }}
+          className="absolute left-0 top-0 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_70%)]"
           animate={{
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -31,11 +23,7 @@ const CTASection = (): JSX.Element => {
           transition={{ duration: 10, repeat: Infinity }}
         />
         <motion.div
-          className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
-          }}
+          className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)]"
           animate={{
             x: [0, -30, 0],
             y: [0, -50, 0],
@@ -54,28 +42,17 @@ const CTASection = (): JSX.Element => {
             >
               <Typography
                 variant="h2"
-                className="mb-4 font-heading font-bold text-white"
-                sx={{
-                  fontSize: { xs: '2rem', md: '2.75rem' },
-                  lineHeight: 1.2,
-                }}
+                className="mb-4 font-heading text-[2rem] font-bold leading-tight text-white md:text-[2.75rem]"
               >
                 Ready to Find Your
-                <Box component="span" sx={{ color: '#fbbf24' }}>
-                  {' '}
-                  Dream Property?
-                </Box>
+                <span className="text-amber-400"> Dream Property?</span>
               </Typography>
               <Typography
                 variant="body1"
-                sx={{
-                  color: 'rgba(255,255,255,0.8)',
-                  fontSize: '1.1rem',
-                  maxWidth: 500,
-                }}
+                className="max-w-[500px] text-lg text-white/80"
               >
-                Get in touch with our expert team today. We're here to help you
-                navigate your real estate journey with confidence.
+                Get in touch with our expert team today. We&apos;re here to help
+                you navigate your real estate journey with confidence.
               </Typography>
             </motion.div>
           </Grid>
@@ -94,22 +71,7 @@ const CTASection = (): JSX.Element => {
                   variant="contained"
                   size="large"
                   startIcon={<PhoneIcon />}
-                  sx={{
-                    backgroundColor: 'white',
-                    color: '#1e40af',
-                    px: 4,
-                    py: 1.75,
-                    borderRadius: '14px',
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    textTransform: 'none',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                    '&:hover': {
-                      backgroundColor: '#f8fafc',
-                      boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
+                  className="rounded-[14px] bg-white px-8 py-3.5 text-base font-semibold normal-case text-blue-800 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-2xl"
                 >
                   Call Now
                 </Button>
@@ -119,22 +81,7 @@ const CTASection = (): JSX.Element => {
                   variant="outlined"
                   size="large"
                   endIcon={<ArrowForwardIcon />}
-                  sx={{
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    color: 'white',
-                    px: 4,
-                    py: 1.75,
-                    borderRadius: '14px',
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    textTransform: 'none',
-                    borderWidth: 2,
-                    '&:hover': {
-                      borderColor: 'white',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderWidth: 2,
-                    },
-                  }}
+                  className="rounded-[14px] border-2 border-white/50 px-8 py-3.5 text-base font-semibold normal-case text-white transition-all duration-300 hover:border-2 hover:border-white hover:bg-white/10"
                 >
                   Get in Touch
                 </Button>

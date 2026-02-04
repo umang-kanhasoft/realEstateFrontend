@@ -10,28 +10,28 @@ import { useEffect, useRef, useState } from 'react';
 
 const stats = [
   {
-    icon: <HomeIcon sx={{ fontSize: 48 }} />,
+    icon: <HomeIcon className="text-5xl" />,
     value: 500,
     suffix: '+',
     label: 'Properties Sold',
     color: '#3b82f6',
   },
   {
-    icon: <GroupIcon sx={{ fontSize: 48 }} />,
+    icon: <GroupIcon className="text-5xl" />,
     value: 1000,
     suffix: '+',
     label: 'Happy Clients',
     color: '#10b981',
   },
   {
-    icon: <EmojiEventsIcon sx={{ fontSize: 48 }} />,
+    icon: <EmojiEventsIcon className="text-5xl" />,
     value: 15,
     suffix: '+',
     label: 'Years Experience',
     color: '#f59e0b',
   },
   {
-    icon: <LocationCityIcon sx={{ fontSize: 48 }} />,
+    icon: <LocationCityIcon className="text-5xl" />,
     value: 25,
     suffix: '+',
     label: 'Cities Covered',
@@ -87,7 +87,9 @@ const Stats = (): JSX.Element => {
     <Box
       component="section"
       className="relative overflow-hidden py-20"
-      sx={{
+      // Keep complex gradient in style or move to a custom class in globals.css if preferred
+      // Using arbitrary Tailwind values for now to respect user preference for "classname"
+      style={{
         background:
           'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%)',
       }}
@@ -132,26 +134,21 @@ const Stats = (): JSX.Element => {
               >
                 <Box className="text-center">
                   <motion.div
-                    className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-2xl"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      backdropFilter: 'blur(10px)',
-                    }}
+                    className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md"
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   >
-                    <Box sx={{ color: 'white' }}>{stat.icon}</Box>
+                    <Box className="text-white">{stat.icon}</Box>
                   </motion.div>
                   <Typography
                     variant="h2"
-                    className="mb-2 font-bold text-white"
-                    sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' } }}
+                    className="mb-2 text-4xl font-bold text-white md:text-[3.5rem]"
                   >
                     <Counter end={stat.value} suffix={stat.suffix} />
                   </Typography>
                   <Typography
                     variant="h6"
-                    sx={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}
+                    className="font-medium text-white/80"
                   >
                     {stat.label}
                   </Typography>

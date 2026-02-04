@@ -1,4 +1,4 @@
-import { Property, PropertyFilter } from '@/types';
+import { Property, PropertyAmenity, PropertyFilter } from '@/types';
 
 export const formatPrice = (
   price: number,
@@ -21,10 +21,12 @@ export const formatPrice = (
 };
 
 export const formatArea = (
-  area: number,
+  area: number | string,
   unit: 'sqft' | 'sqm' = 'sqft'
 ): string => {
-  return `${area.toLocaleString()} ${unit}`;
+  const value =
+    typeof area === 'string' ? parseFloat(area.replace(/,/g, '')) : area;
+  return `${value.toLocaleString()} ${unit}`;
 };
 
 export const formatDate = (dateString: string): string => {
@@ -117,9 +119,9 @@ export const filterProperties = (
       const query = filters.searchQuery.toLowerCase();
       const matchesSearch =
         property.title.toLowerCase().includes(query) ||
-        property.description.toLowerCase().includes(query) ||
-        property.address.city.toLowerCase().includes(query) ||
-        property.address.fullAddress.toLowerCase().includes(query);
+        property.description?.toLowerCase().includes(query) ||
+        property.address?.city.toLowerCase().includes(query) ||
+        property.address?.fullAddress.toLowerCase().includes(query);
       if (!matchesSearch) return false;
     }
 
@@ -149,36 +151,46 @@ export const filterProperties = (
 
     // Bedrooms filter
     if (
-      property.bedrooms < filters.minBedrooms ||
-      property.bedrooms > filters.maxBedrooms
+      property.bedrooms !== undefined &&
+      (property.bedrooms < filters.minBedrooms ||
+        property.bedrooms > filters.maxBedrooms)
     ) {
       return false;
     }
 
     // Bathrooms filter
     if (
-      property.bathrooms < filters.minBathrooms ||
-      property.bathrooms > filters.maxBathrooms
+      property.bathrooms !== undefined &&
+      (property.bathrooms < filters.minBathrooms ||
+        property.bathrooms > filters.maxBathrooms)
     ) {
       return false;
     }
 
     // Area filter
-    if (property.area < filters.minArea || property.area > filters.maxArea) {
+    const areaNum =
+      typeof property.area === 'string'
+        ? parseFloat(property.area)
+        : property.area;
+    if (areaNum < filters.minArea || areaNum > filters.maxArea) {
       return false;
     }
 
     // City filter
     if (
       filters.city &&
-      property.address.city.toLowerCase() !== filters.city.toLowerCase()
+      property.address?.city.toLowerCase() !== filters.city.toLowerCase()
     ) {
       return false;
     }
 
     // Amenities filter
     if (filters.amenities.length > 0) {
-      const propertyAmenityIds = property.amenities.map(a => a.id);
+      const propertyAmenityIds =
+        property.amenities.length > 0 &&
+        typeof property.amenities[0] === 'string'
+          ? (property.amenities as string[])
+          : (property.amenities as PropertyAmenity[]).map(a => a.id);
       const hasAllAmenities = filters.amenities.every(amenityId =>
         propertyAmenityIds.includes(amenityId)
       );
@@ -199,21 +211,31 @@ export const sortProperties = (
     case 'newest':
       return sorted.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
       );
     case 'oldest':
       return sorted.sort(
         (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          new Date(a.createdAt || 0).getTime() -
+          new Date(b.createdAt || 0).getTime()
       );
     case 'price-low-high':
       return sorted.sort((a, b) => a.price - b.price);
     case 'price-high-low':
       return sorted.sort((a, b) => b.price - a.price);
     case 'area-low-high':
-      return sorted.sort((a, b) => a.area - b.area);
+      return sorted.sort((a, b) => {
+        const aNum = typeof a.area === 'string' ? parseFloat(a.area) : a.area;
+        const bNum = typeof b.area === 'string' ? parseFloat(b.area) : b.area;
+        return aNum - bNum;
+      });
     case 'area-high-low':
-      return sorted.sort((a, b) => b.area - a.area);
+      return sorted.sort((a, b) => {
+        const aNum = typeof a.area === 'string' ? parseFloat(a.area) : a.area;
+        const bNum = typeof b.area === 'string' ? parseFloat(b.area) : b.area;
+        return bNum - aNum;
+      });
     default:
       return sorted;
   }
@@ -302,4 +324,18 @@ export const removeLocalStorage = (key: string): void => {
   } catch (error) {
     console.error('Error removing from localStorage:', error);
   }
+};
+
+export const budgetToNumber = (budget: string): number | undefined => {
+  if (!budget) return undefined;
+  const clean = budget
+    .toLowerCase()
+    .replace(/₹|rs\.?|,/gi, '')
+    .trim();
+  if (clean.includes('cr')) {
+    return parseFloat(clean) * 10000000; // Crore
+  } else if (clean.includes('l')) {
+    return parseFloat(clean) * 100000; // Lakh
+  }
+  return parseFloat(clean);
 };

@@ -1,20 +1,20 @@
 import { NavItem, SelectOption } from '@/types';
 
 export const SITE_CONFIG = {
-  name: 'VitalSpace',
+  name: 'Real Estate',
   tagline: 'Premium Real Estate Solutions',
   description:
-    'Find your dream property with VitalSpace - Your trusted partner in real estate.',
-  url: 'https://vitalspace.in',
-  email: 'info@vitalspace.in',
+    'Find your dream property with Real Estate - Your trusted partner in real estate.',
+  url: 'https://realestate.in',
+  email: 'info@realestate.in',
   phone: '+91 98765 43210',
   address: '123 Business District, Mumbai, Maharashtra 400001, India',
   socialLinks: {
-    facebook: 'https://facebook.com/vitalspace',
-    twitter: 'https://twitter.com/vitalspace',
-    instagram: 'https://instagram.com/vitalspace',
-    linkedin: 'https://linkedin.com/company/vitalspace',
-    youtube: 'https://youtube.com/vitalspace',
+    facebook: 'https://facebook.com/realestate',
+    twitter: 'https://twitter.com/realestate',
+    instagram: 'https://instagram.com/realestate',
+    linkedin: 'https://linkedin.com/company/realestate',
+    youtube: 'https://youtube.com/realestate',
   },
   workingHours: {
     weekdays: '9:00 AM - 7:00 PM',

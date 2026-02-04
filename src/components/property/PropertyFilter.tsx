@@ -937,7 +937,7 @@ const PropertyFilter = ({
 
       {/* Advanced Filters */}
       <Collapse in={showAdvanced}>
-        <Box className="border-secondary-200 mt-4 border-t pt-4">
+        <Box className="mt-4 border-t border-secondary-200 pt-4">
           <Box className="flex flex-wrap items-center gap-4">
             {/* Bedrooms */}
             <Box className="flex items-center gap-2">
@@ -996,7 +996,7 @@ const PropertyFilter = ({
 
       {/* Active Filters */}
       {activeFiltersCount > 0 && (
-        <Box className="border-secondary-200 mt-4 border-t pt-4">
+        <Box className="mt-4 border-t border-secondary-200 pt-4">
           {renderActiveFilters()}
         </Box>
       )}

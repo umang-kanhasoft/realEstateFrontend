@@ -1,35 +1,38 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { Message, useChat } from '@/context/ChatContext';
+import { api } from '@/utils/api';
+import {
+  AutoAwesomeRounded,
+  ChatBubbleRounded,
+  CloseRounded,
+  DeleteOutlineRounded,
+  SendRounded,
+  SmartToyRounded,
+} from '@mui/icons-material';
+import { CircularProgress, IconButton, Input, Tooltip } from '@mui/material';
 import { useRouter } from 'next/navigation';
-// import { Send, X, MessageCircle, Loader2, Sparkles } from 'lucide-react'; 
-import { api } from '@/utils/api'; 
+import { useEffect, useRef, useState } from 'react';
 
 // Define the expected structure of the AI response data
 interface AIResponseData {
-  filters: Record<string, unknown>; // We keep this loose as filters can vary, or could import ProjectFilters type
-  explanation: string;
-}
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
+  action: 'chat' | 'search';
+  reply_text: string;
+  sort_by?: 'price_asc' | 'price_desc' | 'newest' | 'rating' | 'featured';
+  filters?: Record<string, unknown>; // Simplified for brevity as per original file structure logic
 }
 
 export default function Chatbot() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hi! I can help you find your dream property. Try "3 BHK in Sola under 1 Cr".',
-      sender: 'ai',
-      timestamp: new Date(),
-    },
-  ]);
+  const {
+    messages,
+    addMessage,
+    isLoading,
+    setIsLoading,
+    isOpen,
+    setIsOpen,
+    clearChat,
+  } = useChat();
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -38,6 +41,18 @@ export default function Chatbot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
+
+  const [showNotification, setShowNotification] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setShowNotification(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    setShowNotification(false);
+  }, [isOpen]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -49,111 +64,174 @@ export default function Chatbot() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    addMessage(userMsg);
     setInput('');
     setIsLoading(true);
 
     try {
-      // Call backend AI endpoint
-      // api.post returns Promise<ApiResponse<T>> where ApiResponse has { data: T, ... }
-      const response = await api.post<AIResponseData>('/ai/parse-query', { query: userMsg.text });
-      
+      const history = messages.map(msg => ({
+        role: msg.sender === 'ai' ? 'assistant' : 'user',
+        content: msg.text,
+      }));
+      history.push({ role: 'user', content: userMsg.text });
+
+      const response = await api.post<AIResponseData>('/ai/parse-query', {
+        messages: history,
+      });
+
       if (!response.data) {
         throw new Error('Invalid response from AI service');
       }
 
-      const { filters, explanation } = response.data;
+      const { filters, reply_text, action } = response.data;
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
-        text: explanation || "I've found some properties for you! Redirecting...",
+        text:
+          reply_text || "I've found some properties for you! Redirecting...",
         sender: 'ai',
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, aiMsg]);
+      addMessage(aiMsg);
 
-      if (Object.keys(filters).length > 0) {
+      if (action === 'search' && filters && Object.keys(filters).length > 0) {
         const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-          if (Array.isArray(value)) {
-             value.forEach((v) => params.append(key, String(v)));
-          } else if (value !== undefined && value !== null) {
-             params.append(key, String(value));
-          }
-        });
-        
+
+        const buildParams = (obj: Record<string, unknown>, prefix = '') => {
+          Object.entries(obj).forEach(([key, value]) => {
+            const paramKey = prefix ? `${prefix}.${key}` : key;
+            if (value !== undefined && value !== null) {
+              if (Array.isArray(value)) {
+                value.forEach(v => params.append(paramKey, String(v)));
+              } else if (typeof value === 'object') {
+                buildParams(value as Record<string, unknown>, paramKey);
+              } else {
+                params.append(paramKey, String(value));
+              }
+            }
+          });
+        };
+
+        buildParams(filters);
+
         setTimeout(() => {
-             // Navigate to projects/search page
-             router.push(`/projects?${params.toString()}`);
-             setIsOpen(false);
+          router.push(`/projects?${params.toString()}`);
         }, 1500);
       }
-
     } catch (error) {
       console.error('AI Search Error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          text: 'Sorry, I encountered an error. Please try again later.',
-          sender: 'ai',
-          timestamp: new Date(),
-        },
-      ]);
+      addMessage({
+        id: Date.now().toString(),
+        text: 'Sorry, I encountered an error. Please try again later.',
+        sender: 'ai',
+        timestamp: new Date(),
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 font-sans">
+      {/* Proactive Notification Bubble */}
+      {!isOpen && showNotification && (
+        <div className="animate-fade-in-up relative my-2 max-w-[200px] rounded-2xl border border-white/50 bg-white/90 p-3 pt-4 shadow-xl backdrop-blur-md">
+          <IconButton
+            onClick={e => {
+              e.stopPropagation();
+              setShowNotification(false);
+            }}
+            className="absolute right-1 top-1 rounded-full p-0.5 text-gray-700 hover:bg-black/5"
+          >
+            <CloseRounded className="text-[14px]" />
+          </IconButton>
+          <p className="text-xs font-medium leading-tight text-gray-700">
+            👋 Need help finding the best property deal?
+          </p>
+          <div className="absolute -bottom-2 right-5 h-4 w-4 rotate-45 border-b border-r border-white/50 bg-white/90 backdrop-blur-md"></div>
+        </div>
+      )}
+
       {/* Launcher Button */}
       {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 flex items-center justify-center group"
+        <IconButton
+          onClick={() => {
+            setIsOpen(true);
+            setShowNotification(false);
+          }}
+          className="group relative flex items-center justify-center rounded-full border-white/50 bg-white p-4 text-primary-600 shadow-2xl transition-all hover:scale-105"
         >
-           {/* Icon placeholder: MessageCircle */}
-           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
-        </button>
+          <ChatBubbleRounded
+            fontSize="medium"
+            className="animate-pulse-slow text-primary-600"
+          />
+        </IconButton>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="bg-white rounded-2xl shadow-2xl w-80 sm:w-96 flex flex-col items-center overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out">
+        <div className="flex w-80 flex-col items-center overflow-hidden rounded-2xl border border-white/50 bg-white/80 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-in-out sm:w-96">
           {/* Header */}
-          <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex justify-between items-center text-white">
-            <div className="flex items-center gap-2">
-              {/* Icon: Sparkles */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-              <h3 className="font-semibold text-sm">AI Property Assistant</h3>
+          <div className="z-10 flex w-full items-center justify-between bg-primary-900 p-4 text-white shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-white/10 p-1.5 backdrop-blur-sm">
+                <SmartToyRounded fontSize="small" className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold tracking-wide">
+                  AI Assistant
+                </h3>
+                <p className="m-0 text-[10px] font-medium text-primary-100 opacity-90">
+                  Real Estate Intelligence
+                </p>
+              </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white/80 hover:text-white hover:bg-white/10 p-1 rounded-full transition"
-            >
-              {/* Icon: X */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
+            <div className="flex items-center gap-1">
+              {/* Clear Chat Button */}
+              <Tooltip title="Clear Chat" arrow placement="top">
+                <IconButton
+                  onClick={clearChat}
+                  size="small"
+                  className="rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+                >
+                  <DeleteOutlineRounded fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Close" arrow placement="top">
+                <IconButton
+                  onClick={() => setIsOpen(false)}
+                  size="small"
+                  className="rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+                >
+                  <CloseRounded fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
           </div>
 
           {/* Messages Area */}
-          <div 
+          <div
             ref={scrollRef}
-            className="flex-1 w-full p-4 overflow-y-auto bg-gray-50 h-[400px]"
+            className="h-[400px] max-h-[500px] w-full flex-1 overflow-y-auto bg-white/80 p-4"
           >
-            {messages.map((msg) => (
+            {messages.map(msg => (
               <div
                 key={msg.id}
-                className={`mb-3 flex ${
+                className={`mb-4 flex ${
                   msg.sender === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
+                {msg.sender === 'ai' && (
+                  <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-primary-100 bg-primary-50">
+                    <AutoAwesomeRounded className="text-[14px] text-primary-600" />
+                  </div>
+                )}
                 <div
-                  className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed shadow-sm ${
                     msg.sender === 'user'
-                      ? 'bg-blue-600 text-white rounded-tr-none'
-                      : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tl-none'
+                      ? 'rounded-tr-none bg-primary-600 text-white'
+                      : 'rounded-tl-none border border-solid border-gray-100 bg-white text-gray-700'
                   }`}
                 >
                   {msg.text}
@@ -161,35 +239,43 @@ export default function Chatbot() {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start mb-3">
-                 <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm flex items-center gap-2">
-                    {/* Icon: Loader2 */}
-                    <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    <span className="text-xs text-gray-500">Thinking...</span>
-                 </div>
+              <div className="mb-4 flex justify-start">
+                <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-primary-100 bg-primary-50">
+                  <AutoAwesomeRounded className="text-[14px] text-primary-600" />
+                </div>
+                <div className="flex items-center gap-2.5 rounded-2xl rounded-tl-none border border-gray-100 bg-white px-4 py-3 shadow-sm">
+                  <CircularProgress
+                    size={14}
+                    thickness={5}
+                    className="text-primary-600"
+                  />
+                  <span className="text-xs font-medium tracking-wide text-gray-500">
+                    Analysing...
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
           {/* Input Area */}
-          <div className="w-full p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-            <input
+          <div className="flex w-full items-center gap-2 border-t border-gray-100 bg-white/90 p-3 backdrop-blur">
+            <Input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
               placeholder="Ask me anything..."
-              className="flex-1 bg-gray-100 text-gray-800 text-sm rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all border-none"
+              disableUnderline
+              className="flex-1 rounded-xl border border-transparent bg-gray-50 px-4 py-2.5 text-[13px] font-medium text-gray-800 transition-all focus-within:border-primary-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-100"
               disabled={isLoading}
             />
-            <button
+            <IconButton
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2.5 rounded-full shadow-md transition-all flex-shrink-0"
+              className="rounded-xl bg-primary-600 p-2.5 text-white shadow-lg hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {/* Icon: Send */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-            </button>
+              <SendRounded className="text-[20px]" />
+            </IconButton>
           </div>
         </div>
       )}

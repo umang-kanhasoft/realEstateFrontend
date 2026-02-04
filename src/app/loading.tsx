@@ -9,7 +9,7 @@ export default function Loading(): JSX.Element {
       <CircularProgress size={60} thickness={4} />
       <Typography
         variant="h6"
-        className="text-secondary-600 mt-4 animate-pulse"
+        className="mt-4 animate-pulse text-secondary-600"
       >
         Loading...
       </Typography>

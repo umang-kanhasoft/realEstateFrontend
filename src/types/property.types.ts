@@ -32,55 +32,75 @@ export interface PropertyAmenity {
   category: AmenityCategory;
 }
 
-export type AmenityCategory =
-  | 'interior'
-  | 'exterior'
-  | 'security'
-  | 'recreation';
+import { AmenityCategory, PropertyType, ViewType } from './enums';
 
-export type PropertyType =
-  | 'apartment'
-  | 'house'
-  | 'villa'
-  | 'penthouse'
-  | 'plot'
-  | 'commercial'
-  | 'office'
-  | 'shop'
-  | 'warehouse';
-
-export type PropertyStatus = 'for-sale' | 'for-rent' | 'sold' | 'rented';
+export type PropertyStatus =
+  | 'for-sale'
+  | 'for-rent'
+  | 'sold'
+  | 'rented'
+  | 'Under Construction'
+  | 'Ready to Move'
+  | 'New Launch';
 
 export type PropertyListingType = 'sale' | 'rent';
 
 export interface Property {
   id: string;
   title: string;
-  slug: string;
-  description: string;
-  shortDescription: string;
+  slug?: string;
+  description?: string;
+  shortDescription?: string;
   price: number;
-  pricePerSqFt: number;
-  currency: string;
-  propertyType: PropertyType;
+  pricePerSqFt?: number;
+  currency?: string;
+  propertyType?: PropertyType;
+  type?: string;
   status: PropertyStatus;
-  listingType: PropertyListingType;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  areaUnit: 'sqft' | 'sqm';
-  yearBuilt: number;
-  parkingSpaces: number;
-  images: PropertyImage[];
-  address: PropertyAddress;
-  features: PropertyFeature[];
-  amenities: PropertyAmenity[];
-  isFeatured: boolean;
-  isNew: boolean;
-  views: number;
-  createdAt: string;
-  updatedAt: string;
-  agent: Agent;
+  listingType?: PropertyListingType;
+  bedrooms?: number;
+  bathrooms?: number;
+  area: string;
+  size?: number;
+  location?: string;
+  areaUnit?: 'sqft' | 'sqm';
+  yearBuilt?: number;
+  parkingSpaces?: number;
+  images: string[] | PropertyImage[];
+  address?: PropertyAddress;
+  features?: PropertyFeature[];
+  amenities: string[] | PropertyAmenity[];
+  isFeatured?: boolean;
+  isNew?: boolean;
+  views?: number;
+  builder?: string;
+  builderId?: string;
+  nearbyTransport?: string[];
+  schools?: string[];
+  hospitals?: string[];
+  parks?: string[];
+  reraId?: string;
+  rating?: number;
+  reviews?: number;
+  completionTime?: number;
+  floorPlans?: string[];
+  ecoFriendly?: boolean;
+  possessionDate?: string;
+  unitTypes?: {
+    id?: string;
+    label: string;
+    carpetAreaSqft: number;
+    builtUpAreaSqft?: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    price?: number;
+    totalUnits?: number | null;
+    availableUnits?: number | null;
+    viewType?: ViewType | null;
+  }[];
+  createdAt?: string;
+  updatedAt?: string;
+  agent?: Agent;
 }
 
 export interface Agent {
