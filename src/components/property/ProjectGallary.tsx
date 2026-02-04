@@ -3,151 +3,168 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useState } from "react";
-import { Box, Card, CardMedia, Divider, Grid, ImageList, ImageListItem, Modal, Typography } from "@mui/material";
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
+import { Box, Card, CardMedia, Grid, IconButton, ImageList, ImageListItem, Modal, Typography, useMediaQuery, useTheme } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+
 export default function ProjectGallary() {
-    const [open, setOpen] = useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [openImageModal, setOpenImageModal] = useState(false);
+
     const DummyImage = [
-        {
-            image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-            title: "dummy1",
-        },
-        {
-            image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9",
-            title: "dummy2",
-        },
-        {
-            image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d",
-            title: "dummy3",
-        },
-        {
-            image: "https://images.unsplash.com/photo-1599423300746-b62533397364",
-            title: "dummy4",
-        },
-        {
-            image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994",
-            title: "dummy5",
-        },
-        {
-            image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994",
-            title: "dummy6",
-        },
+        { image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c", title: "Exterior View" },
+        { image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9", title: "Living Room" },
+        { image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d", title: "Master Bedroom" },
+        { image: "https://images.unsplash.com/photo-1599423300746-b62533397364", title: "Kitchen" },
+        { image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994", title: "Balcony" },
+        { image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7", title: "Swimming Pool" },
     ];
 
     const video = "https://media.istockphoto.com/id/1453963806/video/time-lapse-low-angle-of-tall-corporate-buildings-skyscraper-with-reflection-of-clouds-among.mp4?s=mp4-640x640-is&k=20&c=RIpYsVqpNXm-KOaMcpsMY80maM3p2SyEbjTTMxTqzz8=";
 
-    const [openImageModal, setOpenImageModal] = useState(false);
     return (
         <>
-            <Grid container spacing={4} px={{ xs: 2, sm: 4, md: 6, lg: 10 }}
-                mt={4}>
+            <Grid container spacing={2} px={{ xs: 2, sm: 4, md: 6, lg: 10 }} mt={2}>
+                {/* Main Large Image (Slider) */}
                 <Grid item xs={12} md={8}>
-                    <Swiper
-                        modules={[Navigation, Autoplay]}
-                        spaceBetween={24}
-                        navigation
-                        slidesPerView={1}
-                        loop
-                        autoplay={{
-                            delay: 3000,
-                            disableOnInteraction: false,
+                    <Card
+                        sx={{
+                            borderRadius: "16px",
+                            overflow: "hidden",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                            position: "relative",
+                            height: { xs: 300, md: 500 },
                         }}
-                        speed={600}
                     >
-                        {DummyImage.map((img, idx) => (
-                            <SwiperSlide key={idx}>
-                                <Card
-                                    sx={{
-                                        p: 1,
-                                        border: "1px solid #eee",
-                                        boxShadow: "none",
-                                    }}
-                                >
-                                    <CardMedia
-                                        component="img"
-                                        onClick={() => setOpenImageModal(true)}
-                                        image={img?.image}
-                                        sx={{
-                                            height: 600,
-                                            borderRadius: "12px",
-                                            objectFit: "cover",
-                                        }}
-                                    />
-                                </Card>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                    <Box>
-                        <Card
-                            sx={{
-                                borderRadius: "16px",
-                                overflow: "hidden",
-                                height: 200,
-                                boxShadow: "none",
-                                border: "1px solid #eee",
-                                mb: 2,
-                            }}
+                        <Swiper
+                            modules={[Navigation, Autoplay]}
+                            navigation={!isMobile}
+                            loop
+                            autoplay={{ delay: 4000, disableOnInteraction: false }}
+                            speed={800}
+                            style={{ height: "100%", width: "100%" }}
                         >
-                            <video
-                                src={`${video}`}
-                                controls
-                                autoPlay
-                                muted
-                                loop
-                                style={{
-                                    width: "100%",
-                                    height: "600px",
-                                    objectFit: "cover",
-                                }}
-                            />
-                        </Card>
-                    </Box>
-                    <Box display={"flex"} gap={2}>
-                        {DummyImage.slice(0, 2).map((img, idx) => (
-                            <Grid item xs={6} key={idx} display={"flex"}>
-                                <Card
-                                    sx={{
-                                        borderRadius: "12px",
-                                        overflow: "hidden",
-                                        boxShadow: "none",
-                                        border: "1px solid #eee",
-                                        height: 400,
-                                    }}
-                                >
-                                    <CardMedia
+                            {DummyImage.map((img, idx) => (
+                                <SwiperSlide key={idx} onClick={() => setOpenImageModal(true)}>
+                                    <Box
                                         component="img"
-                                        image={img?.image}
+                                        src={img.image}
+                                        alt={img.title}
                                         sx={{
                                             width: "100%",
                                             height: "100%",
                                             objectFit: "cover",
+                                            cursor: "pointer",
                                         }}
                                     />
-                                </Card>
-                            </Grid>))}
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </Card>
+                </Grid>
+
+                {/* Right Side Grid (Video + Small Images) */}
+                <Grid item xs={12} md={4}>
+                    <Box display="flex" flexDirection="column" gap={2} height="100%">
+                        {/* Video Card */}
+                        <Card
+                            sx={{
+                                borderRadius: "16px",
+                                overflow: "hidden",
+                                height: { xs: 200, md: "calc(50% - 8px)" },
+                                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                                position: "relative",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <video
+                                src={video}
+                                autoPlay
+                                muted
+                                loop
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    color: "#fff",
+                                    backgroundColor: "rgba(0,0,0,0.4)",
+                                    borderRadius: "50%",
+                                    p: 1,
+                                }}
+                            >
+                                <PlayCircleOutlineIcon sx={{ fontSize: 48 }} />
+                            </Box>
+                        </Card>
+
+                        {/* Small Images Grid */}
+                        <Box display="flex" gap={2} height={{ xs: "auto", md: "calc(50% - 8px)" }}>
+                            <Card
+                                sx={{
+                                    flex: 1,
+                                    borderRadius: "16px",
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                    height: { xs: 150, md: "100%" },
+                                }}
+                                onClick={() => setOpenImageModal(true)}
+                            >
+                                <img
+                                    src={DummyImage[1].image}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    alt="Small 1"
+                                />
+                            </Card>
+
+                            <Card
+                                sx={{
+                                    flex: 1,
+                                    borderRadius: "16px",
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                    position: "relative",
+                                    height: { xs: 150, md: "100%" },
+                                }}
+                                onClick={() => setOpenImageModal(true)}
+                            >
+                                <img
+                                    src={DummyImage[2].image}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    alt="Small 2"
+                                />
+                                {/* View All Overlay */}
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        bgcolor: "rgba(0,0,0,0.6)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "#fff",
+                                        fontSize: "1.1rem",
+                                        fontWeight: 600,
+                                        transition: "0.3s",
+                                        "&:hover": { bgcolor: "rgba(0,0,0,0.7)" }
+                                    }}
+                                >
+                                    +{DummyImage.length - 3} Photos
+                                </Box>
+                            </Card>
+                        </Box>
                     </Box>
                 </Grid>
             </Grid>
 
+            {/* Full Screen Gallery Modal */}
             <Modal
                 open={openImageModal}
                 onClose={() => setOpenImageModal(false)}
-                aria-labelledby="project-gallery"
+                aria-labelledby="project-gallery-modal"
             >
                 <Box
                     sx={{
@@ -155,46 +172,55 @@ export default function ProjectGallary() {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: { xs: "95%", md: "80%" },
-                        maxHeight: "90vh",
+                        width: { xs: "95vw", md: "85vw" },
+                        height: "90vh",
                         bgcolor: "#fff",
-                        borderRadius: "12px",
+                        borderRadius: "16px",
                         boxShadow: 24,
-                        p: 2,
-                        overflowY: "auto",
+                        p: 0,
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
                     }}
                 >
-                    <Typography variant="h6" mb={2}>
-                        Project Gallery
-                    </Typography>
-
-                    <ImageList
-                        cols={3}
-                        gap={12}
-                        sx={{
-                            width: "100%",
-                            height: "100%",
-                        }}
+                    <Box
+                        p={2}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        borderBottom="1px solid #eee"
                     >
-                        {DummyImage.map((item, index) => (
-                            <ImageListItem key={index}>
-                                <img
-                                    src={item.image}
-                                    alt={item.title}
-                                    loading="lazy"
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        borderRadius: "8px",
-                                        cursor: "pointer",
-                                    }}
-                                />
-                            </ImageListItem>
-                        ))}
-                    </ImageList>
+                        <Typography variant="h6" fontWeight={700}>
+                            Project Gallery
+                        </Typography>
+                        <IconButton onClick={() => setOpenImageModal(false)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+
+                    <Box sx={{ overflowY: "auto", p: 3, flexGrow: 1 }}>
+                        <ImageList cols={isMobile ? 1 : 3} gap={16}>
+                            {DummyImage.map((item, index) => (
+                                <ImageListItem key={index} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                                    <img
+                                        src={item.image}
+                                        alt={item.title}
+                                        loading="lazy"
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            minHeight: isMobile ? 200 : 250,
+                                            objectFit: "cover",
+                                            borderRadius: "12px",
+                                            cursor: "pointer",
+                                        }}
+                                    />
+                                </ImageListItem>
+                            ))}
+                        </ImageList>
+                    </Box>
                 </Box>
             </Modal>
         </>
-    )
+    );
 }
