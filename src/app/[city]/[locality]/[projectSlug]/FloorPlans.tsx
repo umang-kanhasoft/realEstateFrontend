@@ -25,7 +25,7 @@ function FloorPlans({ bhk }: { bhk: string }) {
                 <Box
                     key={index}
                     sx={{
-                        width: 280,
+                        width: 350,
                         backgroundColor: "#f3f7ff",
                         borderRadius: 3,
                         p: 2,

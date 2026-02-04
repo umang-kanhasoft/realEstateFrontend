@@ -51,7 +51,8 @@ export default function ProjectGallary() {
     const [openImageModal, setOpenImageModal] = useState(false);
     return (
         <>
-            <Grid container spacing={4} px={20} mt={4}>
+            <Grid container spacing={4} px={{ xs: 2, sm: 4, md: 6, lg: 10 }}
+                mt={4}>
                 <Grid item xs={12} md={8}>
                     <Swiper
                         modules={[Navigation, Autoplay]}
