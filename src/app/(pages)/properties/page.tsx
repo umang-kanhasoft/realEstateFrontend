@@ -289,7 +289,8 @@ export default function PropertiesPage(): JSX.Element {
           variant="contained"
           fullWidth
           onClick={handleApplyFilters}
-          className="rounded-xl bg-black py-3 text-white shadow-lg transition-all duration-300 hover:bg-gray-800"
+          className="rounded-full bg-black py-3 font-bold text-white shadow-lg transition-all duration-300 hover:bg-gray-800"
+          sx={{ textTransform: 'none' }}
         >
           Apply Filters
         </Button>
@@ -297,7 +298,8 @@ export default function PropertiesPage(): JSX.Element {
           variant="text"
           fullWidth
           onClick={handleResetFilters}
-          className="rounded-xl text-gray-500 hover:bg-gray-50 hover:text-black"
+          className="rounded-full font-semibold text-gray-500 hover:bg-gray-50 hover:text-black"
+          sx={{ textTransform: 'none' }}
         >
           Reset All
         </Button>
@@ -352,7 +354,8 @@ export default function PropertiesPage(): JSX.Element {
               variant="outlined"
               startIcon={<FilterIcon />}
               onClick={toggleFilterDrawer}
-              className="rounded-xl border-gray-200 bg-white text-gray-700 hover:bg-gray-50 lg:hidden"
+              className="rounded-full border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 lg:hidden"
+              sx={{ textTransform: 'none' }}
             >
               Filters
               {activeFiltersCount > 0 && (

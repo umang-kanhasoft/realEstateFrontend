@@ -59,7 +59,7 @@ function ProjectCard({ project }: ProjectCardProps) {
     : (project.landmarks || []).slice(0, INITIAL_LANDMARKS_COUNT);
 
   return (
-    <div className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg md:flex-row md:rounded-2xl hover:md:rounded-2xl">
+    <div className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl">
       {/* Image Section */}
       <Box className="relative h-64 w-full flex-shrink-0 overflow-hidden bg-gray-100 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
         <Image
@@ -67,7 +67,7 @@ function ProjectCard({ project }: ProjectCardProps) {
           alt={project.name}
           fill
           sizes="(max-width: 768px) 100vw, 300px"
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           loading="lazy"
         />
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-1">
@@ -255,15 +255,17 @@ function ProjectCard({ project }: ProjectCardProps) {
             </Tooltip>
             <Button
               variant="outlined"
-              className="rounded-lg border-gray-800 px-3 text-xs normal-case text-gray-800 hover:bg-gray-50"
+              className="rounded-full border-secondary-900 px-4 py-1.5 text-xs font-bold normal-case text-secondary-900 hover:bg-secondary-900 hover:text-white"
               startIcon={<Download fontSize="small" />}
+              sx={{ textTransform: 'none' }}
             >
               Brochure
             </Button>
             <Button
               variant="contained"
-              className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs normal-case text-white shadow-md hover:bg-blue-700"
+              className="rounded-full bg-secondary-900 px-5 py-2 text-xs font-bold normal-case text-white shadow-md hover:bg-black"
               endIcon={<East fontSize="small" />}
+              sx={{ textTransform: 'none' }}
             >
               View Details
             </Button>

@@ -135,7 +135,8 @@ const Header: React.FC = () => {
                     key={m}
                     endIcon={<ExpandMore />}
                     onClick={e => handleOpenHeaderMenu(e, m)}
-                    className="mx-1 font-medium normal-case text-secondary-700 hover:text-primary-600"
+                    className="mx-1 rounded-full border border-transparent px-4 py-1.5 font-semibold text-secondary-700 transition-all duration-300 hover:border-secondary-900 hover:bg-secondary-900 hover:text-white"
+                    sx={{ textTransform: 'none' }}
                   >
                     {m}
                   </Button>

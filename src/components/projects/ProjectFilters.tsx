@@ -104,12 +104,12 @@ const FilterButton = ({
           className={`transition-transform duration-300 ease-out ${active ? 'rotate-180' : ''}`}
         />
       }
-      className={`rounded-full border px-6 text-sm font-medium normal-case shadow-sm transition-colors ${
+      className={`rounded-full border px-6 text-sm font-semibold normal-case shadow-sm transition-all duration-300 ${
         active || hasSelection
           ? 'border-black bg-black text-white hover:bg-gray-800'
           : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
       } `}
-      sx={{ minHeight: '40px' }}
+      sx={{ minHeight: '40px', textTransform: 'none' }}
     >
       {value || label}
     </Button>
@@ -257,7 +257,8 @@ export default function ProjectFilters() {
           variant="contained"
           size="small"
           onClick={() => handlePopoverClose('locality')}
-          className="rounded-full bg-blue-600 px-6 normal-case text-white"
+          className="rounded-full bg-black px-6 font-bold normal-case text-white hover:bg-gray-800"
+          sx={{ textTransform: 'none' }}
         >
           Done
         </Button>
@@ -352,7 +353,8 @@ export default function ProjectFilters() {
           variant="contained"
           size="small"
           onClick={() => handlePopoverClose('budget')}
-          className="rounded-full bg-blue-600 px-6 normal-case text-white"
+          className="rounded-full bg-black px-6 font-bold normal-case text-white hover:bg-gray-800"
+          sx={{ textTransform: 'none' }}
         >
           Done
         </Button>
@@ -441,7 +443,8 @@ export default function ProjectFilters() {
               title === 'Property Type' ? 'propType' : 'possession'
             )
           }
-          className="rounded-full bg-blue-600 px-6 normal-case text-white"
+          className="rounded-full bg-black px-6 font-bold normal-case text-white hover:bg-gray-800"
+          sx={{ textTransform: 'none' }}
         >
           Done
         </Button>

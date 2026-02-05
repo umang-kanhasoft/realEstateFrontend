@@ -66,7 +66,7 @@ const PropertyCard = ({ property }: PropertyCardProps): JSX.Element => {
     <Link href={`/properties/${property.slug}`}>
       <Card
         padding="none"
-        className="group h-full cursor-pointer overflow-hidden"
+        className="group h-full cursor-pointer overflow-hidden shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl"
       >
         {/* Image Container */}
         <Box className="relative h-64 w-full overflow-hidden">
@@ -74,7 +74,7 @@ const PropertyCard = ({ property }: PropertyCardProps): JSX.Element => {
             src={primaryImage}
             alt={property.title}
             fill
-            className={`object-cover transition-all duration-500 group-hover:scale-110 ${
+            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${
               isImageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => setIsImageLoaded(true)}

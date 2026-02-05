@@ -105,8 +105,8 @@ export default function SideContactForm() {
         <Button
           type="submit"
           fullWidth
-          variant="outlined"
-          className="mt-4 rounded-md border-gray-300 py-2 normal-case text-gray-700 hover:bg-gray-50"
+          variant="contained"
+          className="mt-4 rounded-full bg-black py-3 font-bold normal-case text-white shadow-md hover:bg-gray-800"
         >
           Submit
         </Button>

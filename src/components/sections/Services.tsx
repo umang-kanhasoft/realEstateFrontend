@@ -165,7 +165,8 @@ const Services = (): JSX.Element => {
             variant="outlined"
             size="large"
             endIcon={<ArrowForwardIcon />}
-            className="rounded-xl border-2 border-primary-700 px-8 py-3 font-semibold normal-case text-primary-700 hover:border-2 hover:bg-primary-700 hover:text-white"
+            className="rounded-full border-2 border-primary-700 px-8 py-3 font-semibold normal-case text-primary-700 transition-all duration-300 hover:bg-primary-700 hover:text-white"
+            sx={{ textTransform: 'none' }}
           >
             Explore All Services
           </Button>

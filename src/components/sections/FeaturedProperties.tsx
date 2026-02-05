@@ -3,26 +3,25 @@
 import {
   ArrowBackRounded,
   ArrowForwardRounded,
-  ArrowOutward,
   Bathtub,
   Bed,
   FavoriteBorder,
+  LocationOn,
   SquareFoot,
 } from '@mui/icons-material';
 import {
   Box,
   Button,
-  Card,
-  CardMedia,
   Container,
   IconButton,
   Stack,
   Typography,
 } from '@mui/material';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Sample featured properties with real images
@@ -42,7 +41,7 @@ const featuredProperties = [
   {
     id: '2',
     title: 'The White Villa',
-    location: 'Whitefield',
+    location: 'Whitefield, Bangalore',
     price: '₹12.5 Cr',
     bedrooms: 5,
     bathrooms: 6,
@@ -54,7 +53,7 @@ const featuredProperties = [
   {
     id: '3',
     title: 'Skyline Penthouse',
-    location: 'Gurgaon',
+    location: 'Golf Course Road, Gurgaon',
     price: '₹9.5 Cr',
     bedrooms: 4,
     bathrooms: 5,
@@ -66,7 +65,7 @@ const featuredProperties = [
   {
     id: '4',
     title: 'Serene Gardens',
-    location: 'Pune',
+    location: 'Koregaon Park, Pune',
     price: '₹4.5 Cr',
     bedrooms: 3,
     bathrooms: 3,
@@ -76,9 +75,9 @@ const featuredProperties = [
     type: 'Sale',
   },
   {
-    id: '6',
+    id: '5',
     title: 'Grand Estate',
-    location: 'Hyderabad',
+    location: 'Jubilee Hills, Hyderabad',
     price: '₹18.0 Cr',
     bedrooms: 6,
     bathrooms: 7,
@@ -90,163 +89,206 @@ const featuredProperties = [
 ];
 
 const FeaturedProperties = (): JSX.Element => {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
   return (
-    <Container maxWidth="xl" className="my-20 md:my-32">
-      <Stack className="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
-        <Box>
-          <Typography
-            variant="overline"
-            className="font-extrabold tracking-[1.5px] text-primary-600"
-          >
-            PREMIUM SELECTION
-          </Typography>
-          <Typography
-            variant="h3"
-            className="mt-2 text-4xl font-extrabold md:text-5xl"
-          >
-            Featured Properties<span className="text-primary-600">.</span>
-          </Typography>
-        </Box>
+    <Box className="bg-secondary-50 py-16">
+      <Container maxWidth="xl">
+        {/* Section Header */}
         <Stack
-          direction="row"
-          spacing={2}
-          className="w-full justify-end md:w-auto md:justify-start"
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+          spacing={3}
+          className="mb-8"
         >
-          <IconButton className="swiper-button-prev-custom group h-12 w-12 bg-black text-white transition-all duration-300 hover:-translate-x-1 hover:bg-primary-600 hover:text-white">
-            <ArrowBackRounded />
-          </IconButton>
-          <IconButton className="swiper-button-next-custom group h-12 w-12 bg-black text-white transition-all duration-300 hover:translate-x-1 hover:bg-primary-600 hover:text-white">
-            <ArrowForwardRounded />
-          </IconButton>
-        </Stack>
-      </Stack>
-
-      <Box className="relative -mx-2">
-        <Swiper
-          modules={[Navigation, Pagination]}
-          spaceBetween={32}
-          slidesPerView={'auto'}
-          navigation={{
-            nextEl: '.swiper-button-next-custom',
-            prevEl: '.swiper-button-prev-custom',
-          }}
-          style={{ padding: '20px' }}
-        >
-          {featuredProperties.map(prop => (
-            <SwiperSlide
-              key={prop.id}
-              className="!mr-8 !w-full overflow-hidden rounded-3xl last:!mr-0 sm:!w-[calc(50%-16px)] lg:!w-[calc(33.333%-21.333px)]"
+          <Box>
+            <Typography
+              variant="overline"
+              className="text-xs font-bold tracking-[2px] text-primary-600"
             >
-              <Card className="duration-400 group relative h-[500px] cursor-pointer overflow-hidden border-none bg-secondary-50 shadow-none transition-all hover:-translate-y-2 hover:shadow-2xl">
-                <Box className="absolute inset-0 overflow-hidden">
-                  <CardMedia
-                    component="img"
-                    className="prop-image h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    image={prop.image}
-                  />
-                  <Box className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                </Box>
+              PREMIUM SELECTION
+            </Typography>
+            <Typography
+              variant="h3"
+              className="mt-1 text-3xl font-extrabold text-secondary-900 md:text-4xl"
+            >
+              Featured Properties
+            </Typography>
+          </Box>
+          <Stack direction="row" spacing={1.5}>
+            <IconButton className="fp-prev h-11 w-11 border border-secondary-200 bg-white text-secondary-700 shadow-sm transition-all duration-200 hover:border-primary-500 hover:bg-primary-500 hover:text-white">
+              <ArrowBackRounded fontSize="small" />
+            </IconButton>
+            <IconButton className="fp-next h-11 w-11 border border-secondary-200 bg-white text-secondary-700 shadow-sm transition-all duration-200 hover:border-primary-500 hover:bg-primary-500 hover:text-white">
+              <ArrowForwardRounded fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Stack>
 
-                {/* Top Content */}
-                <Box className="absolute left-6 right-6 top-6 flex justify-between">
-                  <Box className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black">
-                    {prop.type}
-                  </Box>
-                  <IconButton
-                    size="small"
-                    className="h-fit bg-white text-black hover:bg-white hover:text-red-500"
+        {/* Swiper Carousel */}
+        <Box
+          className={`transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <Swiper
+            modules={[Navigation]}
+            spaceBetween={20}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2, spaceBetween: 20 },
+              1024: { slidesPerView: 3, spaceBetween: 24 },
+              1280: { slidesPerView: 4, spaceBetween: 24 },
+            }}
+            navigation={{
+              nextEl: '.fp-next',
+              prevEl: '.fp-prev',
+            }}
+            grabCursor
+            loop
+            observer
+            observeParents
+            onInit={() => setIsReady(true)}
+            className="!py-4"
+          >
+            {featuredProperties.map(prop => (
+              <SwiperSlide key={prop.id}>
+                <Box
+                  className="group cursor-pointer rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  sx={{
+                    transform: 'translateZ(0)',
+                  }}
+                >
+                  <Box
+                    className="overflow-hidden rounded-2xl"
+                    sx={{
+                      WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                      maskImage: 'radial-gradient(white, black)',
+                    }}
                   >
-                    <FavoriteBorder fontSize="small" />
-                  </IconButton>
-                </Box>
+                    {/* Image */}
+                    <Box className="relative h-48 w-full overflow-hidden">
+                      <Image
+                        src={prop.image}
+                        alt={prop.title}
+                        fill
+                        className="overflow-hidden object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                      {/* Gradient */}
+                      <Box className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                {/* Bottom Content (Glass Panel) */}
-                <Box className="absolute bottom-6 left-6 right-6 rounded-3xl bg-white/95 p-6 backdrop-blur-md">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="start"
-                    mb={2}
-                  >
-                    <Box>
-                      <Typography variant="h6" fontWeight={800} noWrap>
+                      {/* Badge */}
+                      <Box className="absolute left-3 top-3">
+                        <Box className="rounded-md bg-primary-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                          For {prop.type}
+                        </Box>
+                      </Box>
+
+                      {/* Favorite */}
+                      <IconButton
+                        size="small"
+                        className="absolute right-3 top-3 bg-white/90 text-secondary-600 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-red-500"
+                      >
+                        <FavoriteBorder fontSize="small" />
+                      </IconButton>
+
+                      {/* Price */}
+                      <Box className="absolute bottom-3 left-3">
+                        <Typography
+                          variant="h6"
+                          className="font-bold text-white drop-shadow-md"
+                        >
+                          {prop.price}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {/* Content */}
+                    <Box className="p-4">
+                      <Typography
+                        variant="subtitle1"
+                        className="mb-1 truncate font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
+                      >
                         {prop.title}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        className="font-medium text-gray-500"
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.5}
+                        className="mb-3 text-secondary-500"
                       >
-                        {prop.location}
-                      </Typography>
+                        <LocationOn sx={{ fontSize: 16 }} />
+                        <Typography variant="caption" className="truncate">
+                          {prop.location}
+                        </Typography>
+                      </Stack>
+
+                      {/* Features */}
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        divider={<Box className="h-4 w-px bg-secondary-200" />}
+                        className="text-secondary-600"
+                      >
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.5}
+                        >
+                          <Bed sx={{ fontSize: 16 }} />
+                          <Typography variant="caption" fontWeight={500}>
+                            {prop.bedrooms}
+                          </Typography>
+                        </Stack>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.5}
+                        >
+                          <Bathtub sx={{ fontSize: 16 }} />
+                          <Typography variant="caption" fontWeight={500}>
+                            {prop.bathrooms}
+                          </Typography>
+                        </Stack>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.5}
+                        >
+                          <SquareFoot sx={{ fontSize: 16 }} />
+                          <Typography variant="caption" fontWeight={500}>
+                            {prop.area}
+                          </Typography>
+                        </Stack>
+                      </Stack>
                     </Box>
-                    <Typography
-                      variant="h6"
-                      fontWeight={800}
-                      className="text-primary-600"
-                    >
-                      {prop.price}
-                    </Typography>
-                  </Stack>
-
-                  <Stack direction="row" spacing={2} className="text-gray-500">
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Bed fontSize="small" />
-                      <Typography variant="caption" fontWeight={600}>
-                        {prop.bedrooms}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Bathtub fontSize="small" />
-                      <Typography variant="caption" fontWeight={600}>
-                        {prop.bathrooms}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <SquareFoot fontSize="small" />
-                      <Typography variant="caption" fontWeight={600}>
-                        {prop.area}
-                      </Typography>
-                    </Stack>
-                  </Stack>
+                  </Box>
                 </Box>
-              </Card>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </Box>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
 
-      {/* Promo Banner */}
-      <Box
-        className="relative mt-20 flex flex-col items-center justify-center overflow-hidden rounded-[40px] bg-cover bg-center py-20 text-center md:mt-32 md:py-32"
-        sx={{
-          backgroundImage:
-            'url(https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)',
-        }}
-      >
-        <Box className="absolute inset-0 bg-black/40 backdrop-blur-[4px]" />
-
-        <Stack spacing={4} className="relative z-10 items-center">
-          <Typography
-            variant="h2"
-            className="max-w-[800px] font-extrabold text-white"
-          >
-            Find Your Dream Home Today
-            <span className="text-sky-400">.</span>
-          </Typography>
+        {/* CTA */}
+        <Box className="group mt-8 flex justify-center">
           <Button
-            variant="contained"
+            variant="outlined"
             size="large"
             endIcon={
-              <ArrowOutward className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+              <ArrowForwardRounded className="transition-transform duration-300 group-hover:translate-x-1" />
             }
-            className="group rounded-full bg-white px-12 py-4 text-base font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-white/95 hover:shadow-xl"
+            className="rounded-full border-2 border-secondary-900 px-8 py-3 font-semibold text-secondary-900 transition-all duration-300 hover:bg-secondary-900 hover:text-white"
             sx={{ textTransform: 'none' }}
           >
-            Browse Listings
+            View All Properties
           </Button>
-        </Stack>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

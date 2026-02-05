@@ -87,11 +87,12 @@ const Hero: React.FC = () => {
               {/* Location Selector */}
               <Button
                 onClick={e => handleOpenMenu(e, 'city')}
-                startIcon={<LocationOn className="text-primary-600" />}
+                startIcon={<LocationOn className="text-secondary-900" />}
                 endIcon={
-                  <ExpandMore className="text-gray-400 transition-transform duration-300 group-hover:rotate-180" />
+                  <ExpandMore className="text-secondary-400 transition-transform duration-300 group-hover:rotate-180" />
                 }
-                className="group min-w-[200px] justify-between rounded-xl px-6 py-3 text-lg font-semibold capitalize text-gray-900 hover:bg-black/5 md:rounded-[40px]"
+                className="group min-w-[200px] justify-between rounded-full bg-secondary-50 px-6 py-3 text-lg font-bold capitalize text-secondary-900 hover:bg-secondary-100 md:rounded-full"
+                sx={{ textTransform: 'none' }}
               >
                 {selectedCity}
               </Button>
@@ -123,7 +124,7 @@ const Hero: React.FC = () => {
                 startIcon={
                   <Search className="transition-transform duration-300 group-hover:scale-110" />
                 }
-                className="group min-w-full rounded-xl bg-gradient-to-br from-sky-500 to-sky-600 px-10 py-3 text-base font-bold capitalize shadow-lg transition-all duration-300 hover:-translate-y-px hover:shadow-xl md:min-w-0 md:rounded-[40px]"
+                className="group min-w-full rounded-full bg-secondary-900 px-10 py-3 text-base font-bold capitalize shadow-lg transition-all duration-300 hover:-translate-y-px hover:shadow-xl md:min-w-0 md:rounded-full"
               >
                 Search
               </Button>
