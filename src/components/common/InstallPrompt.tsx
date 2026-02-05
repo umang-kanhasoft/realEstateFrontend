@@ -69,7 +69,7 @@ export default function InstallPrompt() {
             onClick={handleInstall}
             size="small"
             disableElevation
-            className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-bold normal-case text-white hover:bg-primary-700"
+            className="rounded-full bg-primary-600 px-6 py-2 text-sm font-bold normal-case text-white hover:bg-primary-700"
           >
             Install
           </Button>

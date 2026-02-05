@@ -297,14 +297,8 @@ const ContactForm = (): JSX.Element => {
                 <SendIcon />
               )
             }
-            sx={{
-              py: 1.5,
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
-              },
-            }}
+            className="rounded-full bg-black py-3.5 text-base font-bold text-white shadow-lg transition-all duration-300 hover:bg-gray-800 hover:shadow-xl"
+            sx={{ textTransform: 'none' }}
           >
             {status === 'loading' ? 'Sending...' : 'Send Message'}
           </Button>

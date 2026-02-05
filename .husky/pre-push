@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🏗️ Running full build check before push..."
 pnpm run build || exit 1
 

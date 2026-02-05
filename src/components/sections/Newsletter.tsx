@@ -107,11 +107,12 @@ const Newsletter = (): JSX.Element => {
               endIcon={
                 status === 'success' ? <CheckCircleIcon /> : <SendIcon />
               }
-              className={`min-w-[160px] rounded-xl px-4 py-3 font-semibold normal-case transition-all duration-300 ${
+              className={`min-w-[160px] rounded-full px-6 py-3 font-bold transition-all duration-300 ${
                 status === 'success'
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500'
-                  : 'bg-gradient-to-br from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700'
+                  ? 'bg-emerald-500 hover:bg-emerald-600'
+                  : 'bg-secondary-900 text-white hover:bg-black'
               }`}
+              sx={{ textTransform: 'none' }}
             >
               {status === 'loading'
                 ? 'Subscribing...'

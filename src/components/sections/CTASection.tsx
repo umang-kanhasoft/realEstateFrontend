@@ -71,7 +71,8 @@ const CTASection = (): JSX.Element => {
                   variant="contained"
                   size="large"
                   startIcon={<PhoneIcon />}
-                  className="rounded-[14px] bg-white px-8 py-3.5 text-base font-semibold normal-case text-blue-800 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-2xl"
+                  className="rounded-full bg-white px-8 py-3.5 text-base font-bold text-blue-900 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-2xl"
+                  sx={{ textTransform: 'none' }}
                 >
                   Call Now
                 </Button>
@@ -81,7 +82,8 @@ const CTASection = (): JSX.Element => {
                   variant="outlined"
                   size="large"
                   endIcon={<ArrowForwardIcon />}
-                  className="rounded-[14px] border-2 border-white/50 px-8 py-3.5 text-base font-semibold normal-case text-white transition-all duration-300 hover:border-2 hover:border-white hover:bg-white/10"
+                  className="rounded-full border-2 border-white/50 px-8 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:border-white hover:bg-white/10"
+                  sx={{ textTransform: 'none' }}
                 >
                   Get in Touch
                 </Button>

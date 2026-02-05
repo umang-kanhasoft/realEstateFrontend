@@ -160,18 +160,15 @@ const SearchForm: React.FC = () => {
                 variant="outlined"
                 startIcon={<TuneIcon />}
                 onClick={handleClickOpen}
-                sx={{
-                  height: '40px',
-                  borderColor: 'rgba(0, 0, 0, 0.23)',
-                  color: 'rgba(0, 0, 0, 0.87)',
-                }}
+                className="h-10 rounded-full border border-gray-300 px-6 font-semibold text-gray-700 hover:border-black hover:bg-gray-50"
+                sx={{ textTransform: 'none' }}
               >
                 Filter
               </Button>
               <Button
                 variant="contained"
-                className="bg-black text-white hover:bg-gray-800"
-                sx={{ height: '40px', boxShadow: 'none' }}
+                className="h-10 rounded-full bg-black px-8 font-semibold text-white shadow-none hover:bg-gray-800 hover:shadow-md"
+                sx={{ textTransform: 'none' }}
               >
                 Search
               </Button>
@@ -404,15 +401,16 @@ const SearchForm: React.FC = () => {
             <Button
               variant="outlined"
               onClick={clearAllFilters}
-              sx={{ height: 44, px: 3 }}
+              className="h-11 rounded-full border-gray-300 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+              sx={{ textTransform: 'none' }}
             >
               Clear All
             </Button>
             <Button
               variant="contained"
-              className="bg-black text-white hover:bg-gray-800"
+              className="h-11 rounded-full bg-black px-8 font-semibold text-white shadow-none hover:bg-gray-800 hover:shadow-md"
               onClick={handleClose}
-              sx={{ height: 44, px: 3, boxShadow: 'none' }}
+              sx={{ textTransform: 'none' }}
             >
               Apply
             </Button>

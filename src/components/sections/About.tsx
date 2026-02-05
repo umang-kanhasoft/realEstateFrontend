@@ -166,7 +166,7 @@ const About = (): JSX.Element => {
                   endIcon={
                     <ArrowForwardIcon className="transition-transform duration-300 group-hover:translate-x-1" />
                   }
-                  className="group rounded-xl bg-gradient-to-br from-primary-700 to-primary-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-primary-700/30 transition-all duration-300 hover:-translate-y-px hover:shadow-primary-700/40"
+                  className="group rounded-full bg-secondary-900 px-8 py-3 text-base font-bold text-white shadow-lg shadow-secondary-900/20 transition-all duration-300 hover:-translate-y-px hover:bg-black hover:shadow-secondary-900/30"
                   sx={{ textTransform: 'none' }}
                 >
                   Learn More
@@ -176,7 +176,7 @@ const About = (): JSX.Element => {
                   href="/contact"
                   variant="outlined"
                   size="large"
-                  className="group rounded-xl border-2 border-primary-700 px-8 py-3 text-base font-semibold text-primary-700 transition-all duration-300 hover:-translate-y-px hover:border-2 hover:bg-primary-50"
+                  className="group rounded-full border-2 border-secondary-900 px-8 py-3 text-base font-bold text-secondary-900 transition-all duration-300 hover:-translate-y-px hover:bg-secondary-900 hover:text-white"
                   sx={{ textTransform: 'none' }}
                 >
                   Contact Us
