@@ -145,7 +145,7 @@ export default function PropertyChatbot() {
         {/* Messages Area - Light Background */}
         <div
           ref={scrollRef}
-          className="h-[520px] max-h-[520px] w-full flex-1 overflow-y-auto bg-gray-50 p-3"
+          className="h-[600px] max-h-[600px] w-full flex-1 overflow-y-auto bg-gray-50 p-3"
         >
           {messages.map(msg => (
             <div
