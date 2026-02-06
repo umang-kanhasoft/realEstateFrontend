@@ -1,5 +1,6 @@
 'use client';
 
+import PropertyChatbot from '@/components/common/PropertyChatbot';
 import PropertyCard from '@/components/property/PropertyCard';
 import { useProperty } from '@/hooks/useProperty';
 import { useUI } from '@/hooks/useUI';
@@ -42,7 +43,7 @@ const ITEMS_PER_PAGE = 9;
 export default function PropertiesPage(): JSX.Element {
   const searchParams = useSearchParams();
   const { state: propertyState, setFilters, resetFilters } = useProperty();
-  const { state: uiState, toggleFilterDrawer, closeFilterDrawer } = useUI();
+  const { state: uiState, closeFilterDrawer } = useUI();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -314,66 +315,16 @@ export default function PropertiesPage(): JSX.Element {
         maxWidth={false}
         className="mx-auto max-w-[1600px] px-4 py-12 md:px-8"
       >
-        {/* Toolbar */}
-        <Box className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white/50 p-4 shadow-sm backdrop-blur-sm">
-          <Box className="flex items-center gap-3">
-            <Typography variant="h6" className="font-bold text-gray-900">
-              {filteredProperties.length} Properties
-            </Typography>
-            {activeFiltersCount > 0 && (
-              <Chip
-                label={`${activeFiltersCount} active fitlers`}
-                size="small"
-                onDelete={handleResetFilters}
-                className="h-7 bg-black font-medium text-white"
-              />
-            )}
-          </Box>
-
-          <Box className="flex items-center gap-3">
-            {/* View Mode Toggle */}
-            <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
-              <IconButton
-                size="small"
-                onClick={() => setViewMode('grid')}
-                className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                <GridViewIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => setViewMode('list')}
-                className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                <ListViewIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            {/* Mobile Filter Button */}
-            <Button
-              variant="outlined"
-              startIcon={<FilterIcon />}
-              onClick={toggleFilterDrawer}
-              className="rounded-full border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 lg:hidden"
-              sx={{ textTransform: 'none' }}
-            >
-              Filters
-              {activeFiltersCount > 0 && (
-                <Chip
-                  label={activeFiltersCount}
-                  size="small"
-                  className="ml-2 h-5 w-5 bg-black text-white"
-                />
-              )}
-            </Button>
-          </Box>
-        </Box>
-
         <Grid container spacing={5}>
           {/* Desktop Filters Sidebar - Sticky & Glassmorphic */}
-          <Grid item xs={12} lg={3} className="relative hidden lg:block">
-            <div className="sticky top-28">
-              <Box className="rounded-2xl border border-gray-100/80 bg-white p-6 shadow-xl shadow-gray-200/50 backdrop-blur-xl">
+          <Grid
+            item
+            xs={12}
+            lg={3}
+            className="relative sticky top-16 hidden p-2 lg:block xl:block"
+          >
+            {/* <div className="sticky top-28"> */}
+            {/* <Box className="rounded-2xl border border-gray-100/80 bg-white p-6 shadow-xl shadow-gray-200/50 backdrop-blur-xl">
                 <Box className="mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                   <FilterIcon className="text-gray-900" />
                   <Typography variant="h6" className="font-bold text-gray-900">
@@ -381,12 +332,69 @@ export default function PropertiesPage(): JSX.Element {
                   </Typography>
                 </Box>
                 <FilterContent />
-              </Box>
-            </div>
+              </Box> */}
+            {/* <h1>Chatbot</h1> */}
+            {/* <Chatbot /> */}
+            <PropertyChatbot />
+            {/* </div> */}
           </Grid>
 
           {/* Properties Grid */}
           <Grid item xs={12} lg={9}>
+            {/* Toolbar */}
+            <Box className="sticky top-0 z-10 mb-8 flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all">
+              <Box className="flex items-center gap-3">
+                <Typography variant="h6" className="font-bold text-gray-900">
+                  {filteredProperties.length} Properties
+                </Typography>
+                {activeFiltersCount > 0 && (
+                  <Chip
+                    label={`${activeFiltersCount} active fitlers`}
+                    size="small"
+                    onDelete={handleResetFilters}
+                    className="h-7 bg-black font-medium text-white"
+                  />
+                )}
+              </Box>
+
+              <Box className="flex items-center gap-3">
+                {/* View Mode Toggle */}
+                <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
+                  <IconButton
+                    size="small"
+                    onClick={() => setViewMode('grid')}
+                    className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <GridViewIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => setViewMode('list')}
+                    className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <ListViewIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                {/* Mobile Filter Button */}
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterIcon />}
+                  // onClick={toggleFilterDrawer}
+                  className="rounded-full border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 lg:hidden"
+                  sx={{ textTransform: 'none' }}
+                >
+                  Filters
+                  {activeFiltersCount > 0 && (
+                    <Chip
+                      label={activeFiltersCount}
+                      size="small"
+                      className="ml-2 h-5 w-5 bg-black text-white"
+                    />
+                  )}
+                </Button>
+              </Box>
+            </Box>
             {paginatedProperties.length > 0 ? (
               <>
                 <motion.div
