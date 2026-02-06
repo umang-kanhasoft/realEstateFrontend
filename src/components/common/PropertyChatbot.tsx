@@ -27,6 +27,7 @@ export default function PropertyChatbot() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -145,50 +146,59 @@ export default function PropertyChatbot() {
         {/* Messages Area - Light Background */}
         <div
           ref={scrollRef}
-          className="h-[600px] max-h-[600px] w-full flex-1 overflow-y-auto bg-gray-50 p-3"
+          style={{
+            height: '600px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
         >
-          {messages.map(msg => (
-            <div
-              key={msg.id}
-              className={`mb-4 flex ${
-                msg.sender === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              {msg.sender === 'ai' && (
+          <div style={{ marginTop: 'auto' }}>
+            {messages.map(msg => (
+              <div
+                key={msg.id}
+                className={`mb-4 flex ${
+                  msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                {msg.sender === 'ai' && (
+                  <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
+                    <AutoAwesomeRounded className="text-[14px] text-primary-600" />
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed shadow-sm ${
+                    msg.sender === 'user'
+                      ? // User Message - Blue Theme Color
+                        'rounded-br-none bg-primary-600 text-white'
+                      : // AI Message - White and clean
+                        'rounded-bl-none border border-gray-100 bg-white text-gray-900'
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="mb-4 flex justify-start">
                 <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
                   <AutoAwesomeRounded className="text-[14px] text-primary-600" />
                 </div>
-              )}
-              <div
-                className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed shadow-sm ${
-                  msg.sender === 'user'
-                    ? // User Message - Blue Theme Color
-                      'rounded-br-none bg-primary-600 text-white'
-                    : // AI Message - White and clean
-                      'rounded-bl-none border border-gray-100 bg-white text-gray-900'
-                }`}
-              >
-                {msg.text}
+                <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-none border border-gray-100 bg-white px-4 py-2 shadow-sm">
+                  <CircularProgress
+                    size={14}
+                    thickness={5}
+                    className="text-primary-600"
+                  />
+                  <span className="text-xs font-medium tracking-wide text-gray-500">
+                    Analysing...
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="mb-4 flex justify-start">
-              <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
-                <AutoAwesomeRounded className="text-[14px] text-primary-600" />
-              </div>
-              <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-none border border-gray-100 bg-white px-4 py-2 shadow-sm">
-                <CircularProgress
-                  size={14}
-                  thickness={5}
-                  className="text-primary-600"
-                />
-                <span className="text-xs font-medium tracking-wide text-gray-500">
-                  Analysing...
-                </span>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Input Area - Lightened */}
