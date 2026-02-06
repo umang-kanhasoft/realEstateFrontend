@@ -1,16 +1,10 @@
 'use client';
 
+import PropertyChatbot from '@/components/common/PropertyChatbot';
 import PropertyCard from '@/components/property/PropertyCard';
 import { useProperty } from '@/hooks/useProperty';
 import { useUI } from '@/hooks/useUI';
 import { PropertyFilter } from '@/types';
-import {
-  BEDROOM_OPTIONS,
-  CITIES,
-  LISTING_TYPES,
-  PROPERTY_TYPES,
-  SORT_OPTIONS,
-} from '@/utils/constants';
 import { filterProperties, sortProperties } from '@/utils/helpers';
 import {
   Close as CloseIcon,
@@ -27,10 +21,8 @@ import {
   Drawer,
   Grid,
   IconButton,
-  MenuItem,
   Pagination,
   PaginationItem,
-  TextField,
   Typography,
 } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -41,7 +33,7 @@ const ITEMS_PER_PAGE = 9;
 
 export default function PropertiesPage(): JSX.Element {
   const searchParams = useSearchParams();
-  const { state: propertyState, setFilters, resetFilters } = useProperty();
+  const { state: propertyState, resetFilters } = useProperty();
   const { state: uiState, toggleFilterDrawer, closeFilterDrawer } = useUI();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -80,18 +72,18 @@ export default function PropertiesPage(): JSX.Element {
 
   const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE);
 
-  const handleFilterChange = (
-    field: keyof PropertyFilter,
-    value: string | number | string[]
-  ): void => {
-    setLocalFilters(prev => ({ ...prev, [field]: value }));
-    setCurrentPage(1);
-  };
+  // const handleFilterChange = (
+  //   field: keyof PropertyFilter,
+  //   value: string | number | string[]
+  // ): void => {
+  //   setLocalFilters(prev => ({ ...prev, [field]: value }));
+  //   setCurrentPage(1);
+  // };
 
-  const handleApplyFilters = (): void => {
-    setFilters(localFilters);
-    closeFilterDrawer();
-  };
+  // const handleApplyFilters = (): void => {
+  //   setFilters(localFilters);
+  //   closeFilterDrawer();
+  // };
 
   const handleResetFilters = (): void => {
     resetFilters();
@@ -136,176 +128,176 @@ export default function PropertiesPage(): JSX.Element {
     },
   };
 
-  const FilterContent = (): JSX.Element => (
-    <Box className="space-y-6">
-      {/* Search */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Search
-        </Typography>
-        <TextField
-          placeholder="Search properties..."
-          value={localFilters.searchQuery}
-          onChange={e => handleFilterChange('searchQuery', e.target.value)}
-          fullWidth
-          variant="outlined"
-          size="small"
-          className="bg-gray-50/50"
-          InputProps={{
-            endAdornment: <SearchIcon className="text-gray-400" />,
-            classes: { root: 'rounded-xl' },
-          }}
-        />
-      </Box>
+  // const FilterContent = (): JSX.Element => (
+  //   <Box className="space-y-6">
+  //     {/* Search */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Search
+  //       </Typography>
+  //       <TextField
+  //         placeholder="Search properties..."
+  //         value={localFilters.searchQuery}
+  //         onChange={e => handleFilterChange('searchQuery', e.target.value)}
+  //         fullWidth
+  //         variant="outlined"
+  //         size="small"
+  //         className="bg-gray-50/50"
+  //         InputProps={{
+  //           endAdornment: <SearchIcon className="text-gray-400" />,
+  //           classes: { root: 'rounded-xl' },
+  //         }}
+  //       />
+  //     </Box>
 
-      {/* Property Type */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Property Type
-        </Typography>
-        <TextField
-          select
-          value={localFilters.propertyType}
-          onChange={e => handleFilterChange('propertyType', e.target.value)}
-          fullWidth
-          size="small"
-          InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
-        >
-          {PROPERTY_TYPES.map(type => (
-            <MenuItem key={type.value} value={type.value}>
-              {type.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+  //     {/* Property Type */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Property Type
+  //       </Typography>
+  //       <TextField
+  //         select
+  //         value={localFilters.propertyType}
+  //         onChange={e => handleFilterChange('propertyType', e.target.value)}
+  //         fullWidth
+  //         size="small"
+  //         InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
+  //       >
+  //         {PROPERTY_TYPES.map(type => (
+  //           <MenuItem key={type.value} value={type.value}>
+  //             {type.label}
+  //           </MenuItem>
+  //         ))}
+  //       </TextField>
+  //     </Box>
 
-      {/* Listing Type */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Listing Type
-        </Typography>
-        <TextField
-          select
-          value={localFilters.listingType}
-          onChange={e => handleFilterChange('listingType', e.target.value)}
-          fullWidth
-          size="small"
-          InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
-        >
-          {LISTING_TYPES.map(type => (
-            <MenuItem key={type.value} value={type.value}>
-              {type.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+  //     {/* Listing Type */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Listing Type
+  //       </Typography>
+  //       <TextField
+  //         select
+  //         value={localFilters.listingType}
+  //         onChange={e => handleFilterChange('listingType', e.target.value)}
+  //         fullWidth
+  //         size="small"
+  //         InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
+  //       >
+  //         {LISTING_TYPES.map(type => (
+  //           <MenuItem key={type.value} value={type.value}>
+  //             {type.label}
+  //           </MenuItem>
+  //         ))}
+  //       </TextField>
+  //     </Box>
 
-      {/* City */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Location
-        </Typography>
-        <TextField
-          select
-          value={localFilters.city}
-          onChange={e => handleFilterChange('city', e.target.value)}
-          fullWidth
-          size="small"
-          InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
-        >
-          {CITIES.map(city => (
-            <MenuItem key={city.value} value={city.value}>
-              {city.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+  //     {/* City */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Location
+  //       </Typography>
+  //       <TextField
+  //         select
+  //         value={localFilters.city}
+  //         onChange={e => handleFilterChange('city', e.target.value)}
+  //         fullWidth
+  //         size="small"
+  //         InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
+  //       >
+  //         {CITIES.map(city => (
+  //           <MenuItem key={city.value} value={city.value}>
+  //             {city.label}
+  //           </MenuItem>
+  //         ))}
+  //       </TextField>
+  //     </Box>
 
-      {/* Bedrooms */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Bedrooms
-        </Typography>
-        <TextField
-          select
-          value={localFilters.minBedrooms.toString()}
-          onChange={e =>
-            handleFilterChange('minBedrooms', parseInt(e.target.value) || 0)
-          }
-          fullWidth
-          size="small"
-          InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
-        >
-          {BEDROOM_OPTIONS.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+  //     {/* Bedrooms */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Bedrooms
+  //       </Typography>
+  //       <TextField
+  //         select
+  //         value={localFilters.minBedrooms.toString()}
+  //         onChange={e =>
+  //           handleFilterChange('minBedrooms', parseInt(e.target.value) || 0)
+  //         }
+  //         fullWidth
+  //         size="small"
+  //         InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
+  //       >
+  //         {BEDROOM_OPTIONS.map(option => (
+  //           <MenuItem key={option.value} value={option.value}>
+  //             {option.label}
+  //           </MenuItem>
+  //         ))}
+  //       </TextField>
+  //     </Box>
 
-      {/* Sort By */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          className="mb-2 ml-1 font-bold text-gray-700"
-        >
-          Sort By
-        </Typography>
-        <TextField
-          select
-          value={localFilters.sortBy}
-          onChange={e => handleFilterChange('sortBy', e.target.value)}
-          fullWidth
-          size="small"
-          InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
-        >
-          {SORT_OPTIONS.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+  //     {/* Sort By */}
+  //     <Box>
+  //       <Typography
+  //         variant="subtitle2"
+  //         className="mb-2 ml-1 font-bold text-gray-700"
+  //       >
+  //         Sort By
+  //       </Typography>
+  //       <TextField
+  //         select
+  //         value={localFilters.sortBy}
+  //         onChange={e => handleFilterChange('sortBy', e.target.value)}
+  //         fullWidth
+  //         size="small"
+  //         InputProps={{ classes: { root: 'rounded-xl bg-gray-50/50' } }}
+  //       >
+  //         {SORT_OPTIONS.map(option => (
+  //           <MenuItem key={option.value} value={option.value}>
+  //             {option.label}
+  //           </MenuItem>
+  //         ))}
+  //       </TextField>
+  //     </Box>
 
-      {/* Action Buttons */}
-      <Box className="flex flex-col gap-3 border-t border-gray-100 pt-4">
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={handleApplyFilters}
-          className="rounded-full bg-black py-3 font-bold text-white shadow-lg transition-all duration-300 hover:bg-gray-800"
-          sx={{ textTransform: 'none' }}
-        >
-          Apply Filters
-        </Button>
-        <Button
-          variant="text"
-          fullWidth
-          onClick={handleResetFilters}
-          className="rounded-full font-semibold text-gray-500 hover:bg-gray-50 hover:text-black"
-          sx={{ textTransform: 'none' }}
-        >
-          Reset All
-        </Button>
-      </Box>
-    </Box>
-  );
+  //     {/* Action Buttons */}
+  //     <Box className="flex flex-col gap-3 border-t border-gray-100 pt-4">
+  //       <Button
+  //         variant="contained"
+  //         fullWidth
+  //         onClick={handleApplyFilters}
+  //         className="rounded-full bg-black py-3 font-bold text-white shadow-lg transition-all duration-300 hover:bg-gray-800"
+  //         sx={{ textTransform: 'none' }}
+  //       >
+  //         Apply Filters
+  //       </Button>
+  //       <Button
+  //         variant="text"
+  //         fullWidth
+  //         onClick={handleResetFilters}
+  //         className="rounded-full font-semibold text-gray-500 hover:bg-gray-50 hover:text-black"
+  //         sx={{ textTransform: 'none' }}
+  //       >
+  //         Reset All
+  //       </Button>
+  //     </Box>
+  //   </Box>
+  // );
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 font-sans">
@@ -314,66 +306,16 @@ export default function PropertiesPage(): JSX.Element {
         maxWidth={false}
         className="mx-auto max-w-[1600px] px-4 py-12 md:px-8"
       >
-        {/* Toolbar */}
-        <Box className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white/50 p-4 shadow-sm backdrop-blur-sm">
-          <Box className="flex items-center gap-3">
-            <Typography variant="h6" className="font-bold text-gray-900">
-              {filteredProperties.length} Properties
-            </Typography>
-            {activeFiltersCount > 0 && (
-              <Chip
-                label={`${activeFiltersCount} active fitlers`}
-                size="small"
-                onDelete={handleResetFilters}
-                className="h-7 bg-black font-medium text-white"
-              />
-            )}
-          </Box>
-
-          <Box className="flex items-center gap-3">
-            {/* View Mode Toggle */}
-            <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
-              <IconButton
-                size="small"
-                onClick={() => setViewMode('grid')}
-                className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                <GridViewIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => setViewMode('list')}
-                className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                <ListViewIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            {/* Mobile Filter Button */}
-            <Button
-              variant="outlined"
-              startIcon={<FilterIcon />}
-              onClick={toggleFilterDrawer}
-              className="rounded-full border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 lg:hidden"
-              sx={{ textTransform: 'none' }}
-            >
-              Filters
-              {activeFiltersCount > 0 && (
-                <Chip
-                  label={activeFiltersCount}
-                  size="small"
-                  className="ml-2 h-5 w-5 bg-black text-white"
-                />
-              )}
-            </Button>
-          </Box>
-        </Box>
-
         <Grid container spacing={5}>
           {/* Desktop Filters Sidebar - Sticky & Glassmorphic */}
-          <Grid item xs={12} lg={3} className="relative hidden lg:block">
-            <div className="sticky top-28">
-              <Box className="rounded-2xl border border-gray-100/80 bg-white p-6 shadow-xl shadow-gray-200/50 backdrop-blur-xl">
+          <Grid
+            item
+            xs={12}
+            lg={3}
+            className="relative sticky top-16 hidden p-2 lg:block xl:block"
+          >
+            {/* <div className="sticky top-28"> */}
+            {/* <Box className="rounded-2xl border border-gray-100/80 bg-white p-6 shadow-xl shadow-gray-200/50 backdrop-blur-xl">
                 <Box className="mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                   <FilterIcon className="text-gray-900" />
                   <Typography variant="h6" className="font-bold text-gray-900">
@@ -381,12 +323,69 @@ export default function PropertiesPage(): JSX.Element {
                   </Typography>
                 </Box>
                 <FilterContent />
-              </Box>
-            </div>
+              </Box> */}
+            {/* <h1>Chatbot</h1> */}
+            {/* <Chatbot /> */}
+            <PropertyChatbot />
+            {/* </div> */}
           </Grid>
 
           {/* Properties Grid */}
           <Grid item xs={12} lg={9}>
+            {/* Toolbar */}
+            <Box className="sticky top-0 z-10 mb-8 flex w-full flex-wrap items-center justify-between gap-4 border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all">
+              <Box className="flex items-center gap-3">
+                <Typography variant="h6" className="font-bold text-gray-900">
+                  {filteredProperties.length} Properties
+                </Typography>
+                {activeFiltersCount > 0 && (
+                  <Chip
+                    label={`${activeFiltersCount} active fitlers`}
+                    size="small"
+                    onDelete={handleResetFilters}
+                    className="h-7 bg-black font-medium text-white"
+                  />
+                )}
+              </Box>
+
+              <Box className="flex items-center gap-3">
+                {/* View Mode Toggle */}
+                <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
+                  <IconButton
+                    size="small"
+                    onClick={() => setViewMode('grid')}
+                    className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <GridViewIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => setViewMode('list')}
+                    className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <ListViewIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                {/* Mobile Filter Button */}
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterIcon />}
+                  onClick={toggleFilterDrawer}
+                  className="rounded-full border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 lg:hidden"
+                  sx={{ textTransform: 'none' }}
+                >
+                  Filters
+                  {activeFiltersCount > 0 && (
+                    <Chip
+                      label={activeFiltersCount}
+                      size="small"
+                      className="ml-2 h-5 w-5 bg-black text-white"
+                    />
+                  )}
+                </Button>
+              </Box>
+            </Box>
             {paginatedProperties.length > 0 ? (
               <>
                 <motion.div
@@ -497,7 +496,8 @@ export default function PropertiesPage(): JSX.Element {
           </IconButton>
         </Box>
         <Box className="h-full overflow-y-auto p-6">
-          <FilterContent />
+          <PropertyChatbot />
+          {/* <FilterContent /> */}
         </Box>
       </Drawer>
     </div>
