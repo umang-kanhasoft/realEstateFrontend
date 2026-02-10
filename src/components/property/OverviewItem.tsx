@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Tooltip, Typography } from '@mui/material';
 
 interface OverviewItemProps {
   label: string;
@@ -6,6 +6,9 @@ interface OverviewItemProps {
 }
 
 export default function OverviewItem({ label, value }: OverviewItemProps) {
+  const shouldTruncate = value.length > 15;
+  const displayValue = shouldTruncate ? `${value.slice(0, 15)}...` : value;
+
   return (
     <Box
       sx={{
@@ -28,9 +31,20 @@ export default function OverviewItem({ label, value }: OverviewItemProps) {
       <Typography variant="body2" color="text.secondary" gutterBottom>
         {label}
       </Typography>
-      <Typography variant="subtitle1" fontWeight={700} color="text.primary">
-        {value}
-      </Typography>
+      <Tooltip title={shouldTruncate ? value : ''} arrow placement="top">
+        <Typography
+          variant="subtitle1"
+          fontWeight={700}
+          color="text.primary"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {displayValue}
+        </Typography>
+      </Tooltip>
     </Box>
   );
 }
