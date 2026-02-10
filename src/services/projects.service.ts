@@ -163,6 +163,8 @@ export interface Project {
   avgRating: number;
   maxPrice?: number;
   landmarks?: Landmarks[];
+  mainImageUrl?: string;
+  priceStartingFrom?: number;
 }
 
 export interface ProjectsResponse {
@@ -170,6 +172,143 @@ export interface ProjectsResponse {
   limit: number;
   offset: number;
   projects: Project[];
+}
+
+// -----
+export interface ProjectApiResponse {
+  project: ProjectData;
+}
+
+export interface AmenityItem {
+  id: string;
+  name: string;
+  category: AmenityCategory;
+}
+
+export type AmenityCategory =
+  | 'leisure'
+  | 'safety'
+  | 'health'
+  | 'environment'
+  | 'convenience'
+  | 'sports'
+  | 'kids';
+
+export interface Amenities {
+  leisure?: AmenityItem[];
+  safety?: AmenityItem[];
+  health?: AmenityItem[];
+  environment?: AmenityItem[];
+  convenience?: AmenityItem[];
+  sports?: AmenityItem[];
+  kids?: AmenityItem[];
+}
+
+export interface ProjectData {
+  projectInfo?: ProjectInfo;
+  location?: Location;
+  pricingAndInventory?: PricingAndInventory;
+  amenities?: Amenities;
+  media?: Media;
+  metadata?: Metadata;
+  towers?: Tower[];
+  id?: string;
+}
+
+export interface ProjectInfo {
+  name?: string;
+  developer?: {
+    name?: string;
+    id?: string;
+  };
+  possessionDate?: string;
+  reraId?: string;
+  description?: string;
+}
+
+export interface NearbyTransport {
+  id?: string;
+  type?: string;
+  name?: string;
+  distanceKm?: number;
+  travelTimeMin?: number;
+}
+
+export interface Location {
+  city?: string;
+  addressLine1?: string;
+  locality?: string;
+  latitude?: number;
+  longitude?: number;
+  landmarks?: NearbyTransport[];
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
+}
+
+export interface PricingAndInventory {
+  configurations: Configuration[];
+  priceRange?: {
+    minPrice?: string;
+    maxPrice?: string;
+    displayString?: string;
+  };
+}
+
+export interface Configuration {
+  bedrooms: number;
+  label?: string;
+  viewType?: string;
+  price?: string;
+  superBuiltUpAreaSqft?: number;
+  floorPlanUrl?: string;
+  bathrooms?: number;
+  balconies?: number;
+  roomDetails?: {
+    kitchen?: {
+      width?: number;
+      length?: number;
+    };
+    bedroom_2?: {
+      width?: number;
+      length?: number;
+    };
+    bedroom_3?: {
+      width?: number;
+      length?: number;
+    };
+    living_room?: {
+      width?: number;
+      length?: number;
+    };
+    master_bedroom?: {
+      width?: number;
+      length?: number;
+    };
+  };
+  totalUnits?: number;
+  availableUnits?: number;
+  parkingSpace?: number;
+}
+
+export interface Media {
+  videos?: Array<{
+    url?: string;
+  }>;
+}
+
+export interface Metadata {
+  keyFeatures?: string[];
+}
+
+export interface Tower {
+  id?: string;
+  blockName?: string;
+  towerLabel?: string;
+  storey?: number;
+  unitsPerFloor?: number;
+  lift?: number;
 }
 
 export class ProjectsService {
@@ -191,8 +330,8 @@ export class ProjectsService {
   /**
    * Fetch a single project by ID
    */
-  static async getProjectById(id: string): Promise<Project> {
-    const response = await api.get<Project>(`/projects/${id}`);
+  static async getProjectById(id: string): Promise<ProjectApiResponse> {
+    const response = await api.get<ProjectApiResponse>(`/project/${id}`);
 
     if (!response.data) {
       throw new Error('Project not found');
@@ -205,7 +344,7 @@ export class ProjectsService {
    * Fetch a project by slug
    */
   static async getProjectBySlug(slug: string): Promise<Project> {
-    const response = await api.get<Project>(`/projects/slug/${slug}`);
+    const response = await api.get<Project>(`/project/slug/${slug}`);
 
     if (!response.data) {
       throw new Error('Project not found');

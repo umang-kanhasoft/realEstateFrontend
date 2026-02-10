@@ -21,6 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { memo, useState } from 'react';
 
 export interface ProjectCardProps {
@@ -53,13 +54,18 @@ export interface ProjectCardProps {
 const INITIAL_LANDMARKS_COUNT = 3;
 
 function ProjectCard({ project }: ProjectCardProps) {
+  const router = useRouter();
   const [showAllLandmarks, setShowAllLandmarks] = useState(false);
   const visibleLandmarks = showAllLandmarks
     ? project.landmarks || []
     : (project.landmarks || []).slice(0, INITIAL_LANDMARKS_COUNT);
 
   return (
-    <div className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl">
+    <div
+      className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl"
+      style={{ cursor: 'pointer' }}
+      onClick={() => router.push(`/projects/${project.id}`)}
+    >
       {/* Image Section */}
       <Box className="relative h-64 w-full flex-shrink-0 overflow-hidden bg-gray-100 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
         <Image

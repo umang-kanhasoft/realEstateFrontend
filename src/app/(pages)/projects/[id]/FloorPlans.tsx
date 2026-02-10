@@ -1,0 +1,269 @@
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  Grid,
+  IconButton,
+  Typography,
+} from '@mui/material';
+import { useState } from 'react';
+
+interface RoomDimensions {
+  width: number;
+  length: number;
+}
+
+interface RoomDetails {
+  kitchen: RoomDimensions;
+  bedroom_2: RoomDimensions | null;
+  bedroom_3: RoomDimensions | null;
+  living_room: RoomDimensions;
+  master_bedroom: RoomDimensions;
+}
+
+interface FloorPlan {
+  id: string;
+  type: string;
+  label: string;
+  bedrooms: number;
+  bathrooms: number;
+  balconies: number;
+  carpetAreaSqft: number;
+  builtUpAreaSqft: number;
+  superBuiltUpAreaSqft: number;
+  terraceAvailable: boolean;
+  gardenAccess: boolean;
+  orientation: string;
+  price: number;
+  currency: string;
+  floor: null;
+  viewType: string;
+  parkingSpace: number;
+  maintenanceCharges: number;
+  totalUnits: number;
+  availableUnits: number;
+  floorPlanUrl: string;
+  roomDetails: RoomDetails;
+}
+
+function FloorPlans({
+  bhk,
+  floorPlan,
+}: {
+  bhk: string;
+  floorPlan: FloorPlan[];
+}) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Filter configurations by BHK type
+  const filteredPlans = floorPlan.filter((item: FloorPlan) => {
+    const bedrooms = item.bedrooms;
+    return bedrooms.toString() === bhk;
+  });
+
+  // Format price to display in Indian format
+  const formatPrice = (price: number) => {
+    if (price >= 10000000) {
+      return `₹${(price / 10000000).toFixed(1)}Cr`;
+    } else if (price >= 100000) {
+      return `₹${(price / 100000).toFixed(1)}Lac`;
+    }
+    return `₹${price.toLocaleString('en-IN')}`;
+  };
+
+  return (
+    <>
+      <Grid container spacing={3}>
+        {filteredPlans.map((item: FloorPlan, index: number) => (
+          <Grid item xs={12} sm={6} md={4} key={item.id || index}>
+            <Box
+              sx={{
+                backgroundColor: '#fff',
+                borderRadius: '16px',
+                border: '1px solid #e0e0e0',
+                p: 3,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  transform: 'translateY(-5px)',
+                  borderColor: 'primary.main',
+                },
+              }}
+            >
+              {/* Floor Plan Image */}
+              <Box
+                sx={{
+                  height: 180,
+                  backgroundColor: '#f5f7fa',
+                  borderRadius: '12px',
+                  mb: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px dashed #d0d0d0',
+                  overflow: 'hidden',
+                }}
+              >
+                {item.floorPlanUrl ? (
+                  <img
+                    src={item.floorPlanUrl}
+                    alt={`${item.label} Floor Plan`}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => setSelectedImage(item.floorPlanUrl)}
+                  />
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    Floor Plan Not Available
+                  </Typography>
+                )}
+              </Box>
+
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="flex-end"
+                mb={1}
+              >
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    Price
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    fontWeight={700}
+                    color="primary.main"
+                  >
+                    {formatPrice(item.price)}
+                  </Typography>
+                </Box>
+                <Chip
+                  size="small"
+                  label={item.label}
+                  color="default"
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
+
+              <Typography variant="body2" color="text.secondary" mb={1}>
+                {item.carpetAreaSqft} Sqft Carpet Area
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" mb={3}>
+                <Box component="span" fontWeight={500} color="text.primary">
+                  Super Built-up Area: {item.superBuiltUpAreaSqft} Sqft
+                </Box>
+              </Typography>
+
+              {/* Additional Details */}
+              <Box display="flex" gap={1} mb={2} flexWrap="wrap">
+                <Chip
+                  size="small"
+                  label={`${item.bedrooms} Bed`}
+                  variant="outlined"
+                />
+                <Chip
+                  size="small"
+                  label={`${item.bathrooms} Bath`}
+                  variant="outlined"
+                />
+                <Chip
+                  size="small"
+                  label={`${item.balconies} Balcony`}
+                  variant="outlined"
+                />
+                <Chip
+                  size="small"
+                  label={`${item.parkingSpace} Parking`}
+                  variant="outlined"
+                />
+              </Box>
+
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                mb={2}
+              >
+                {item.availableUnits} of {item.totalUnits} Units Available
+              </Typography>
+
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{
+                  borderRadius: '10px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                }}
+              >
+                Enquire Now
+              </Button>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Full Size Image Dialog */}
+      <Dialog
+        open={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            border: 'none',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <Box sx={{ position: 'relative', p: 2 }}>
+          <IconButton
+            onClick={() => setSelectedImage(null)}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 1,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Floor Plan Full Size"
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+              }}
+            />
+          )}
+        </Box>
+      </Dialog>
+    </>
+  );
+}
+export default FloorPlans;

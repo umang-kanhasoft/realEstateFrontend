@@ -1,5 +1,4 @@
 import CloseIcon from '@mui/icons-material/Close';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import {
   Box,
   Card,
@@ -19,40 +18,38 @@ import 'swiper/css/navigation';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-export default function ProjectGallary() {
+export interface PropertyMedia {
+  thumbnail: string;
+  images: MediaImage[];
+  videos: MediaVideo[];
+  documents: MediaDocument[];
+  brochureUrl: string;
+  virtualTourUrl: string;
+  masterPlanUrl: string;
+}
+
+export interface MediaImage {
+  id: string;
+  url: string;
+  order: number;
+}
+
+export interface MediaVideo {
+  id: string;
+  url: string;
+  order: number;
+}
+
+export interface MediaDocument {
+  id: string;
+  url: string;
+  order: number;
+}
+
+export default function ProjectGallary({ media }: { media: PropertyMedia }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [openImageModal, setOpenImageModal] = useState(false);
-
-  const DummyImage = [
-    {
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
-      title: 'Exterior View',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
-      title: 'Living Room',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d',
-      title: 'Master Bedroom',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1599423300746-b62533397364',
-      title: 'Kitchen',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
-      title: 'Balcony',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7',
-      title: 'Swimming Pool',
-    },
-  ];
-
-  const video =
-    'https://media.istockphoto.com/id/1453963806/video/time-lapse-low-angle-of-tall-corporate-buildings-skyscraper-with-reflection-of-clouds-among.mp4?s=mp4-640x640-is&k=20&c=RIpYsVqpNXm-KOaMcpsMY80maM3p2SyEbjTTMxTqzz8=';
 
   return (
     <>
@@ -76,12 +73,12 @@ export default function ProjectGallary() {
               speed={800}
               style={{ height: '100%', width: '100%' }}
             >
-              {DummyImage.map((img, idx) => (
+              {media?.images.map((img, idx: number) => (
                 <SwiperSlide key={idx} onClick={() => setOpenImageModal(true)}>
                   <Box
                     component="img"
-                    src={img.image}
-                    alt={img.title}
+                    src={img.url}
+                    alt={img.url}
                     sx={{
                       width: '100%',
                       height: '100%',
@@ -109,27 +106,25 @@ export default function ProjectGallary() {
                 cursor: 'pointer',
               }}
             >
-              <video
-                src={video}
-                autoPlay
-                muted
-                loop
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  color: '#fff',
-                  backgroundColor: 'rgba(0,0,0,0.4)',
-                  borderRadius: '50%',
-                  p: 1,
-                }}
-              >
-                <PlayCircleOutlineIcon sx={{ fontSize: 48 }} />
-              </Box>
+              {media?.videos.map((video, idx: number) => (
+                <SwiperSlide key={idx} onClick={() => setOpenImageModal(true)}>
+                  <video
+                    src={video?.url}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                    }}
+                  />
+                </SwiperSlide>
+              ))}
             </Card>
 
             {/* Small Images Grid */}
@@ -144,32 +139,16 @@ export default function ProjectGallary() {
                   borderRadius: '16px',
                   overflow: 'hidden',
                   cursor: 'pointer',
-                  height: { xs: 150, md: '100%' },
-                }}
-                onClick={() => setOpenImageModal(true)}
-              >
-                <Image
-                  src={DummyImage[1].image}
-                  className="h-full w-full object-cover"
-                  alt="Small 1"
-                />
-              </Card>
-
-              <Card
-                sx={{
-                  flex: 1,
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
                   position: 'relative',
                   height: { xs: 150, md: '100%' },
                 }}
                 onClick={() => setOpenImageModal(true)}
               >
                 <Image
-                  src={DummyImage[2].image}
+                  src={media?.images[2]?.url}
                   className="h-full w-full object-cover"
                   alt="Small 2"
+                  fill
                 />
                 {/* View All Overlay */}
                 <Box
@@ -187,7 +166,7 @@ export default function ProjectGallary() {
                     '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
                   }}
                 >
-                  +{DummyImage.length - 3} Photos
+                  +{media?.images?.length - 3} Photos
                 </Box>
               </Card>
             </Box>
@@ -235,16 +214,14 @@ export default function ProjectGallary() {
 
           <Box sx={{ overflowY: 'auto', p: 3, flexGrow: 1 }}>
             <ImageList cols={isMobile ? 1 : 3} gap={16}>
-              {DummyImage.map((item, index) => (
-                <ImageListItem
-                  key={index}
-                  sx={{ borderRadius: '12px', overflow: 'hidden' }}
-                >
+              {media?.images.map(img => (
+                <ImageListItem key={img.url}>
                   <Image
-                    src={item.image}
-                    alt={item.title}
+                    src={img.url}
+                    alt={img.url}
+                    fill
                     loading="lazy"
-                    className={`h-full w-full cursor-pointer rounded-xl object-cover ${isMobile ? 'h-200' : 'h-250'}`}
+                    className="!relative cursor-pointer rounded-xl object-cover"
                   />
                 </ImageListItem>
               ))}
