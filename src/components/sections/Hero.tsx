@@ -22,7 +22,7 @@ const POPULAR_LOCALITIES = [
   'Bopal',
   'SG Highway',
   'Gota',
-  'Chharodi',
+  'Shela',
   'Sindhu Bhavan Road',
 ];
 
@@ -167,7 +167,7 @@ const Hero: React.FC = () => {
                   key={loc}
                   label={loc}
                   component={Link}
-                  href={`/properties?chat_query=${encodeURIComponent(loc)}`}
+                  href={`/projects?area=${loc}`}
                   clickable
                   className="border border-white/20 bg-white/15 text-white backdrop-blur-sm hover:bg-white/80 hover:text-black"
                 />

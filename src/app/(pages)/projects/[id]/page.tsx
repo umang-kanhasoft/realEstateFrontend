@@ -37,7 +37,7 @@ import {
   Typography,
 } from '@mui/material';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -54,6 +54,8 @@ interface AmenityType {
 
 export default function ProjectPage() {
   const { id } = useParams();
+  const router = useRouter();
+  // const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,6 +140,7 @@ export default function ProjectPage() {
     media,
     metadata,
     towers,
+    specifications,
   } = projectData;
 
   const overviewData = [
@@ -223,19 +226,27 @@ export default function ProjectPage() {
             </Box>
           </Box>
           <Box textAlign={{ xs: 'left', md: 'right' }} mt={{ xs: 2, md: 0 }}>
+            <Button
+              variant="contained"
+              size="large"
+              sx={{ mt: 2, px: 4, borderRadius: '8px', fontWeight: 'bold' }}
+              onClick={() => router.back()}
+            >
+              Back
+            </Button>
             <Typography variant="h4" fontWeight={800} color="primary">
               Price on Request
             </Typography>
             <Typography variant="subtitle2" color="text.secondary">
               {pricingAndInventory?.priceRange?.displayString}
             </Typography>
-            <Button
+            {/* <Button
               variant="contained"
               size="large"
               sx={{ mt: 2, px: 4, borderRadius: '8px', fontWeight: 'bold' }}
             >
               Contact Builder
-            </Button>
+            </Button> */}
           </Box>
         </Box>
 
@@ -284,7 +295,7 @@ export default function ProjectPage() {
                         fontWeight={700}
                         color="primary.main"
                       >
-                        {item.price}
+                        {formatCurrency(Number(item.price))}
                       </Typography>
                     </Box>
                   </Card>
@@ -508,12 +519,16 @@ export default function ProjectPage() {
                           borderRadius: '16px',
                           height: '100%',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                          cursor: 'pointer',
                         }}
+                        onClick={() => router.push(`/projects/${project.id}`)}
                       >
                         <Box sx={{ height: 200, overflow: 'hidden' }}>
                           {project?.mainImageUrl && (
                             <Image
-                              src={project.mainImageUrl}
+                              src={
+                                project.mainImageUrl || '/images/house-icon.png'
+                              }
                               alt={project.name}
                               className="!static w-full object-cover"
                               fill
@@ -579,12 +594,16 @@ export default function ProjectPage() {
                           borderRadius: '16px',
                           height: '100%',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                          cursor: 'pointer',
                         }}
+                        onClick={() => router.push(`/projects/${project.id}`)}
                       >
                         <Box sx={{ height: 200, overflow: 'hidden' }}>
                           {project?.mainImageUrl && (
                             <Image
-                              src={project.mainImageUrl}
+                              src={
+                                project.mainImageUrl || '/images/house-icon.png'
+                              }
                               alt={project.name}
                               className="!static w-full object-cover"
                               fill
@@ -625,7 +644,7 @@ export default function ProjectPage() {
               </Box>
             )}
 
-            <Faq />
+            <Faq specifications={specifications} />
           </Grid>
 
           {/* Right Column (Sidebar) */}
@@ -684,7 +703,7 @@ export default function ProjectPage() {
                         >
                           {tower.blockName} ({tower.towerLabel})
                         </Typography>
-                        <Divider sx={{ my: 1.5 }} />
+                        <Divider />
                         <Box
                           display="flex"
                           justifyContent="space-between"
@@ -718,7 +737,7 @@ export default function ProjectPage() {
                           </Typography>
                         </Box>
                         {index < towers.length - 1 && (
-                          <Divider sx={{ mt: 2, mb: 1 }} />
+                          <Divider sx={{ mt: 1 }} />
                         )}
                       </Box>
                     ))}

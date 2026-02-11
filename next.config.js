@@ -42,6 +42,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'preview.redd.it',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.example.com',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
   },

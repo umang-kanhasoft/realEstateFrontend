@@ -101,8 +101,12 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
     id: project.id,
     name: project.name,
     builderName: primaryBuilder?.name || 'Unknown Builder',
+    builderId: primaryBuilder?.id || 'Unknown Builder',
+    builderPhone: primaryBuilder?.phone || 'Unknown Builder',
+    builderEmail: primaryBuilder?.contactEmail || 'Unknown Builder',
     location: location,
     priceRange,
+    brochureUrl: project.brochureUrl,
     areaRange,
     configurations,
     usp: [

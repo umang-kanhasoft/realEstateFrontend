@@ -1,3 +1,4 @@
+import { Specifications } from '@/components/sections/Faq';
 import { ApiProjectObject } from '@/types/api-project.types';
 import { api } from '@/utils/api';
 
@@ -191,6 +192,7 @@ export interface ProjectData {
   metadata?: Metadata;
   towers?: Tower[];
   id?: string;
+  specifications?: Specifications;
 }
 
 export interface ProjectInfo {

@@ -1,13 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  Grid,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { Box, Chip, Dialog, Grid, IconButton, Typography } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -110,7 +102,7 @@ function FloorPlans({
               >
                 {item.floorPlanUrl ? (
                   <Image
-                    src={item.floorPlanUrl}
+                    src={item.floorPlanUrl || '/images/house-icon.png'}
                     alt={`${item.label} Floor Plan`}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
@@ -200,7 +192,7 @@ function FloorPlans({
                 {item.availableUnits} of {item.totalUnits} Units Available
               </Typography>
 
-              <Button
+              {/* <Button
                 fullWidth
                 variant="contained"
                 color="primary"
@@ -213,7 +205,7 @@ function FloorPlans({
                 }}
               >
                 Enquire Now
-              </Button>
+              </Button> */}
             </Box>
           </Grid>
         ))}
