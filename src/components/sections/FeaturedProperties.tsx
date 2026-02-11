@@ -1,19 +1,10 @@
 'use client';
 
-import { useFavorites } from '@/context/FavoritesContext';
-import { formatCurrency } from '@/lib/utils/format';
+import PropertyCard from '@/components/property/PropertyCard';
 import { ProjectsService } from '@/services/projects.service';
 import { ApiProjectObject } from '@/types/api-project.types';
-import {
-  ArrowBackRounded,
-  ArrowForwardRounded,
-  Bathtub,
-  Bed,
-  Favorite,
-  FavoriteBorder,
-  LocationOn,
-  SquareFoot,
-} from '@mui/icons-material';
+import { Property, PropertyStatus } from '@/types/property.types';
+import { ArrowBackRounded, ArrowForwardRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -24,7 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import 'swiper/css';
@@ -34,7 +24,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 const FeaturedProperties = (): JSX.Element => {
   const [isReady, setIsReady] = useState(false);
-  const { toggleFavorite, isFavorite } = useFavorites();
 
   const { data, isLoading } = useQuery({
     queryKey: ['featured-projects'],
@@ -53,7 +42,23 @@ const FeaturedProperties = (): JSX.Element => {
 
   const projects = data?.projects || [];
 
-  const mapProjectToCard = (project: ApiProjectObject) => {
+  const mapStatus = (status: string): PropertyStatus => {
+    switch (status) {
+      case 'new_launch':
+        return 'New Launch';
+      case 'under_construction':
+      case 'nearing_completion':
+        return 'Under Construction';
+      case 'ready_to_move':
+        return 'Ready to Move';
+      case 'sold_out':
+        return 'sold';
+      default:
+        return 'for-sale';
+    }
+  };
+
+  const mapProjectToProperty = (project: ApiProjectObject): Property => {
     const unitTypes = project.unitTypes || [];
     const minBeds =
       unitTypes.length > 0
@@ -82,35 +87,40 @@ const FeaturedProperties = (): JSX.Element => {
         ? Math.max(...unitTypes.map(u => u.carpetAreaSqft || 0))
         : 0;
 
-    // Generate URL-friendly slugs for navigation
-    const citySlug = (project.city || 'ahmedabad')
-      .toLowerCase()
-      .replace(/\s+/g, '-');
-    const localitySlug = (project.locality || project.area || 'locality')
-      .toLowerCase()
-      .replace(/\s+/g, '-');
-    const projectSlug = project.slug || project.id;
-
     return {
       id: project.id,
       title: project.name,
+      slug: project.slug,
       location: [project.locality, project.city].filter(Boolean).join(', '),
-      price: project.priceStartingFrom
-        ? formatCurrency(project.priceStartingFrom)
-        : 'Price on Request',
+      price: project.priceStartingFrom || 0,
       bedrooms: minBeds === maxBeds ? minBeds : `${minBeds}-${maxBeds}`,
       bathrooms: minBaths === maxBaths ? minBaths : `${minBaths}-${maxBaths}`,
       area:
         minArea === maxArea
           ? `${minArea} sq.ft`
           : `${minArea}-${maxArea} sq.ft`,
-      image:
+      images: [
         project.mainImageUrl ||
-        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      type: project.propertyType === 'plot' ? 'Sale' : 'Sale', // Can customize based on types
-      status: project.status,
-      // Navigation fields
-      href: `/${citySlug}/${localitySlug}/${projectSlug}`,
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      ],
+      status: mapStatus(project.status),
+      listingType: 'sale',
+      isFeatured: project.isFeatured,
+      ecoFriendly: project.ecoFriendly,
+      builders: project.builders || [],
+      address: {
+        city: project.city,
+        state: project.state || '',
+        street: project.addressLine1,
+        zipCode: '',
+        country: 'India',
+        fullAddress: [project.addressLine1, project.locality, project.city]
+          .filter(Boolean)
+          .join(', '),
+        coordinates: { lat: 0, lng: 0 },
+      },
+      amenities: project.amenities || [],
+      type: project.propertyType,
     };
   };
 
@@ -196,139 +206,10 @@ const FeaturedProperties = (): JSX.Element => {
             className="!py-4"
           >
             {projects.map(project => {
-              const prop = mapProjectToCard(project);
+              const property = mapProjectToProperty(project);
               return (
-                <SwiperSlide key={prop.id}>
-                  <Link href={prop.href} prefetch className="block">
-                    <Box
-                      className="group cursor-pointer rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                      sx={{
-                        transform: 'translateZ(0)',
-                      }}
-                    >
-                      <Box
-                        className="overflow-hidden rounded-2xl"
-                        sx={{
-                          WebkitMaskImage:
-                            '-webkit-radial-gradient(white, black)',
-                          maskImage: 'radial-gradient(white, black)',
-                        }}
-                      >
-                        {/* Image */}
-                        <Box className="relative h-48 w-full overflow-hidden">
-                          <Image
-                            src={prop.image}
-                            alt={prop.title}
-                            fill
-                            className="overflow-hidden object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                          />
-                          {/* Gradient */}
-                          <Box className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                          {/* Badge */}
-                          <Box className="absolute left-3 top-3">
-                            <Box className="rounded-md bg-primary-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow">
-                              For {prop.type}
-                            </Box>
-                          </Box>
-
-                          {/* Favorite */}
-                          <IconButton
-                            size="small"
-                            onClick={e => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleFavorite(prop.id);
-                            }}
-                            className={`absolute right-3 top-3 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 ${
-                              isFavorite(prop.id)
-                                ? 'bg-red-500 text-white hover:bg-red-600'
-                                : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-red-500'
-                            }`}
-                          >
-                            {isFavorite(prop.id) ? (
-                              <Favorite fontSize="small" />
-                            ) : (
-                              <FavoriteBorder fontSize="small" />
-                            )}
-                          </IconButton>
-
-                          {/* Price */}
-                          <Box className="absolute bottom-3 left-3">
-                            <Typography
-                              variant="h6"
-                              className="font-bold text-white drop-shadow-md"
-                            >
-                              {prop.price}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {/* Content */}
-                        <Box className="p-4">
-                          <Typography
-                            variant="subtitle1"
-                            className="mb-1 truncate font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
-                          >
-                            {prop.title}
-                          </Typography>
-                          <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={0.5}
-                            className="mb-3 text-secondary-500"
-                          >
-                            <LocationOn sx={{ fontSize: 16 }} />
-                            <Typography variant="caption" className="truncate">
-                              {prop.location}
-                            </Typography>
-                          </Stack>
-
-                          {/* Features */}
-                          <Stack
-                            direction="row"
-                            spacing={2}
-                            divider={
-                              <Box className="h-4 w-px bg-secondary-200" />
-                            }
-                            className="text-secondary-600"
-                          >
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={0.5}
-                            >
-                              <Bed sx={{ fontSize: 16 }} />
-                              <Typography variant="caption" fontWeight={500}>
-                                {prop.bedrooms}
-                              </Typography>
-                            </Stack>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={0.5}
-                            >
-                              <Bathtub sx={{ fontSize: 16 }} />
-                              <Typography variant="caption" fontWeight={500}>
-                                {prop.bathrooms}
-                              </Typography>
-                            </Stack>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={0.5}
-                            >
-                              <SquareFoot sx={{ fontSize: 16 }} />
-                              <Typography variant="caption" fontWeight={500}>
-                                {prop.area}
-                              </Typography>
-                            </Stack>
-                          </Stack>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Link>
+                <SwiperSlide key={property.id}>
+                  <PropertyCard property={property} />
                 </SwiperSlide>
               );
             })}

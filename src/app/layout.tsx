@@ -95,11 +95,15 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
+import AuthModal from '@/components/auth/AuthModal'; // Import AuthModal
+import TopUserMenu from '@/components/layout/TopUserMenu'; // Import TopUserMenu
 import { AuthProvider } from '@/context/AuthContext';
+import { AuthModalProvider } from '@/context/AuthModalContext'; // Import AuthModalProvider
 import { ChatProvider } from '@/context/ChatContext';
 import { CompareProvider } from '@/context/CompareContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { SearchProvider } from '@/context/SearchContext';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 import QueryProvider from '@/providers/QueryProvider';
 
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
@@ -112,26 +116,32 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
       >
         <QueryProvider>
           <ThemeContextProvider>
-            <AuthProvider>
-              <PropertyProvider>
-                <SearchProvider>
-                  <CompareProvider>
-                    <FavoritesProvider>
-                      <UIProvider>
-                        <ChatProvider>
-                          <div className="relative flex min-h-screen flex-col">
-                            <main className="flex-1">{children}</main>
-                            <FloatingDock />
-                            <Footer />
-                            <Chatbot />
-                          </div>
-                        </ChatProvider>
-                      </UIProvider>
-                    </FavoritesProvider>
-                  </CompareProvider>
-                </SearchProvider>
-              </PropertyProvider>
-            </AuthProvider>
+            <SnackbarProvider>
+              <AuthProvider>
+                <AuthModalProvider>
+                  <PropertyProvider>
+                    <SearchProvider>
+                      <CompareProvider>
+                        <FavoritesProvider>
+                          <UIProvider>
+                            <ChatProvider>
+                              <div className="relative flex min-h-screen flex-col">
+                                <TopUserMenu />
+                                <main className="flex-1">{children}</main>
+                                <FloatingDock />
+                                <Footer />
+                                <Chatbot />
+                                <AuthModal />
+                              </div>
+                            </ChatProvider>
+                          </UIProvider>
+                        </FavoritesProvider>
+                      </CompareProvider>
+                    </SearchProvider>
+                  </PropertyProvider>
+                </AuthModalProvider>
+              </AuthProvider>
+            </SnackbarProvider>
           </ThemeContextProvider>
         </QueryProvider>
       </body>

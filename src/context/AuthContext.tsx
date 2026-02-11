@@ -11,19 +11,33 @@ import {
 
 interface User {
   id: string;
+  fullName: string;
   email: string;
-  name: string;
-  phone?: string;
-  avatar?: string;
-  role: 'USER' | 'AGENT' | 'ADMIN';
+  phoneNumber?: string;
+  role: string[];
+  bio?: string | null;
+  specialization?: string | null;
+  yearsOfExperience?: number | null;
+  subscriptionType?: string | null;
+  subscriptionStatus?: string | null;
+  profileImageUrl?: string | null;
 }
 
 interface RegisterData {
   email: string;
   password: string;
-  name: string;
-  phone?: string;
+  fullName: string;
+  phoneNumber?: string;
   [key: string]: unknown;
+}
+
+interface LoginTokens {
+  accessToken: { token: string; expires: string };
+  refreshToken: { token: string; expires: string };
+}
+
+interface LoginResponse {
+  tokens?: LoginTokens;
 }
 
 interface AuthContextType {
@@ -72,16 +86,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post<{
-        user: User;
-        tokens: { accessToken: string };
-      }>('/auth/login', { email, password });
-      const { user: userData, tokens } = response.data;
-      setUser(userData);
-      setAccessToken(tokens.accessToken);
-      setAccessToken(tokens.accessToken);
+      const response = await apiClient.post<LoginResponse>('/login', {
+        email,
+        password,
+      });
+
+      const data = response.data || response;
+      if (!data.tokens) {
+        throw new Error('Invalid response structure: Tokens missing');
+      }
+      const { accessToken, refreshToken } = data.tokens;
+
+      if (!accessToken?.token || !refreshToken?.token) {
+        throw new Error('Invalid response structure: Tokens missing');
+      }
+
+      setAccessToken(accessToken.token);
+      localStorage.setItem('auth_token', accessToken.token);
+      localStorage.setItem('refresh_token', refreshToken.token);
+
+      await checkAuth(accessToken.token);
     } catch (err: unknown) {
-      const message = (err as Error).message || 'Login failed';
+      const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
       throw err;
     } finally {
@@ -93,16 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post<{
-        user: User;
-        tokens: { accessToken: string };
-      }>('/auth/register', data);
-      const { user: userData, tokens } = response.data;
-      setUser(userData);
-      setAccessToken(tokens.accessToken);
-      setAccessToken(tokens.accessToken);
+      await apiClient.post('/register', data);
+      // Registration successful, do nothing else (UI will handle toast/redirection)
     } catch (err: unknown) {
-      const message = (err as Error).message || 'Registration failed';
+      const message =
+        err instanceof Error ? err.message : 'Registration failed';
       setError(message);
       throw err;
     } finally {
@@ -112,40 +133,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await apiClient.post('/auth/logout');
-    } catch {
-      // Ignore errors
+      // Optional: Call logout endpoint if exists
+      // await apiClient.post('/logout');
     } finally {
       setUser(null);
       setAccessToken(null);
+      localStorage.removeItem('auth_user');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
     }
   };
 
-  const refreshToken = async () => {
-    try {
-      const response = await apiClient.post<{ accessToken: string }>(
-        '/auth/refresh'
-      );
-      setAccessToken(response.data.accessToken);
-    } catch {
-      setUser(null);
-      setAccessToken(null);
-      throw new Error('Session expired');
-    }
-  };
+  const checkAuth = async (token?: string) => {
+    const currentToken =
+      token || accessToken || localStorage.getItem('auth_token');
+    if (!currentToken) return;
 
-  const checkAuth = async () => {
-    if (!accessToken) return;
     try {
-      const response = await apiClient.get<{ user: User }>('/auth/me');
-      setUser(response.data.user);
-    } catch {
-      // Try refresh
-      try {
-        await refreshToken();
-      } catch {
-        // handled in refreshToken
-      }
+      // Assuming there is an endpoint to get current user.
+      const response = await apiClient.get<User>('/me', {
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+        },
+      });
+
+      // Handle potential response structure variations
+      // The API returns { user: { ... } }
+      const responseData = response as unknown as {
+        data?: { user?: User } | User;
+        user?: User;
+      };
+      const data = responseData.data || responseData;
+      const userData = (data as { user?: User }).user || (data as User);
+
+      setUser(userData);
+      localStorage.setItem('auth_user', JSON.stringify(userData));
+    } catch (error) {
+      // If 401, try to refresh or logout
+      console.error('Check Auth Error', error);
+      // only logout if explicitly unauthorized or malformed token, prevent loop if network error
+      // logout();
     }
   };
 

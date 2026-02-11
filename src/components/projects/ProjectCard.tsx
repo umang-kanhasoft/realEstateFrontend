@@ -4,12 +4,12 @@ import {
   Collections,
   Download,
   East,
+  Email,
   ExpandLess,
   ExpandMore,
   FavoriteBorder,
   Info,
   LocationOn,
-  Phone,
   WhatsApp,
 } from '@mui/icons-material';
 import {
@@ -29,8 +29,12 @@ export interface ProjectCardProps {
     id: string;
     name: string;
     builderName: string;
+    builderEmail?: string;
+    builderPhone?: string;
+    builderId?: string;
     location: string;
     priceRange: string;
+    brochureUrl?: string;
     areaRange: string;
     configurations: {
       bhk: string;
@@ -40,7 +44,8 @@ export interface ProjectCardProps {
     }[];
     usp: string[];
     reraId: string;
-    badges: string[];
+    isFeatured: boolean;
+    ecoFriendly: boolean;
     image: string;
     landmarks: {
       type: string;
@@ -64,7 +69,6 @@ function ProjectCard({ project }: ProjectCardProps) {
     <div
       className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl"
       style={{ cursor: 'pointer' }}
-      onClick={() => router.push(`/projects/${project.id}`)}
     >
       {/* Image Section */}
       <Box className="relative h-56 w-full flex-shrink-0 overflow-hidden bg-gray-100 sm:h-64 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
@@ -76,15 +80,17 @@ function ProjectCard({ project }: ProjectCardProps) {
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute left-4 top-4 z-10 flex flex-col gap-1">
-          {project.badges?.map((badge, i) => (
-            <span
-              key={i}
-              className="w-fit rounded-md bg-blue-600/90 px-2 py-1 text-[10px] font-bold uppercase text-white shadow-sm backdrop-blur-sm"
-            >
-              {badge.replace('_', ' ')}
+        <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
+          {project.isFeatured && (
+            <span className="w-fit rounded-lg bg-yellow-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-lg backdrop-blur-sm">
+              Featured
             </span>
-          ))}
+          )}
+          {project.ecoFriendly && (
+            <span className="w-fit rounded-lg bg-green-600/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg backdrop-blur-sm">
+              Eco Friendly
+            </span>
+          )}
         </div>
         <IconButton
           className="absolute right-4 top-4 z-10 bg-white/80 text-gray-700 shadow-sm backdrop-blur-sm hover:bg-white"
@@ -250,7 +256,10 @@ function ProjectCard({ project }: ProjectCardProps) {
           <div className="w-full lg:w-auto">
             <Typography className="mr-2 flex flex-col items-baseline gap-1 text-xs text-gray-500 sm:flex-row">
               Builder:
-              <span className="cursor-pointer text-sm font-bold text-gray-700 hover:underline">
+              <span
+                className="cursor-pointer text-sm font-bold text-gray-700 hover:underline"
+                onClick={() => router.push(`/builders/${project.builderId}`)}
+              >
                 {project.builderName}
               </span>
             </Typography>
@@ -261,16 +270,35 @@ function ProjectCard({ project }: ProjectCardProps) {
               <IconButton
                 className="border border-green-500 text-green-600 hover:bg-green-50"
                 size="small"
+                onClick={() => {
+                  const phoneNumber = project.builderPhone
+                    ?.replace(/\s+/g, '')
+                    .replace(/[^0-9+]/g, '');
+                  if (phoneNumber) {
+                    const message = `Hi, I'm interested in ${project.name} by ${project.builderName}.`;
+                    window.open(
+                      `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
+                      '_blank'
+                    );
+                  }
+                }}
               >
                 <WhatsApp fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Call Now">
+            <Tooltip title="Mail Now">
               <IconButton
                 className="border border-blue-500 text-blue-600 hover:bg-blue-50"
                 size="small"
+                onClick={() => {
+                  if (project.builderEmail) {
+                    const subject = `Inquiry about ${project.name}`;
+                    const body = `Hi ${project.builderName},\n\nI'm interested in your project ${project.name} located at ${project.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
+                    window.location.href = `mailto:${project.builderEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                  }
+                }}
               >
-                <Phone fontSize="small" />
+                <Email fontSize="small" />
               </IconButton>
             </Tooltip>
             <Button
@@ -278,6 +306,9 @@ function ProjectCard({ project }: ProjectCardProps) {
               className="flex-1 whitespace-nowrap rounded-full border-secondary-900 px-4 py-1.5 text-xs font-bold normal-case text-secondary-900 hover:bg-secondary-900 hover:text-white sm:flex-none"
               startIcon={<Download fontSize="small" />}
               sx={{ textTransform: 'none' }}
+              href={String(project.brochureUrl)}
+              target="_blank"
+              download
             >
               Brochure
             </Button>
@@ -285,6 +316,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               variant="contained"
               className="flex-1 whitespace-nowrap rounded-full bg-secondary-900 px-5 py-2 text-xs font-bold normal-case text-white shadow-md hover:bg-black sm:flex-none"
               endIcon={<East fontSize="small" />}
+              onClick={() => router.push(`/projects/${project.id}`)}
               sx={{ textTransform: 'none' }}
             >
               View Details
