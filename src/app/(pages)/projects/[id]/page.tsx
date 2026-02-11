@@ -1,7 +1,6 @@
 'use client';
 
 import AmenityCard from '@/components/property/AmenityCard';
-import DynamicMap from '@/components/property/DynamicMap';
 import NearbyLandmarks from '@/components/property/NearbyLandmarks';
 import OverviewItem from '@/components/property/OverviewItem';
 import ProjectGallary, {
@@ -14,6 +13,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import Loader from '@/components/common/Loader';
 import PropertyInquiryForm from '@/components/forms/PropertyInquiryForm';
+import DynamicMap from '@/components/property/DynamicMap';
 import { formatCurrency } from '@/lib/utils/format';
 import {
   Amenities,
@@ -38,21 +38,13 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import FloorPlans from './FloorPlans';
-
-const projectDetail = {
-  title: 'The Empiirean',
-  detail: '4, 5 BHK Flat for sale in Chharodi, Ahmedabad',
-  developer: 'Pravish Group',
-  address: 'Chharodi, Ahmedabad, Gujarat',
-  rera: 'PR/GJ/AHMEDABAD/123/2024',
-};
 
 interface AmenityType {
   id: string;
@@ -62,29 +54,27 @@ interface AmenityType {
 
 export default function ProjectPage() {
   const { id } = useParams();
-  // const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [value, setValue] = useState(''); // Will be set when data loads
+  const [value, setValue] = useState('');
   const [similarProjectData, setSimilarProjectData] = useState<Project[]>([]);
   const [otherProjectData, setOtherProjectData] = useState<Project[]>([]);
 
-  // Extract unique BHK types from configurations for dynamic tabs
-  const getUniqueBhkTypes = (): number[] => {
+  // Memoize BHK types to avoid recalculation on every render
+  const bhkTypes = useMemo<number[]>(() => {
     if (!projectData?.pricingAndInventory?.configurations) return [];
-    const bhkTypes = [
+    const types = [
       ...new Set(
         projectData.pricingAndInventory.configurations.map(
           (config: Configuration) => config.bedrooms
         )
       ),
     ];
-    return bhkTypes.sort((a: number, b: number) => a - b);
-  };
+    return types.sort((a: number, b: number) => a - b);
+  }, [projectData?.pricingAndInventory?.configurations]);
 
-  const bhkTypes = getUniqueBhkTypes();
-
+  // Fetch primary project data
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -92,7 +82,7 @@ export default function ProjectPage() {
         const project = await ProjectsService.getProjectById(id as string);
         setProjectData(project.project);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch project:', error);
       } finally {
         setLoading(false);
       }
@@ -103,40 +93,33 @@ export default function ProjectPage() {
     }
   }, [id]);
 
+  // Fetch similar/related projects — uses separate loading state
+  // and depends on stable values, not the entire projectData object
+  const fetchRelatedProjects = useCallback(async (data: ProjectData) => {
+    try {
+      const [similarProjectsRes, otherProjectsRes] = await Promise.all([
+        ProjectsService.getProjects({
+          priceMin: Number(data.pricingAndInventory?.priceRange?.minPrice) || 0,
+          priceMax: Number(data.pricingAndInventory?.priceRange?.maxPrice) || 0,
+          area: data.location?.locality || undefined,
+        }),
+        ProjectsService.getProjects({
+          builder: data.projectInfo?.developer?.id || undefined,
+        }),
+      ]);
+
+      setSimilarProjectData(similarProjectsRes.projects);
+      setOtherProjectData(otherProjectsRes.projects);
+    } catch (error) {
+      console.error('Failed to fetch related projects:', error);
+    }
+  }, []);
+
   useEffect(() => {
-    if (!projectData) return;
-
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-
-        const [similarProjectsRes, otherProjectsRes] = await Promise.all([
-          ProjectsService.getProjects({
-            priceMin:
-              Number(projectData?.pricingAndInventory?.priceRange?.minPrice) ||
-              0,
-            priceMax:
-              Number(projectData?.pricingAndInventory?.priceRange?.maxPrice) ||
-              0,
-            area: projectData?.location?.locality || undefined,
-          }),
-
-          ProjectsService.getProjects({
-            builder: projectData?.projectInfo?.developer?.id || undefined,
-          }),
-        ]);
-
-        setSimilarProjectData(similarProjectsRes.projects);
-        setOtherProjectData(otherProjectsRes.projects);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, [projectData]);
+    if (projectData) {
+      fetchRelatedProjects(projectData);
+    }
+  }, [projectData, fetchRelatedProjects]);
 
   // Set default tab to first available BHK type when data loads
   useEffect(() => {
@@ -145,8 +128,8 @@ export default function ProjectPage() {
     }
   }, [bhkTypes, value]);
 
-  // if (loading) return <Loader />;
-  if (!projectData || loading) return <Loader />;
+  if (loading || !projectData) return <Loader />;
+
   const {
     projectInfo,
     location,
@@ -156,8 +139,6 @@ export default function ProjectPage() {
     metadata,
     towers,
   } = projectData;
-
-  console.log(location, 'check location');
 
   const overviewData = [
     { label: 'Project Name', value: projectInfo?.name || '' },
@@ -184,6 +165,11 @@ export default function ProjectPage() {
     { label: 'Possession', value: projectInfo?.possessionDate || '' },
     { label: 'RERA No', value: projectInfo?.reraId || '' },
   ];
+
+  // Safely extract amenities list
+  const amenityList: AmenityType[] = amenities
+    ? Object.values(amenities as Amenities).flat()
+    : [];
 
   return (
     <Box bgcolor="#f9f9f9" minHeight="100vh" pb={8}>
@@ -320,23 +306,25 @@ export default function ProjectPage() {
                 <Typography variant="h5" fontWeight={700}>
                   Floor Plans
                 </Typography>
-                <Tabs
-                  value={value}
-                  onChange={(_, newValue) => setValue(newValue)}
-                  textColor="primary"
-                  indicatorColor="primary"
-                  variant="scrollable"
-                  scrollButtons="auto"
-                >
-                  {bhkTypes.map((bhk: number) => (
-                    <Tab
-                      key={bhk}
-                      label={`${bhk} BHK`}
-                      value={bhk.toString()}
-                      sx={{ fontWeight: 600 }}
-                    />
-                  ))}
-                </Tabs>
+                {bhkTypes.length > 0 && (
+                  <Tabs
+                    value={value || false}
+                    onChange={(_, newValue) => setValue(newValue)}
+                    textColor="primary"
+                    indicatorColor="primary"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                  >
+                    {bhkTypes.map((bhk: number) => (
+                      <Tab
+                        key={bhk}
+                        label={`${bhk} BHK`}
+                        value={bhk.toString()}
+                        sx={{ fontWeight: 600 }}
+                      />
+                    ))}
+                  </Tabs>
+                )}
               </Box>
               {bhkTypes.map(
                 (bhk: number) =>
@@ -356,10 +344,10 @@ export default function ProjectPage() {
                         balconies: config.balconies || 0,
                         carpetAreaSqft: Math.floor(
                           (config.superBuiltUpAreaSqft || 0) * 0.75
-                        ), // Estimate
+                        ),
                         builtUpAreaSqft: Math.floor(
                           (config.superBuiltUpAreaSqft || 0) * 0.85
-                        ), // Estimate
+                        ),
                         superBuiltUpAreaSqft: config.superBuiltUpAreaSqft || 0,
                         terraceAvailable: false,
                         gardenAccess: false,
@@ -412,29 +400,27 @@ export default function ProjectPage() {
             <Divider sx={{ mb: 5 }} />
 
             {/* Amenities */}
-            <Box mb={6}>
-              <Typography variant="h5" fontWeight={700} mb={3}>
-                Amenities
-              </Typography>
-              <Grid container spacing={3}>
-                {Object.values(amenities as Amenities)?.flatMap(item =>
-                  item.map((amenity: AmenityType, index: number) => {
-                    return (
-                      <Grid item xs={6} sm={4} md={2} key={index}>
-                        <AmenityCard title={amenity.name} />
-                      </Grid>
-                    );
-                  })
-                )}
-              </Grid>
-            </Box>
+            {amenityList.length > 0 && (
+              <Box mb={6}>
+                <Typography variant="h5" fontWeight={700} mb={3}>
+                  Amenities
+                </Typography>
+                <Grid container spacing={3}>
+                  {amenityList.map((amenity: AmenityType, index: number) => (
+                    <Grid item xs={6} sm={4} md={2} key={amenity.id || index}>
+                      <AmenityCard title={amenity.name} />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
 
             <Divider sx={{ mb: 5 }} />
 
             {/* About Project */}
             <Box mb={6}>
               <Typography variant="h5" fontWeight={700} mb={3}>
-                About {projectDetail.title}
+                About {projectInfo?.name}
               </Typography>
               <Paper
                 sx={{
@@ -456,19 +442,19 @@ export default function ProjectPage() {
             </Box>
 
             {/* Property Video */}
-            <Box mb={6}>
-              <Typography variant="h5" fontWeight={700} mb={3}>
-                Property Video
-              </Typography>
-              <Box
-                sx={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  height: 400,
-                  bgcolor: '#000',
-                }}
-              >
-                {media?.videos?.length ? (
+            {media?.videos?.length ? (
+              <Box mb={6}>
+                <Typography variant="h5" fontWeight={700} mb={3}>
+                  Property Video
+                </Typography>
+                <Box
+                  sx={{
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    height: 400,
+                    bgcolor: '#000',
+                  }}
+                >
                   <video
                     width="100%"
                     height="100%"
@@ -478,9 +464,9 @@ export default function ProjectPage() {
                   >
                     Your browser does not support the video tag.
                   </video>
-                ) : null}
+                </Box>
               </Box>
-            </Box>
+            ) : null}
 
             {/* What's Nearby */}
             <Box mb={6}>
@@ -498,142 +484,146 @@ export default function ProjectPage() {
             </Box>
 
             {/* Similar Projects */}
-            <Box mb={6}>
-              <Typography variant="h5" fontWeight={700} mb={3}>
-                Similar Projects
-              </Typography>
-              <Swiper
-                spaceBetween={24}
-                slidesPerView={1}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 2.5 },
-                }}
-                navigation
-                pagination={{ clickable: true }}
-                modules={[Navigation, Pagination, Autoplay]}
-                style={{ paddingBottom: '40px' }}
-              >
-                {similarProjectData?.map((project, index) => (
-                  <SwiperSlide key={index}>
-                    <Card
-                      sx={{
-                        borderRadius: '16px',
-                        height: '100%',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <Box sx={{ height: 200, overflow: 'hidden' }}>
-                        {project?.mainImageUrl && (
-                          <Image
-                            src={project.mainImageUrl}
-                            alt={project.name}
-                            className="!static w-full object-cover"
-                            fill
-                          />
-                        )}
-                      </Box>
-                      <CardContent>
-                        <Typography variant="h6" fontWeight={700} noWrap>
-                          {project?.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          {project?.area}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          color="primary.main"
-                          fontWeight={700}
-                          mt={1}
-                        >
-                          {formatCurrency(Number(project?.priceStartingFrom))}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          display="block"
-                          color="text.secondary"
-                        >
-                          {project?.area} • {project?.propertyType}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </Box>
+            {similarProjectData.length > 0 && (
+              <Box mb={6}>
+                <Typography variant="h5" fontWeight={700} mb={3}>
+                  Similar Projects
+                </Typography>
+                <Swiper
+                  spaceBetween={24}
+                  slidesPerView={1}
+                  breakpoints={{
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 2.5 },
+                  }}
+                  navigation
+                  pagination={{ clickable: true }}
+                  modules={[Navigation, Pagination, Autoplay]}
+                  style={{ paddingBottom: '40px' }}
+                >
+                  {similarProjectData.map((project, index) => (
+                    <SwiperSlide key={project.id || index}>
+                      <Card
+                        sx={{
+                          borderRadius: '16px',
+                          height: '100%',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <Box sx={{ height: 200, overflow: 'hidden' }}>
+                          {project?.mainImageUrl && (
+                            <Image
+                              src={project.mainImageUrl}
+                              alt={project.name}
+                              className="!static w-full object-cover"
+                              fill
+                            />
+                          )}
+                        </Box>
+                        <CardContent>
+                          <Typography variant="h6" fontWeight={700} noWrap>
+                            {project?.name}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            gutterBottom
+                          >
+                            {project?.area}
+                          </Typography>
+                          <Typography
+                            variant="subtitle1"
+                            color="primary.main"
+                            fontWeight={700}
+                            mt={1}
+                          >
+                            {formatCurrency(Number(project?.priceStartingFrom))}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            display="block"
+                            color="text.secondary"
+                          >
+                            {project?.area} • {project?.propertyType}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </Box>
+            )}
 
             {/* Other Projects */}
-            <Box mb={6}>
-              <Typography variant="h5" fontWeight={700} mb={3}>
-                Other Projects By {projectData?.projectInfo?.developer?.name}
-              </Typography>
-              <Swiper
-                spaceBetween={24}
-                slidesPerView={1}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 2.5 },
-                }}
-                navigation
-                pagination={{ clickable: true }}
-                modules={[Navigation, Pagination, Autoplay]}
-                style={{ paddingBottom: '40px' }}
-              >
-                {otherProjectData?.map((project, index) => (
-                  <SwiperSlide key={index}>
-                    <Card
-                      sx={{
-                        borderRadius: '16px',
-                        height: '100%',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <Box sx={{ height: 200, overflow: 'hidden' }}>
-                        {project?.mainImageUrl && (
-                          <Image
-                            src={project.mainImageUrl}
-                            alt={project.name}
-                            className="!static w-full object-cover"
-                            fill
-                          />
-                        )}
-                      </Box>
-                      <CardContent>
-                        <Typography variant="h6" fontWeight={700} noWrap>
-                          {project?.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          {project?.area}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          color="primary.main"
-                          fontWeight={700}
-                          mt={1}
-                        >
-                          {formatCurrency(Number(project?.priceStartingFrom))}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          display="block"
-                          color="text.secondary"
-                        >
-                          {project?.area} • {project?.propertyType}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </Box>
+            {otherProjectData.length > 0 && (
+              <Box mb={6}>
+                <Typography variant="h5" fontWeight={700} mb={3}>
+                  Other Projects By {projectData?.projectInfo?.developer?.name}
+                </Typography>
+                <Swiper
+                  spaceBetween={24}
+                  slidesPerView={1}
+                  breakpoints={{
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 2.5 },
+                  }}
+                  navigation
+                  pagination={{ clickable: true }}
+                  modules={[Navigation, Pagination, Autoplay]}
+                  style={{ paddingBottom: '40px' }}
+                >
+                  {otherProjectData.map((project, index) => (
+                    <SwiperSlide key={project.id || index}>
+                      <Card
+                        sx={{
+                          borderRadius: '16px',
+                          height: '100%',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <Box sx={{ height: 200, overflow: 'hidden' }}>
+                          {project?.mainImageUrl && (
+                            <Image
+                              src={project.mainImageUrl}
+                              alt={project.name}
+                              className="!static w-full object-cover"
+                              fill
+                            />
+                          )}
+                        </Box>
+                        <CardContent>
+                          <Typography variant="h6" fontWeight={700} noWrap>
+                            {project?.name}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            gutterBottom
+                          >
+                            {project?.area}
+                          </Typography>
+                          <Typography
+                            variant="subtitle1"
+                            color="primary.main"
+                            fontWeight={700}
+                            mt={1}
+                          >
+                            {formatCurrency(Number(project?.priceStartingFrom))}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            display="block"
+                            color="text.secondary"
+                          >
+                            {project?.area} • {project?.propertyType}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </Box>
+            )}
 
             <Faq />
           </Grid>
@@ -672,97 +662,109 @@ export default function ProjectPage() {
               </Box>
 
               {/* Tower Overview */}
-              <Box mb={4}>
-                <Typography variant="h6" fontWeight={700} mb={2}>
-                  Tower Details
-                </Typography>
-                <Card
-                  sx={{
-                    borderRadius: '16px',
-                    p: 0,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  }}
-                >
-                  {towers?.map((tower, index: number) => (
-                    <Box key={tower.id || index} p={3}>
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight={700}
-                        color="primary"
-                        gutterBottom
-                      >
-                        {tower.blockName} ({tower.towerLabel})
-                      </Typography>
-                      <Divider sx={{ my: 1.5 }} />
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2" color="text.secondary">
-                          Total Floors
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {tower.storey}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2" color="text.secondary">
-                          Units per Floor
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {tower.unitsPerFloor}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between">
-                        <Typography variant="body2" color="text.secondary">
-                          Lifts per Tower
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {tower.lift}
-                        </Typography>
-                      </Box>
-                      {index < towers.length - 1 && (
-                        <Divider sx={{ mt: 2, mb: 1 }} />
-                      )}
-                    </Box>
-                  ))}
-                </Card>
-              </Box>
-
-              {/* Key Features */}
-              <Box>
-                <Typography variant="h6" fontWeight={700} mb={2}>
-                  Key Highlights
-                </Typography>
-                <Card
-                  sx={{
-                    borderRadius: '16px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  }}
-                >
-                  <Box p={3}>
-                    {metadata?.keyFeatures?.map(
-                      (feature: string, idx: number) => (
-                        <Box
-                          key={idx}
-                          display="flex"
-                          gap={2}
-                          mb={1.5}
-                          alignItems="flex-start"
+              {towers && towers.length > 0 && (
+                <Box mb={4}>
+                  <Typography variant="h6" fontWeight={700} mb={2}>
+                    Tower Details
+                  </Typography>
+                  <Card
+                    sx={{
+                      borderRadius: '16px',
+                      p: 0,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    {towers.map((tower, index: number) => (
+                      <Box key={tower.id || index} p={3}>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="primary"
+                          gutterBottom
                         >
-                          <Typography
-                            variant="body2"
-                            lineHeight={1.6}
-                            color="text.secondary"
-                          >
-                            <CheckCircleIcon
-                              sx={{ color: 'success.main', mr: 1 }}
-                            />{' '}
-                            {feature}
+                          {tower.blockName} ({tower.towerLabel})
+                        </Typography>
+                        <Divider sx={{ my: 1.5 }} />
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          mb={1}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Total Floors
+                          </Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {tower.storey}
                           </Typography>
                         </Box>
-                      )
-                    )}
-                  </Box>
-                </Card>
-              </Box>
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          mb={1}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Units per Floor
+                          </Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {tower.unitsPerFloor}
+                          </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">
+                            Lifts per Tower
+                          </Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {tower.lift}
+                          </Typography>
+                        </Box>
+                        {index < towers.length - 1 && (
+                          <Divider sx={{ mt: 2, mb: 1 }} />
+                        )}
+                      </Box>
+                    ))}
+                  </Card>
+                </Box>
+              )}
+
+              {/* Key Features */}
+              {metadata?.keyFeatures && metadata.keyFeatures.length > 0 && (
+                <Box>
+                  <Typography variant="h6" fontWeight={700} mb={2}>
+                    Key Highlights
+                  </Typography>
+                  <Card
+                    sx={{
+                      borderRadius: '16px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    <Box p={3}>
+                      {metadata.keyFeatures.map(
+                        (feature: string, idx: number) => (
+                          <Box
+                            key={idx}
+                            display="flex"
+                            gap={2}
+                            mb={1.5}
+                            alignItems="flex-start"
+                          >
+                            <Typography
+                              variant="body2"
+                              lineHeight={1.6}
+                              color="text.secondary"
+                            >
+                              <CheckCircleIcon
+                                sx={{ color: 'success.main', mr: 1 }}
+                              />{' '}
+                              {feature}
+                            </Typography>
+                          </Box>
+                        )
+                      )}
+                    </Box>
+                  </Card>
+                </Box>
+              )}
             </Box>
           </Grid>
         </Grid>

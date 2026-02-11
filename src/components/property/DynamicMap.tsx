@@ -1,5 +1,6 @@
 'use client';
 
+import { useLeaflet } from '@/hooks/useLeaflet';
 import {
   generateGoogleMapsUrl,
   generateOSMUrl,
@@ -116,44 +117,16 @@ export default function DynamicMap({
   });
   const mapInstanceRef = useRef<LeafletMap | null>(null);
 
-  // Load Leaflet CSS and JS from CDN
-  const loadLeaflet = () => {
-    return new Promise<void>((resolve, reject) => {
-      if (window.L) {
-        resolve();
-        return;
-      }
+  const { isLoaded: isLeafletLoaded, error: leafletError } = useLeaflet();
 
-      // Load CSS
-      const cssLink = document.createElement('link');
-      cssLink.rel = 'stylesheet';
-      cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-      cssLink.crossOrigin = '';
-      document.head.appendChild(cssLink);
-
-      // Load JS
-      const jsScript = document.createElement('script');
-      jsScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      jsScript.integrity =
-        'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
-      jsScript.crossOrigin = '';
-
-      jsScript.onload = () => {
-        resolve();
-      };
-
-      jsScript.onerror = () => {
-        reject(new Error('Failed to load Leaflet'));
-      };
-
-      document.head.appendChild(jsScript);
-    });
-  };
-
-  // Initialize map
-  const initializeMap = useCallback(async () => {
-    if (!mapRef.current || !coordinates || !window.L) {
+  // Initialize map - depends on coordinates and Leaflet being loaded
+  const initializeMap = useCallback(() => {
+    if (
+      !mapRef.current ||
+      !coordinates ||
+      typeof window === 'undefined' ||
+      !window.L
+    ) {
       return;
     }
 
@@ -161,6 +134,7 @@ export default function DynamicMap({
       // Clear existing map if any
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
 
       // Create map instance
@@ -171,13 +145,13 @@ export default function DynamicMap({
         attributionControl: true,
       });
 
-      // Add tile layer with better styling
+      // Add tile layer
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors | © RealEstate',
         maxZoom: 19,
       }).addTo(map);
 
-      // Create custom property marker icon
+      // Custom Icon
       const propertyIcon = window.L.divIcon({
         html: `
           <div style="
@@ -207,36 +181,44 @@ export default function DynamicMap({
         popupAnchor: [0, -32],
       });
 
-      // Add marker with popup
+      // Add marker
       const marker = window.L.marker([coordinates.lat, coordinates.lng], {
         icon: propertyIcon,
       }).addTo(map);
 
-      // Create popup content
+      // Popup
       const popupContent = `
         <div style="min-width: 200px; font-family: Arial, sans-serif;">
           <h4 style="margin: 0 0 8px 0; color: #1976d2;">Project Location</h4>
-          <p style="margin: 4px 0; color: #666;">${address || locality || 'Location'}</p>
-          ${locality ? `<p style="margin: 4px 0; color: #888; font-size: 12px;">📍 ${locality}</p>` : ''}
+          <p style="margin: 4px 0; color: #666;">${
+            address || locality || 'Location'
+          }</p>
+          ${
+            locality
+              ? `<p style="margin: 4px 0; color: #888; font-size: 12px;">📍 ${locality}</p>`
+              : ''
+          }
           <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
-            <small style="color: #999;">Coordinates: ${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}</small>
+            <small style="color: #999;">Coordinates: ${coordinates.lat.toFixed(
+              6
+            )}, ${coordinates.lng.toFixed(6)}</small>
           </div>
         </div>
       `;
 
       marker.bindPopup(popupContent).openPopup();
 
-      // Add circle to show approximate area
+      // Circle
       window.L.circle([coordinates.lat, coordinates.lng], {
         color: '#1976d2',
         fillColor: '#2196f3',
         fillOpacity: 0.1,
-        radius: 500, // 500 meter radius
+        radius: 500,
       }).addTo(map);
 
       mapInstanceRef.current = map;
 
-      // Generate control URLs
+      // Update controls
       setMapControls({
         directionsUrl: generateGoogleMapsUrl(coordinates, address),
         shareUrl: generateOSMUrl(coordinates),
@@ -250,27 +232,26 @@ export default function DynamicMap({
     }
   }, [coordinates, address, locality]);
 
+  // Effect 1: Determine coordinates (Geocoding)
   useEffect(() => {
-    const initMap = async () => {
+    const resolveCoordinates = async () => {
       try {
         setLoading(true);
         setError(null);
 
         let coords: Coordinates | null = null;
 
-        // Use provided coordinates if available
         if (latitude && longitude) {
           coords = { lat: latitude, lng: longitude };
         } else if (address || locality) {
-          // Otherwise geocode the address
-          const fullAddress =
-            `${address || ''}, ${locality || ''}, ${city || ''}`.trim();
+          const fullAddress = `${address || ''}, ${locality || ''}, ${
+            city || ''
+          }`.trim();
           const geocoded = await geocodeAddress(fullAddress);
 
           if (geocoded) {
             coords = geocoded.coordinates;
           } else {
-            // Fallback to default city coordinates
             coords = getDefaultCoordinates(city || locality);
           }
         }
@@ -282,35 +263,37 @@ export default function DynamicMap({
         }
 
         setCoordinates(coords);
-
-        // Load Leaflet
-        await loadLeaflet();
-
-        // Initialize map
-        await initializeMap();
       } catch (error) {
         console.error('Map setup error:', error);
-        setError('Failed to load map');
+        setError('Failed to load location');
         setLoading(false);
       }
     };
 
-    initMap();
+    resolveCoordinates();
+  }, [latitude, longitude, address, locality, city]);
 
-    // Cleanup
+  // Handle Leaflet loading errors
+  useEffect(() => {
+    if (leafletError) {
+      setError('Failed to load map library');
+      setLoading(false);
+    }
+  }, [leafletError]);
+
+  // Effect 3: Initialize Map when Coordinates AND Leaflet are ready
+  useEffect(() => {
+    if (coordinates && isLeafletLoaded && !leafletError) {
+      initializeMap();
+    }
+    // Cleanup function to remove map instance on unmount
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
     };
-  }, [latitude, longitude, address, locality, city, initializeMap]);
-
-  useEffect(() => {
-    if (coordinates && window.L) {
-      initializeMap();
-    }
-  }, [coordinates, initializeMap]);
+  }, [coordinates, isLeafletLoaded, leafletError, initializeMap]);
 
   const handleGetDirections = () => {
     if (mapControls.directionsUrl) {

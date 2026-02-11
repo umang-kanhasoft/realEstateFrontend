@@ -1,61 +1,57 @@
+'use client';
+
 import BlogDetailClient from '@/components/blog/BlogDetailClient';
 import { blogService } from '@/services/blog.service';
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { Blog } from '@/types/blog.types';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-interface BlogPageProps {
-  params: {
-    slug: string;
-  };
-}
+export default function BlogPage() {
+  const params = useParams<{ slug: string }>();
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export async function generateMetadata({
-  params,
-}: BlogPageProps): Promise<Metadata> {
-  try {
-    const response = await blogService.getBlogBySlug(params.slug);
-    const blog = response.blog;
-
-    if (!blog) {
-      return {
-        title: 'Article Not Found',
-      };
-    }
-
-    return {
-      title: `${blog.title} | Real Estate Insights`,
-      description: blog.excerpt,
-      openGraph: {
-        title: blog.title,
-        description: blog.excerpt,
-        images: blog.coverImageUrl ? [blog.coverImageUrl] : [],
-        type: 'article',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: blog.title,
-        description: blog.excerpt,
-        images: blog.coverImageUrl ? [blog.coverImageUrl] : [],
-      },
+  useEffect(() => {
+    const fetchBlog = async () => {
+      if (!params.slug) return;
+      try {
+        setIsLoading(true);
+        const response = await blogService.getBlogBySlug(params.slug);
+        if (response && response.blog) {
+          setBlog(response.blog);
+        } else {
+          setError('Blog not found.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch blog:', err);
+        setError('Failed to load article. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
     };
-  } catch {
-    return {
-      title: 'Blog Article',
-    };
+
+    fetchBlog();
+  }, [params.slug]);
+
+  if (isLoading) {
+    return (
+      <Box className="flex min-h-screen items-center justify-center bg-gray-50">
+        <CircularProgress size={40} className="text-primary-600" />
+      </Box>
+    );
   }
-}
 
-export default async function BlogPage({ params }: BlogPageProps) {
-  try {
-    const response = await blogService.getBlogBySlug(params.slug);
-    const blog = response.blog;
-
-    if (!blog) {
-      notFound();
-    }
-
-    return <BlogDetailClient blog={blog} />;
-  } catch {
-    notFound();
+  if (error || !blog) {
+    return (
+      <Box className="flex min-h-screen items-center justify-center bg-gray-50">
+        <Typography variant="h6" className="text-gray-500">
+          {error || 'Article not found.'}
+        </Typography>
+      </Box>
+    );
   }
+
+  return <BlogDetailClient blog={blog} />;
 }
