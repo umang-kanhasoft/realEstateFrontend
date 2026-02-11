@@ -6,10 +6,12 @@ import {
 } from './enums';
 
 export interface ApiBuilder {
-  id: string;
+  id?: string;
   name: string;
   logoUrl?: string | null;
   isPrimary?: boolean;
+  contactEmail?: string;
+  phone?: string;
 }
 
 export interface ApiLandmark {
@@ -54,6 +56,7 @@ export interface ApiProjectObject {
   ecoFriendly: boolean;
   isFeatured: boolean;
   possessionDate: string | null;
+  brochureUrl?: string;
   currency: string;
   completionTime: number | null;
   totalUnits: number | null;

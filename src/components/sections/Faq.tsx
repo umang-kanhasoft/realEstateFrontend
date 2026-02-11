@@ -10,7 +10,46 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-const Faq = (): JSX.Element => {
+export interface Specifications {
+  constructionQuality?: string;
+  architecturalStyle?: string;
+  interiorCondition?: string;
+  furnishingStatus?: string[];
+  smartHomeFeature?: string[];
+  parkingType?: string[];
+  waterSupply?: string[];
+  powerBackup?: string[];
+  internetConnectivity?: string[];
+  legalStatus?: string[];
+  additionalFacilities?: string[];
+  structure?: string;
+  flooring?: {
+    living?: string;
+    bedroom?: string;
+    kitchen?: string;
+    bathroom?: string;
+  };
+  kitchen?: {
+    counter?: string;
+    cabinets?: string;
+    sink?: string;
+    fittings?: string;
+  };
+  toilets?: {
+    sanitary?: string;
+    fittings?: string;
+    shower?: string;
+    bathtub?: string;
+  };
+  electrical?: string;
+  doors_windows?: string;
+}
+
+export interface FaqProps {
+  specifications?: Specifications | null;
+}
+
+const Faq = ({ specifications }: FaqProps): JSX.Element => {
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange =
@@ -18,24 +57,86 @@ const Faq = (): JSX.Element => {
       setExpanded(isExpanded ? panel : false);
     };
 
-  const questions = [
-    {
-      q: 'Why choose Real Estate as your real estate consultant?',
-      a: 'Real Estate offers a verified database of premium properties, ensuring transparency and trust. Our expert consultants guide you through every step, from selection to documentation, providing a seamless home-buying experience.',
-    },
-    {
-      q: 'What services does a property consultant provide?',
-      a: 'We provide end-to-end services including property identification, site visits, price negotiation, legal verification, and assistance with home loans and registration processes.',
-    },
-    {
-      q: 'How do real estate advisors differ from property specialists?',
-      a: 'Real estate advisors provide strategic investment advice and long-term portfolio management, while property specialists focus on the transactional aspects of buying, selling, or leasing specific properties.',
-    },
-    {
-      q: 'Are the property listings on Real Estate verified?',
-      a: 'Yes, 100% of our listings go through a rigorous verification process. We physically inspect properties and verify ownership documents to ensure you only see genuine and legal listings.',
-    },
-  ];
+  const generateDynamicFaqs = () => {
+    if (!specifications) return [];
+
+    const dynamicFaqs = [];
+
+    // Construction Quality FAQ
+    if (specifications.constructionQuality) {
+      dynamicFaqs.push({
+        q: 'What is the construction quality of this project?',
+        a: `This project features ${specifications.constructionQuality} construction quality with ${specifications.structure?.toLowerCase() || 'high-quality materials and modern construction techniques'}.`,
+      });
+    }
+
+    // Smart Home Features FAQ
+    if (
+      specifications.smartHomeFeature &&
+      specifications.smartHomeFeature.length > 0
+    ) {
+      const features = specifications.smartHomeFeature
+        .join(', ')
+        .replace(/_/g, ' ');
+      dynamicFaqs.push({
+        q: 'What smart home features are available?',
+        a: `The project is equipped with modern smart home features including ${features}, providing you with convenience, security, and energy efficiency at your fingertips.`,
+      });
+    }
+
+    // Power Backup FAQ
+    if (specifications.powerBackup && specifications.powerBackup.length > 0) {
+      const backupTypes = specifications.powerBackup
+        .join(', ')
+        .replace(/_/g, ' ');
+      dynamicFaqs.push({
+        q: 'What kind of power backup is provided?',
+        a: `The project offers ${backupTypes} power backup solutions to ensure uninterrupted electricity supply for your daily needs and emergencies.`,
+      });
+    }
+
+    // Parking FAQ
+    if (specifications.parkingType && specifications.parkingType.length > 0) {
+      const parkingTypes = specifications.parkingType
+        .join(', ')
+        .replace(/_/g, ' ');
+      dynamicFaqs.push({
+        q: 'What parking facilities are available?',
+        a: `The project provides ${parkingTypes} parking facilities designed to accommodate multiple vehicles safely and conveniently for all residents.`,
+      });
+    }
+
+    // Legal Status FAQ
+    if (specifications.legalStatus && specifications.legalStatus.length > 0) {
+      const legalStatuses = specifications.legalStatus
+        .join(', ')
+        .replace(/_/g, ' ');
+      dynamicFaqs.push({
+        q: 'What are the legal clearances and approvals?',
+        a: `This project has all necessary legal approvals including ${legalStatuses}, ensuring complete transparency and peace of mind for your investment.`,
+      });
+    }
+
+    // Flooring FAQ
+    if (specifications.flooring) {
+      const flooringDetails = Object.entries(specifications.flooring)
+        .filter(([_, value]) => value)
+        .map(([room, type]) => `${room}: ${type}`)
+        .join(', ');
+
+      if (flooringDetails) {
+        dynamicFaqs.push({
+          q: 'What type of flooring is used in the apartments?',
+          a: `The project features premium flooring throughout: ${flooringDetails}. All flooring materials are carefully selected for durability, aesthetics, and easy maintenance.`,
+        });
+      }
+    }
+
+    return dynamicFaqs;
+  };
+
+  const dynamicQuestions = generateDynamicFaqs();
+  const questions = [...dynamicQuestions];
 
   return (
     <Container maxWidth="xl" className="my-32">

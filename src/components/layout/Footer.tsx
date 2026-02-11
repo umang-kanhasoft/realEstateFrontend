@@ -1,18 +1,55 @@
 'use client';
 
 import { useUI } from '@/hooks/useUI';
-import { Facebook, Instagram, LinkedIn, X, YouTube } from '@mui/icons-material';
-import {
-  Box,
-  Container,
-  Grid,
-  IconButton,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { areaService, AreaStats } from '@/services/area.service';
+import { ProjectsService } from '@/services/projects.service';
+import { Box, Container, Grid, Typography } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const Footer = (): JSX.Element | null => {
   const { state } = useUI();
+
+  const router = useRouter();
+
+  const [areas, setAreas] = useState<AreaStats[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
+
+  const { data } = useQuery({
+    queryKey: ['featured-projects'],
+    queryFn: () =>
+      ProjectsService.getProjects({
+        isFeatured: true,
+        limit: 10,
+        sortBy: 'price',
+        sortOrder: 'desc',
+      }),
+  });
+
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        // setIsLoading(true);
+        const response = await areaService.getAreas({
+          limit: 5,
+          offset: 0,
+          sortBy: 'property_count',
+          sortOrder: 'desc',
+        });
+
+        if (response.status === 'success' && response.data?.areas) {
+          setAreas(response.data.areas);
+        }
+      } catch (err) {
+        console.error('Failed to fetch areas:', err);
+        // setError('Failed to load neighborhoods');
+      }
+    };
+
+    fetchAreas();
+  }, []);
 
   if (!state.isFooterVisible) return null;
 
@@ -39,7 +76,7 @@ const Footer = (): JSX.Element | null => {
             </Typography>
           </Grid>
 
-          <Grid item xs={6} md={2}>
+          {/* <Grid item xs={6} md={2}>
             <Typography className="mb-4 font-bold text-gray-900">
               Quick Links
             </Typography>
@@ -48,28 +85,80 @@ const Footer = (): JSX.Element | null => {
                 key={l}
                 variant="body2"
                 className="mb-2 cursor-pointer text-gray-600 transition-colors hover:text-primary-600"
+                onClick={() => router.push('/')}
               >
                 {l}
+              </Typography>
+            ))}
+          </Grid> */}
+
+          <Grid item xs={6} md={2}>
+            <Typography className="mb-4 font-bold text-gray-900">
+              Trending Projects
+            </Typography>
+            {data?.projects?.slice(0, 5).map(l => (
+              <Typography
+                key={l.id}
+                variant="body2"
+                className="mb-2 cursor-pointer text-gray-600 transition-colors hover:text-primary-600"
+                onClick={() => router.push('/projects/' + l.id)}
+              >
+                {l.name}
               </Typography>
             ))}
           </Grid>
 
           <Grid item xs={6} md={2}>
             <Typography className="mb-4 font-bold text-gray-900">
-              Trending Projects
+              Popular Searches
             </Typography>
-            {['The Regal', 'Satatya Syrii-2', 'The Gold By Samor'].map(l => (
+            {areas?.slice(0, 5).map(l => (
               <Typography
-                key={l}
+                key={l.id}
                 variant="body2"
                 className="mb-2 cursor-pointer text-gray-600 transition-colors hover:text-primary-600"
+                onClick={() => router.push(`/projects?area=${l.name}`)}
               >
-                {l}
+                Property in {l.name}
               </Typography>
             ))}
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item xs={6} md={2}>
+            <Typography className="mb-4 font-bold text-gray-900">
+              Popular BHK Searches
+            </Typography>
+            {[1, 2, 3, 4].map(l => (
+              <Typography
+                key={l}
+                variant="body2"
+                className="mb-2 cursor-pointer text-gray-600 transition-colors hover:text-primary-600"
+                onClick={() => router.push(`/projects?bhk=${l}`)}
+              >
+                {l} BHK Flats in Ahmedabad
+              </Typography>
+            ))}
+          </Grid>
+
+          <Grid item xs={6} md={2}>
+            <Typography className="mb-4 font-bold text-gray-900">
+              Property Types
+            </Typography>
+            {['Apartment', 'Villa', 'Plot', 'Commercial'].map(l => (
+              <Typography
+                key={l}
+                variant="body2"
+                className="mb-2 cursor-pointer text-gray-600 transition-colors hover:text-primary-600"
+                onClick={() =>
+                  router.push(`/projects?propertyType=${l.toLowerCase()}`)
+                }
+              >
+                {l} in Ahmedabad
+              </Typography>
+            ))}
+          </Grid>
+
+          {/* <Grid item xs={12} md={4}>
             <Typography className="mb-4 font-bold text-gray-900">
               Connect with Us
             </Typography>
@@ -92,7 +181,7 @@ const Footer = (): JSX.Element | null => {
                 )
               )}
             </Stack>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </Box>

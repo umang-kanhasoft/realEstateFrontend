@@ -96,43 +96,67 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
         <Grid item xs={12} md={4}>
           <Box display="flex" flexDirection="column" gap={2} height="100%">
             {/* Video Card */}
-            <Card
-              sx={{
-                borderRadius: '16px',
-                overflow: 'hidden',
-                height: { xs: 200, md: 'calc(50% - 8px)' },
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                position: 'relative',
-                cursor: 'pointer',
-              }}
-            >
-              {media?.videos.map((video, idx: number) => (
-                <SwiperSlide key={idx} onClick={() => setOpenImageModal(true)}>
-                  <video
-                    src={video?.url}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                    }}
-                  />
-                </SwiperSlide>
-              ))}
-            </Card>
-
+            {media?.videos.length > 0 && (
+              <Card
+                sx={{
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  height: { xs: 200, md: 'calc(50% - 8px)' },
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                  position: 'relative',
+                  cursor: 'pointer',
+                }}
+              >
+                {media?.videos.map((video, idx: number) => (
+                  <SwiperSlide
+                    key={idx}
+                    onClick={() => setOpenImageModal(true)}
+                  >
+                    <video
+                      src={video?.url}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Card>
+            )}
             {/* Small Images Grid */}
             <Box
-              display="flex"
+              // display="flex"
               gap={2}
               height={{ xs: 'auto', md: 'calc(50% - 8px)' }}
             >
+              {media?.videos.length == 0 && (
+                <Card
+                  sx={{
+                    flex: 1,
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    height: { xs: 150, md: '100%' },
+                  }}
+                  onClick={() => setOpenImageModal(true)}
+                >
+                  <Image
+                    src={media?.images[2]?.url}
+                    className="h-full w-full object-cover"
+                    alt="Small 2"
+                    fill
+                  />
+                </Card>
+              )}
               <Card
                 sx={{
                   flex: 1,
@@ -140,6 +164,7 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
                   overflow: 'hidden',
                   cursor: 'pointer',
                   position: 'relative',
+                  marginTop: '10px',
                   height: { xs: 150, md: '100%' },
                 }}
                 onClick={() => setOpenImageModal(true)}

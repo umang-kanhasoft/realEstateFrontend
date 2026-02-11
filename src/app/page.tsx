@@ -1,5 +1,4 @@
 import InstallPrompt from '@/components/common/InstallPrompt';
-import Faq from '@/components/sections/Faq';
 import FeaturedProperties from '@/components/sections/FeaturedProperties';
 import Hero from '@/components/sections/Hero';
 import NewProjects from '@/components/sections/NewProjects';
@@ -26,7 +25,7 @@ export default function HomePage(): JSX.Element {
       <Hero />
       <FeaturedProperties />
       <NewProjects />
-      <Faq />
+      {/* <Faq /> */}
       <InstallPrompt />
     </>
   );
