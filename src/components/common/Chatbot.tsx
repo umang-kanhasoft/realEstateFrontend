@@ -11,7 +11,6 @@ import {
   SmartToyRounded,
 } from '@mui/icons-material';
 import { CircularProgress, IconButton, Input, Tooltip } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 // Define the expected structure of the AI response data
@@ -34,7 +33,6 @@ export default function Chatbot() {
   } = useChat();
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -113,10 +111,6 @@ export default function Chatbot() {
         };
 
         buildParams(filters);
-
-        setTimeout(() => {
-          router.push(`/projects?${params.toString()}`);
-        }, 1500);
       }
     } catch (error) {
       console.error('AI Search Error:', error);
@@ -141,6 +135,7 @@ export default function Chatbot() {
               e.stopPropagation();
               setShowNotification(false);
             }}
+            aria-label="Close notification"
             className="absolute right-1 top-1 rounded-full p-0.5 text-gray-700 hover:bg-black/5"
           >
             <CloseRounded className="text-[14px]" />
@@ -159,6 +154,7 @@ export default function Chatbot() {
             setIsOpen(true);
             setShowNotification(false);
           }}
+          aria-label="Open chat assistant"
           className="group relative flex items-center justify-center rounded-full border-white/50 bg-white p-4 text-primary-600 shadow-2xl transition-all hover:scale-105"
         >
           <ChatBubbleRounded
@@ -192,6 +188,7 @@ export default function Chatbot() {
                 <IconButton
                   onClick={clearChat}
                   size="small"
+                  aria-label="Clear chat"
                   className="rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
                 >
                   <DeleteOutlineRounded fontSize="small" />
@@ -202,6 +199,7 @@ export default function Chatbot() {
                 <IconButton
                   onClick={() => setIsOpen(false)}
                   size="small"
+                  aria-label="Close chat"
                   className="rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
                 >
                   <CloseRounded fontSize="small" />
@@ -272,6 +270,7 @@ export default function Chatbot() {
             <IconButton
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
+              aria-label="Send message"
               className="rounded-xl bg-primary-600 p-2.5 text-white shadow-lg hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <SendRounded className="text-[20px]" />

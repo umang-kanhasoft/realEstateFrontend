@@ -9,7 +9,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().default('Real Estate Platform'),
 
   // API
-  NEXT_PUBLIC_API_URL: z.string().url(),
+  NEXT_PUBLIC_API_URL: z.string(),
 
   // Maps
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),

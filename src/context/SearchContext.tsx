@@ -55,10 +55,10 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   // Initialize state from localStorage if available, otherwise use initialFilters
   const [filters, setFiltersState] = useState<Partial<Filters>>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('search-filters-storage');
-      if (saved) {
+      const favorites = localStorage.getItem('search-filters-storage');
+      if (favorites) {
         try {
-          const parsed = JSON.parse(saved);
+          const parsed = JSON.parse(favorites);
           // Zustand persist saves data in { state: { filters: ... }, version: ... }
           // We need to handle migration or just plain storage structure
           return parsed.state?.filters || initialFilters;

@@ -18,6 +18,7 @@ const initialState: UIState = {
   activeModal: null,
   scrollPosition: 0,
   isScrolled: false,
+  isFooterVisible: true,
 };
 
 const uiReducer = (state: UIState, action: UIAction): UIState => {
@@ -54,6 +55,10 @@ const uiReducer = (state: UIState, action: UIAction): UIState => {
         scrollPosition: action.payload,
         isScrolled: action.payload > 50,
       };
+    case 'SHOW_FOOTER':
+      return { ...state, isFooterVisible: true };
+    case 'HIDE_FOOTER':
+      return { ...state, isFooterVisible: false };
     default:
       return state;
   }
@@ -146,6 +151,14 @@ export const UIProvider = ({ children }: ProviderProps): JSX.Element => {
     dispatch({ type: 'UPDATE_SCROLL_POSITION', payload: position });
   }, []);
 
+  const showFooter = useCallback((): void => {
+    dispatch({ type: 'SHOW_FOOTER' });
+  }, []);
+
+  const hideFooter = useCallback((): void => {
+    dispatch({ type: 'HIDE_FOOTER' });
+  }, []);
+
   const value = useMemo<UIContextValue>(
     () => ({
       state,
@@ -163,6 +176,8 @@ export const UIProvider = ({ children }: ProviderProps): JSX.Element => {
       closeFilterDrawer,
       setActiveModal,
       updateScrollPosition,
+      showFooter,
+      hideFooter,
     }),
     [
       state,
@@ -180,6 +195,8 @@ export const UIProvider = ({ children }: ProviderProps): JSX.Element => {
       closeFilterDrawer,
       setActiveModal,
       updateScrollPosition,
+      showFooter,
+      hideFooter,
     ]
   );
 

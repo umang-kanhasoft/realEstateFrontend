@@ -1,15 +1,15 @@
 'use client';
 
 import { Message, useChat } from '@/context/ChatContext';
+import { useUI } from '@/hooks/useUI';
 import { api } from '@/utils/api';
 import {
-  AutoAwesomeRounded,
+  Close,
   DeleteOutlineRounded,
   SendRounded,
   SmartToyRounded,
 } from '@mui/icons-material';
-import { CircularProgress, IconButton, Input, Tooltip } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { IconButton, Input, Tooltip } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 
 // Define the expected structure of the AI response data
@@ -23,9 +23,9 @@ interface AIResponseData {
 export default function PropertyChatbot() {
   const { messages, addMessage, isLoading, setIsLoading, clearChat } =
     useChat();
+  const { closeFilterDrawer } = useUI();
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -33,6 +33,76 @@ export default function PropertyChatbot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Handle initial chat query from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const chatQuery = params.get('chat_query');
+
+    if (chatQuery) {
+      // Remove the query param to prevent re-triggering on refresh
+      const newUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+
+      // Trigger chat
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        text: chatQuery,
+        sender: 'user',
+        timestamp: new Date(),
+      };
+      addMessage(userMsg);
+      setIsLoading(true);
+
+      const processInitialQuery = async () => {
+        try {
+          // Construct history with just this new message for the initial context (or append to existing if persistence is active)
+          const history = messages.map(msg => ({
+            role: msg.sender === 'ai' ? 'assistant' : 'user',
+            content: msg.text,
+          }));
+          history.push({ role: 'user', content: chatQuery });
+
+          const response = await api.post<AIResponseData>('/ai/parse-query', {
+            messages: history,
+          });
+
+          if (!response.data) throw new Error('Invalid response');
+
+          const { filters, reply_text, action } = response.data;
+
+          addMessage({
+            id: (Date.now() + 1).toString(),
+            text: reply_text || "I've found some properties for you!",
+            sender: 'ai',
+            timestamp: new Date(),
+          });
+
+          // Filters processing logic removed
+          if (
+            action === 'search' &&
+            filters &&
+            Object.keys(filters).length > 0
+          ) {
+            // Logic removed to keep chatbot text-only
+          }
+        } catch (error) {
+          console.error('Initial Query Error:', error);
+          addMessage({
+            id: Date.now().toString(),
+            text: 'I received your search but encountered an error processing it.',
+            sender: 'ai',
+            timestamp: new Date(),
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      processInitialQuery();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -74,29 +144,9 @@ export default function PropertyChatbot() {
       };
       addMessage(aiMsg);
 
+      // Filters processing logic removed
       if (action === 'search' && filters && Object.keys(filters).length > 0) {
-        const params = new URLSearchParams();
-
-        const buildParams = (obj: Record<string, unknown>, prefix = '') => {
-          Object.entries(obj).forEach(([key, value]) => {
-            const paramKey = prefix ? `${prefix}.${key}` : key;
-            if (value !== undefined && value !== null) {
-              if (Array.isArray(value)) {
-                value.forEach(v => params.append(paramKey, String(v)));
-              } else if (typeof value === 'object') {
-                buildParams(value as Record<string, unknown>, paramKey);
-              } else {
-                params.append(paramKey, String(value));
-              }
-            }
-          });
-        };
-
-        buildParams(filters);
-
-        setTimeout(() => {
-          router.push(`/projects?${params.toString()}`);
-        }, 1500);
+        // Logic removed to keep chatbot text-only
       }
     } catch (error) {
       console.error('AI Search Error:', error);
@@ -112,116 +162,139 @@ export default function PropertyChatbot() {
   };
 
   return (
-    <div className="fixed z-50 flex flex-col items-end gap-2 font-sans">
-      {/* Chat Window - Lightened Background for Professional Look */}
-      <div className="flex w-60 flex-col items-stretch overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl sm:w-96">
-        {/* Header - Changed to Light/Neutral */}
-        <div className="z-10 flex w-full items-center justify-between border-b border-gray-100 bg-white p-3">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary-50 p-2">
-              <SmartToyRounded fontSize="small" className="text-primary-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold tracking-wide text-gray-900">
-                AI Assistant
-              </h3>
-              <p className="m-0 text-[10px] font-medium text-gray-500">
-                Real Estate Intelligence
-              </p>
-            </div>
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-white/60 font-sans backdrop-blur-3xl">
+      {/* Header - Glassmorphic & Premium */}
+      <div className="z-10 flex w-full flex-none items-center justify-between border-b border-white/40 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20">
+            <SmartToyRounded
+              className="text-white drop-shadow-md"
+              fontSize="small"
+            />
+            <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white ring-2 ring-white">
+              <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+            </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Tooltip title="Clear Chat" arrow placement="top">
-              <IconButton
-                onClick={clearChat}
-                size="small"
-                className="rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-              >
-                <DeleteOutlineRounded fontSize="small" />
-              </IconButton>
-            </Tooltip>
+          <div className="my-auto flex flex-col">
+            <h3 className="text-[15px] font-bold tracking-tight text-gray-900">
+              RealEstate AI
+            </h3>
+            <p className="m-0 text-[11px] font-medium text-gray-500">
+              Premium Concierge
+            </p>
           </div>
         </div>
+        <div className="flex gap-2">
+          <Tooltip title="Clear History" arrow placement="bottom">
+            <IconButton
+              onClick={clearChat}
+              size="small"
+              className="group rounded-xl border border-gray-200/50 bg-white/50 text-gray-400 shadow-sm transition-all hover:bg-red-50 hover:text-red-500 hover:shadow-md"
+            >
+              <DeleteOutlineRounded fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip className="lg:hidden" title="Close" arrow placement="bottom">
+            <IconButton
+              onClick={closeFilterDrawer}
+              className="bg-gray-50 hover:bg-gray-100"
+              size="small"
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+      </div>
 
-        {/* Messages Area - Light Background */}
-        <div
-          ref={scrollRef}
-          style={{
-            height: '600px',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ marginTop: 'auto' }}>
-            {messages.map(msg => (
+      {/* Messages Area */}
+      <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200/50 z-10 flex-1 overflow-y-auto overflow-x-hidden p-6">
+        <div className="flex min-h-full flex-col justify-end gap-6">
+          {messages.map(msg => (
+            <div
+              key={msg.id}
+              className={`flex w-full ${
+                msg.sender === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
               <div
-                key={msg.id}
-                className={`mb-4 flex ${
-                  msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                className={`flex max-w-[85%] flex-col gap-1.5 ${
+                  msg.sender === 'user' ? 'items-end' : 'items-start'
                 }`}
               >
-                {msg.sender === 'ai' && (
-                  <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
-                    <AutoAwesomeRounded className="text-[14px] text-primary-600" />
-                  </div>
-                )}
+                {/* Message Bubble */}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed shadow-sm ${
+                  className={`relative px-6 py-4 text-[14px] leading-relaxed shadow-md transition-all ${
                     msg.sender === 'user'
-                      ? // User Message - Blue Theme Color
-                        'rounded-br-none bg-primary-600 text-white'
-                      : // AI Message - White and clean
-                        'rounded-bl-none border border-gray-100 bg-white text-gray-900'
+                      ? 'rounded-[24px] rounded-br-[4px] bg-gradient-to-br from-gray-900 to-gray-800 font-medium text-white shadow-gray-900/20'
+                      : 'rounded-[24px] rounded-bl-[4px] border border-white/60 bg-white/80 text-gray-700 shadow-gray-200/50 backdrop-blur-md'
                   }`}
                 >
                   {msg.text}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="mb-4 flex justify-start">
-                <div className="mr-2 mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
-                  <AutoAwesomeRounded className="text-[14px] text-primary-600" />
-                </div>
-                <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-none border border-gray-100 bg-white px-4 py-2 shadow-sm">
-                  <CircularProgress
-                    size={14}
-                    thickness={5}
-                    className="text-primary-600"
-                  />
-                  <span className="text-xs font-medium tracking-wide text-gray-500">
-                    Analysing...
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Input Area - Lightened */}
-        <div className="flex w-full items-center gap-2 border-t border-gray-100 bg-white p-2">
+                  {/* Search Results Card Removed */}
+                </div>
+
+                {/* Timestamp */}
+                <span className="px-2 text-[10px] font-semibold tracking-wide text-gray-400/80">
+                  {msg.sender === 'ai' ? 'RealEstate AI • ' : 'YOU • '}
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  })}
+                </span>
+              </div>
+            </div>
+          ))}
+
+          {/* Think Mode Indicator - Skeuomorphic */}
+          {isLoading && (
+            <div className="flex w-full justify-start pl-2">
+              <div className="flex items-center gap-3 rounded-[24px] rounded-bl-[4px] border border-white/60 bg-white/80 px-6 py-4 shadow-lg shadow-gray-200/50 backdrop-blur-md">
+                <div className="flex gap-1.5">
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] [animation-delay:-0.3s]"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)] [animation-delay:-0.15s]"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]"></div>
+                </div>
+                <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-xs font-bold text-transparent">
+                  Processing...
+                </span>
+              </div>
+            </div>
+          )}
+          <div ref={scrollRef} />
+        </div>
+      </div>
+
+      {/* Input Area - Floating Island */}
+      <div className="z-20 flex-none px-4 py-2">
+        <div className="relative flex items-center gap-2 rounded-[24px] border border-white/60 bg-white/80 p-2 pl-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/5 backdrop-blur-xl transition-all focus-within:border-indigo-500/30 focus-within:bg-white focus-within:shadow-[0_8px_30px_rgb(99,102,241,0.15)]">
           <Input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="Ask me anything..."
+            placeholder="Ask anything..."
             disableUnderline
-            className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-[13px] font-medium text-gray-900 focus-within:border-gray-300 focus-within:bg-white"
+            className="flex-1 py-1 text-[15px] font-medium text-gray-800 placeholder:text-gray-400"
             disabled={isLoading}
+            autoFocus={false}
           />
           <IconButton
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            // Send Button - Theme Color
-            className="rounded-full bg-primary-600 p-2.5 text-white hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`mr-0.5 h-10 w-10 rounded-xl transition-all duration-300 ${
+              input.trim() && !isLoading
+                ? 'bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 hover:scale-105 hover:shadow-indigo-500/40'
+                : 'bg-gray-100 text-gray-400'
+            }`}
           >
             <SendRounded className="text-[20px]" />
           </IconButton>
         </div>
+        <p className="mt-3 text-center text-[10px] font-medium tracking-wide text-gray-400/80">
+          Powered by RealEstate Intelligence
+        </p>
       </div>
     </div>
   );

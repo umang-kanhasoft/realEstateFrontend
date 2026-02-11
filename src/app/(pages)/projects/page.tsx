@@ -1,18 +1,20 @@
 'use client';
 
-import SideContactForm from '@/components/forms/SideContactForm';
-import ListingBanner from '@/components/projects/ListingBanner';
-import ProjectCard, {
-  ProjectCardProps,
-} from '@/components/projects/ProjectCard';
-import ProjectFilters from '@/components/projects/ProjectFilters';
+import {
+  PROPERTY_TYPES_MAP,
+  SORT_MAPPING,
+} from '@/constants/project.constants';
 import {
   ProjectFiltersProvider,
   useProjectFilters,
 } from '@/contexts/ProjectFiltersContext';
 import { formatCurrency } from '@/lib/utils/format';
-import { ProjectsService, type Project } from '@/services/projects.service';
-import { budgetToNumber } from '@/utils/helpers';
+import {
+  ProjectsService,
+  type Project,
+  type ProjectFiltersParams,
+} from '@/services/projects.service';
+import { budgetToNumber } from '@/utils/filterUtils';
 import {
   Alert,
   Box,
@@ -24,14 +26,34 @@ import {
 } from '@mui/material';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { memo, Suspense, useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
+// Dynamic imports for heavy components - reduces initial bundle size
+const ProjectCard = dynamic(() => import('@/components/projects/ProjectCard'), {
+  ssr: false,
+});
+const ProjectFilters = dynamic(
+  () => import('@/components/projects/ProjectFilters'),
+  { ssr: false }
+);
+const SideContactForm = dynamic(
+  () => import('@/components/forms/SideContactForm'),
+  { ssr: false }
+);
+const ListingBanner = dynamic(
+  () => import('@/components/projects/ListingBanner'),
+  { ssr: false }
+);
+
+import type { ProjectCardProps } from '@/components/projects/ProjectCard';
+
 // Map backend Project to ProjectCard props
+// Map backend Project to ProjectCardProps
 function mapProjectToCard(project: Project): ProjectCardProps['project'] {
-  const primaryBuilder =
-    project.builders.find(b => b.ProjectBuilder?.isPrimary) ||
-    project.builders[0];
+  const builders = project.builders || [];
+  const primaryBuilder = builders.find(b => b.isPrimary) || builders[0];
   const location = [
     project?.addressLine1,
     project?.addressLine2,
@@ -46,7 +68,8 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
   let minA = Infinity;
   let maxA = -Infinity;
 
-  const configurations = project.unitTypes.map(unit => {
+  const unitTypes = project.unitTypes || [];
+  const configurations = unitTypes.map(unit => {
     minP = Math.min(minP, unit.price || Infinity);
     maxP = Math.max(maxP, unit.price || -Infinity);
     minA = Math.min(minA, unit.carpetAreaSqft || Infinity);
@@ -65,8 +88,14 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
     };
   });
 
-  const priceRange = `${formatCurrency(minP)} - ${formatCurrency(maxP).replace('₹ ', '')}`;
-  const areaRange = `${minA} - ${maxA} Sq.ft`;
+  const priceRange =
+    minP !== Infinity
+      ? `${formatCurrency(minP)} - ${formatCurrency(maxP).replace('₹ ', '')}`
+      : 'Price on Request';
+  const areaRange =
+    minA !== Infinity ? `${minA} - ${maxA} Sq.ft` : 'Area on Request';
+
+  const amenities = project.amenities || [];
 
   return {
     id: project.id,
@@ -81,7 +110,7 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
       project.possessionDate
         ? `Possession ${new Date(project.possessionDate).getFullYear()}`
         : 'Ready to Move',
-      ...project.amenities.slice(0, 1).map(a => a.name),
+      ...amenities.slice(0, 1),
     ],
     reraId: project.reraNumber || 'RERA Pending',
     badges: [
@@ -89,20 +118,13 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
       project.isFeatured ? 'FEATURED' : '',
     ].filter(Boolean),
     image:
-      project.thumbnail ||
+      project.mainImageUrl ||
       'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
     landmarks: (project.landmarks || []).map(l => ({
       type: l.type,
       name: l.name,
-      distanceKm:
-        typeof l.distanceKm === 'string'
-          ? parseFloat(l.distanceKm)
-          : l.distanceKm,
-      travelTimeMin: l.travelTimeMin
-        ? typeof l.travelTimeMin === 'string'
-          ? parseFloat(l.travelTimeMin)
-          : l.travelTimeMin
-        : undefined,
+      distanceKm: l.distanceKm ?? 0,
+      travelTimeMin: l.travelTimeMin ?? undefined,
     })),
   };
 }
@@ -130,6 +152,7 @@ const ProjectsList = memo(
     hasNextPage,
     isFetchingNextPage,
   }: ProjectsListProps) => {
+    const { resetFilters } = useProjectFilters();
     const allProjects: Project[] = useMemo(
       () => data?.pages.flatMap(page => page.projects) || [],
       [data]
@@ -183,7 +206,7 @@ const ProjectsList = memo(
           <Button
             variant="outlined"
             className="mt-6 rounded-full border-gray-300 px-8 text-gray-600 hover:border-black hover:text-black"
-            onClick={() => window.location.reload()}
+            onClick={resetFilters}
           >
             Clear Filters
           </Button>
@@ -233,42 +256,68 @@ function ProjectsContent() {
   const { filters } = useProjectFilters();
   const itemsPerPage = 10;
 
-  // Map sort option to backend format
-  const sortMapping: Record<
-    string,
-    {
-      sortBy:
-        | 'price'
-        | 'rating'
-        | 'featured'
-        | 'possession'
-        | 'newest'
-        | 'featured';
-      sortOrder: 'asc' | 'desc';
-    }
-  > = {
-    Featured: { sortBy: 'featured', sortOrder: 'desc' },
-    'New Launch': { sortBy: 'newest', sortOrder: 'desc' },
-    'Price: low to high': { sortBy: 'price', sortOrder: 'asc' },
-    'Price: high to low': { sortBy: 'price', sortOrder: 'desc' },
-    'Near possession': { sortBy: 'possession', sortOrder: 'asc' },
-  };
-
-  // Property Type Mapping (Same as ProjectFilters)
-  const propertyTypeMap: Record<string, string> = {
-    Flat: 'apartment',
-    Villa: 'villa',
-    Plot: 'plot',
-    Penthouse: 'penthouse',
-    Bungalow: 'bungalow',
-    Commercial: 'commercial',
-    Office: 'commercial',
-    Shop: 'commercial',
-  };
-
   const fetchProjects = async ({ pageParam = 0 }) => {
-    const sort = sortMapping[filters.selectedSort] || sortMapping['Featured'];
-    const response = await ProjectsService.getProjects({
+    const sort = SORT_MAPPING[filters.selectedSort] || SORT_MAPPING['Featured'];
+
+    const numericBHKs: number[] = [];
+    const specialBHKTypes: string[] = [];
+
+    filters.selectedBHK.forEach(bhk => {
+      const num = parseInt(bhk);
+      if (!isNaN(num)) {
+        numericBHKs.push(num);
+      } else {
+        if (bhk === 'Duplex') specialBHKTypes.push('duplex'); // Assuming 'duplex' is valid key/value
+        if (bhk === 'Penthouse') specialBHKTypes.push('penthouse');
+      }
+    });
+
+    const bedrooms = numericBHKs.length > 0 ? numericBHKs : undefined;
+
+    const statusFilters: string[] = [];
+    let possessionBefore: string | undefined = undefined;
+    let possessionAfter: string | undefined = undefined;
+
+    if (filters.selectedPossession.includes('Ready to Move')) {
+      statusFilters.push('ready_to_move');
+    }
+
+    const possessionBeforeCandidates: string[] = [];
+    const now = new Date();
+
+    if (filters.selectedPossession.includes('Upto 1 Year')) {
+      const oneYearFromNow = new Date(now);
+      oneYearFromNow.setFullYear(now.getFullYear() + 1);
+      possessionBeforeCandidates.push(oneYearFromNow.toISOString());
+    }
+
+    if (filters.selectedPossession.includes('Upto 2 Years')) {
+      const twoYearsFromNow = new Date(now);
+      twoYearsFromNow.setFullYear(now.getFullYear() + 2);
+      possessionBeforeCandidates.push(twoYearsFromNow.toISOString());
+    }
+
+    if (possessionBeforeCandidates.length > 0) {
+      // Sort to find the latest date (max range)
+      possessionBeforeCandidates.sort();
+      possessionBefore =
+        possessionBeforeCandidates[possessionBeforeCandidates.length - 1];
+    }
+
+    if (filters.selectedPossession.includes('2+ Years')) {
+      const twoYearsFromNow = new Date(now);
+      twoYearsFromNow.setFullYear(now.getFullYear() + 2);
+      possessionAfter = twoYearsFromNow.toISOString();
+    }
+
+    const mappedPropertyTypes = filters.selectedPropType.map(
+      pt => PROPERTY_TYPES_MAP[pt] || pt
+    );
+    const combinedPropertyTypes = Array.from(
+      new Set([...mappedPropertyTypes, ...specialBHKTypes])
+    );
+
+    const apiParams: ProjectFiltersParams = {
       limit: itemsPerPage,
       offset: pageParam,
       ...sort,
@@ -279,15 +328,18 @@ function ProjectsContent() {
           ? filters.selectedLocalities.join(',')
           : undefined,
       propertyType:
-        filters.selectedPropType.length > 0
-          ? filters.selectedPropType.map(pt => propertyTypeMap[pt] || pt)
-          : undefined,
+        combinedPropertyTypes.length > 0 ? combinedPropertyTypes : undefined,
       priceMin: budgetToNumber(filters.minBudget),
       priceMax: budgetToNumber(filters.maxBudget),
-      status: filters.selectedPossession.includes('Ready to Move')
-        ? 'ready_to_move'
-        : undefined,
-    });
+      status: statusFilters.length > 0 ? statusFilters : undefined,
+      possessionBefore: possessionBefore,
+      possessionAfter: possessionAfter,
+      bedrooms: bedrooms,
+    };
+
+    console.log('Sending API Params:', apiParams);
+
+    const response = await ProjectsService.getProjects(apiParams);
     return response;
   };
 

@@ -150,21 +150,31 @@ export const filterProperties = (
     }
 
     // Bedrooms filter
-    if (
-      property.bedrooms !== undefined &&
-      (property.bedrooms < filters.minBedrooms ||
-        property.bedrooms > filters.maxBedrooms)
-    ) {
-      return false;
+    if (property.bedrooms !== undefined) {
+      const bedroomStr = String(property.bedrooms);
+      const bedroomValues = bedroomStr
+        .split('-')
+        .map(Number)
+        .filter(n => !isNaN(n));
+      const minBed = Math.min(...bedroomValues);
+      const maxBed = Math.max(...bedroomValues);
+      if (maxBed < filters.minBedrooms || minBed > filters.maxBedrooms) {
+        return false;
+      }
     }
 
     // Bathrooms filter
-    if (
-      property.bathrooms !== undefined &&
-      (property.bathrooms < filters.minBathrooms ||
-        property.bathrooms > filters.maxBathrooms)
-    ) {
-      return false;
+    if (property.bathrooms !== undefined) {
+      const bathroomStr = String(property.bathrooms);
+      const bathroomValues = bathroomStr
+        .split('-')
+        .map(Number)
+        .filter(n => !isNaN(n));
+      const minBath = Math.min(...bathroomValues);
+      const maxBath = Math.max(...bathroomValues);
+      if (maxBath < filters.minBathrooms || minBath > filters.maxBathrooms) {
+        return false;
+      }
     }
 
     // Area filter
