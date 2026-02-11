@@ -7,21 +7,23 @@ import {
   Container,
   Divider,
   InputBase,
+  Link,
   Menu,
   MenuItem,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const POPULAR_LOCALITIES = [
-  'Adani Shantigram',
   'Ambli',
-  'Bodakdev',
-  'Chharodi',
+  'Bopal',
+  'SG Highway',
   'Gota',
-  'Jagatpur',
+  'Chharodi',
+  'Sindhu Bhavan Road',
 ];
 
 // Reliable High-Quality Image (Modern Blue/Glass Facade)
@@ -29,6 +31,7 @@ const HERO_IMAGE =
   'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=2500&q=80';
 
 const Hero: React.FC = () => {
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState('Ahmedabad');
@@ -108,6 +111,14 @@ const Hero: React.FC = () => {
                 placeholder="Search '3 BHK in Bodakdev'..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const params = new URLSearchParams();
+                    if (searchQuery) params.set('chat_query', searchQuery);
+                    if (selectedCity) params.set('city', selectedCity);
+                    router.push(`/properties?${params.toString()}`);
+                  }
+                }}
                 className="w-full flex-1 px-4 text-center text-base md:w-auto md:text-left"
               />
 
@@ -121,6 +132,12 @@ const Hero: React.FC = () => {
               <Button
                 variant="contained"
                 size="large"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (searchQuery) params.set('chat_query', searchQuery);
+                  if (selectedCity) params.set('city', selectedCity);
+                  router.push(`/properties?${params.toString()}`);
+                }}
                 startIcon={
                   <Search className="transition-transform duration-300 group-hover:scale-110" />
                 }
@@ -145,12 +162,14 @@ const Hero: React.FC = () => {
               >
                 Popular:
               </Typography>
-              {POPULAR_LOCALITIES.slice(0, 4).map(loc => (
+              {POPULAR_LOCALITIES.map(loc => (
                 <Chip
                   key={loc}
                   label={loc}
-                  onClick={() => setSearchQuery(loc)}
-                  className="border border-white/20 bg-white/15 text-white backdrop-blur-sm hover:bg-white/25"
+                  component={Link}
+                  href={`/properties?chat_query=${encodeURIComponent(loc)}`}
+                  clickable
+                  className="border border-white/20 bg-white/15 text-white backdrop-blur-sm hover:bg-white/80 hover:text-black"
                 />
               ))}
             </Stack>

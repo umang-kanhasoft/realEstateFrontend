@@ -4,6 +4,8 @@ import { useProjectFilters } from '@/contexts/ProjectFiltersContext';
 import { areaService } from '@/services/area.service';
 import {
   Check,
+  Close,
+  FilterList,
   KeyboardArrowDown,
   LocationOn,
   Search,
@@ -13,9 +15,11 @@ import {
   Button,
   Checkbox,
   Chip,
+  Drawer,
   Fade,
   FormControl,
   FormControlLabel,
+  IconButton,
   Input,
   InputLabel,
   MenuItem,
@@ -24,7 +28,7 @@ import {
   Typography,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Constants
 const BHK_OPTIONS = [
@@ -36,16 +40,15 @@ const BHK_OPTIONS = [
   'Duplex',
   'Penthouse',
 ];
-// Mapped Property Types
+// Mapped Property Types - synced with backend PropertyType enum
 const PROPERTY_TYPES_MAP: Record<string, string> = {
-  Flat: 'apartment',
+  Apartment: 'apartment',
+  Bungalow: 'bungalow',
   Villa: 'villa',
   Plot: 'plot',
-  Penthouse: 'penthouse',
-  Bungalow: 'bungalow',
   Commercial: 'commercial',
-  Office: 'commercial',
-  Shop: 'commercial',
+  'Mixed Use': 'mixed_use',
+  Penthouse: 'penthouse',
 };
 const PROPERTY_TYPES = Object.keys(PROPERTY_TYPES_MAP);
 
@@ -121,14 +124,17 @@ export default function ProjectFilters() {
   const [anchorEl, setAnchorEl] = useState<{
     [key: string]: HTMLElement | null;
   }>({});
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [localities, setLocalities] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>(['Ahmedabad']); // Default fallback
   const [searchQuery, setSearchQuery] = useState(filters.searchQuery);
+  const lastSentSearch = useRef(filters.searchQuery);
 
   // Debounce search query
   useEffect(() => {
     const handler = setTimeout(() => {
       if (searchQuery !== filters.searchQuery) {
+        lastSentSearch.current = searchQuery;
         updateFilters({ searchQuery });
       }
     }, 1000);
@@ -136,10 +142,15 @@ export default function ProjectFilters() {
     return () => clearTimeout(handler);
   }, [searchQuery, updateFilters, filters.searchQuery]);
 
-  // Sync local state if filters change externally
+  // Sync local state if filters change externally (e.g. URL update, clear filters)
   useEffect(() => {
+    if (filters.searchQuery === lastSentSearch.current) {
+      return;
+    }
+
     if (filters.searchQuery !== searchQuery) {
       setSearchQuery(filters.searchQuery);
+      lastSentSearch.current = filters.searchQuery;
     }
   }, [filters.searchQuery, searchQuery]);
 
@@ -473,6 +484,194 @@ export default function ProjectFilters() {
     </Box>
   );
 
+  const renderMobileDrawer = () => (
+    <Box className="h-full w-[300px] bg-white p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <Typography variant="h6" className="font-bold">
+          Filters
+        </Typography>
+        <IconButton onClick={() => setMobileOpen(false)}>
+          <Close />
+        </IconButton>
+      </div>
+
+      <div className="no-scrollbar flex h-[calc(100vh-100px)] flex-col gap-6 overflow-y-auto pb-20">
+        {/* Localities Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Localities
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            {filters.selectedLocalities.map(loc => (
+              <Chip
+                key={loc}
+                label={loc}
+                onDelete={() => toggleArrayFilter(loc, 'selectedLocalities')}
+                size="small"
+                className="bg-blue-50 text-blue-600"
+              />
+            ))}
+            <Button
+              size="small"
+              onClick={e => handlePopoverOpen('locality', e)}
+              className="text-xs normal-case text-blue-600"
+            >
+              + Add Locality
+            </Button>
+          </div>
+        </div>
+
+        {/* BHK Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Bedrooms
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            {BHK_OPTIONS.map(opt => (
+              <Chip
+                key={opt}
+                label={opt}
+                onClick={() => toggleArrayFilter(opt, 'selectedBHK')}
+                variant={
+                  filters.selectedBHK.includes(opt) ? 'filled' : 'outlined'
+                }
+                className={`cursor-pointer ${filters.selectedBHK.includes(opt) ? 'bg-black text-white' : 'border-gray-200 text-gray-600'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Budget Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Budget
+          </Typography>
+          <div className="flex items-center gap-2">
+            <FormControl fullWidth size="small">
+              <InputLabel>Min</InputLabel>
+              <Select
+                value={filters.minBudget}
+                label="Min"
+                onChange={e => updateFilters({ minBudget: e.target.value })}
+              >
+                {BUDGET_OPTIONS.map(opt => (
+                  <MenuItem key={opt} value={opt}>
+                    {opt}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <span className="text-gray-400">-</span>
+            <FormControl fullWidth size="small">
+              <InputLabel>Max</InputLabel>
+              <Select
+                value={filters.maxBudget}
+                label="Max"
+                onChange={e => updateFilters({ maxBudget: e.target.value })}
+              >
+                {BUDGET_OPTIONS.map(opt => (
+                  <MenuItem key={opt} value={opt}>
+                    {opt}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+
+        {/* Possession Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Possession Status
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            {POSSESSION_OPTIONS.map(opt => (
+              <Chip
+                key={opt}
+                label={opt}
+                onClick={() => toggleArrayFilter(opt, 'selectedPossession')}
+                variant={
+                  filters.selectedPossession.includes(opt)
+                    ? 'filled'
+                    : 'outlined'
+                }
+                className={`cursor-pointer ${filters.selectedPossession.includes(opt) ? 'bg-blue-600 text-white' : 'border-gray-200 text-gray-600'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Property Type Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Property Type
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            {PROPERTY_TYPES.map(opt => (
+              <Chip
+                key={opt}
+                label={opt}
+                onClick={() => toggleArrayFilter(opt, 'selectedPropType')}
+                variant={
+                  filters.selectedPropType.includes(opt) ? 'filled' : 'outlined'
+                }
+                className={`cursor-pointer ${filters.selectedPropType.includes(opt) ? 'bg-blue-600 text-white' : 'border-gray-200 text-gray-600'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Sort Section */}
+        <div>
+          <Typography
+            variant="subtitle2"
+            className="mb-2 font-semibold text-gray-700"
+          >
+            Sort By
+          </Typography>
+          <Select
+            fullWidth
+            size="small"
+            value={filters.selectedSort}
+            onChange={e => updateFilters({ selectedSort: e.target.value })}
+          >
+            {SORT_OPTIONS.map(opt => (
+              <MenuItem key={opt} value={opt}>
+                {opt}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white p-4">
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={() => setMobileOpen(false)}
+          className="rounded-lg bg-black py-3 font-bold normal-case text-white hover:bg-gray-800"
+        >
+          View Properties
+        </Button>
+      </div>
+    </Box>
+  );
+
   return (
     <Box className="w-full px-4 py-4 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-4 lg:flex-row">
@@ -482,6 +681,13 @@ export default function ProjectFilters() {
           animate={{ opacity: 1, y: 0 }}
           className="flex h-[52px] w-full items-center rounded-full border border-gray-200 bg-gray-200/50 p-1 transition-all duration-300 focus-within:border-black focus-within:bg-gray-200 focus-within:ring-1 focus-within:ring-black/5 hover:bg-gray-200 lg:w-auto lg:min-w-[420px]"
         >
+          {/* Mobile Filter Trigger */}
+          <div className="lg:hidden">
+            <IconButton onClick={() => setMobileOpen(true)}>
+              <FilterList />
+            </IconButton>
+          </div>
+
           <Button
             onClick={e => handlePopoverOpen('city', e)}
             startIcon={
@@ -512,7 +718,7 @@ export default function ProjectFilters() {
         </motion.div>
 
         {/* Scrollable Filters */}
-        <div className="no-scrollbar w-full flex-1 overflow-x-auto scroll-smooth">
+        <div className="no-scrollbar hidden w-full flex-1 overflow-x-auto scroll-smooth lg:block">
           <div className="flex min-w-max items-center gap-3 p-1">
             <FilterButton
               label="Popular Localities"
@@ -563,11 +769,11 @@ export default function ProjectFilters() {
         </div>
 
         {/* Right: Sort */}
-        <div className="hidden shrink-0 xl:block">
+        <div className="hidden shrink-0 lg:block">
           <Button
             onClick={e => handlePopoverOpen('sort', e)}
             variant="text"
-            className="rounded-full bg-transparent px-5 py-2 font-medium text-gray-500 hover:bg-gray-100 hover:text-black"
+            className="rounded-full bg-transparent px-5 py-3 font-medium text-gray-500 hover:bg-gray-100 hover:text-black"
             sx={{ textTransform: 'none' }}
             endIcon={<KeyboardArrowDown fontSize="small" />}
           >
@@ -633,6 +839,22 @@ export default function ProjectFilters() {
           <Content />
         </Popover>
       ))}
+
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        anchor="left"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+        sx={{
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 300 },
+        }}
+      >
+        {renderMobileDrawer()}
+      </Drawer>
     </Box>
   );
 }

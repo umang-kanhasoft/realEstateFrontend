@@ -1,5 +1,6 @@
 'use client';
 
+import { useUI } from '@/hooks/useUI';
 import { Facebook, Instagram, LinkedIn, X, YouTube } from '@mui/icons-material';
 import {
   Box,
@@ -10,7 +11,11 @@ import {
   Typography,
 } from '@mui/material';
 
-const Footer = (): JSX.Element => {
+const Footer = (): JSX.Element | null => {
+  const { state } = useUI();
+
+  if (!state.isFooterVisible) return null;
+
   return (
     <Box
       component="footer"

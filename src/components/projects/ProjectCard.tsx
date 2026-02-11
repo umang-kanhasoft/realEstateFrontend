@@ -67,7 +67,7 @@ function ProjectCard({ project }: ProjectCardProps) {
       onClick={() => router.push(`/projects/${project.id}`)}
     >
       {/* Image Section */}
-      <Box className="relative h-64 w-full flex-shrink-0 overflow-hidden bg-gray-100 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
+      <Box className="relative h-56 w-full flex-shrink-0 overflow-hidden bg-gray-100 sm:h-64 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
         <Image
           src={project.image}
           alt={project.name}
@@ -95,16 +95,16 @@ function ProjectCard({ project }: ProjectCardProps) {
 
         <Box className="absolute bottom-4 right-4 z-10 flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur-sm">
           <Collections sx={{ fontSize: 12 }} />
-          12 Photos
+          12
         </Box>
       </Box>
 
       {/* Content Section */}
-      <Box className="flex flex-1 flex-col justify-between p-5">
+      <Box className="flex flex-1 flex-col justify-between p-4 md:p-5">
         <div>
           {/* Header */}
-          <div className="mb-2 flex items-start justify-between">
-            <div>
+          <div className="mb-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <div className="w-full sm:w-auto">
               <div className="mb-1 flex items-center gap-2">
                 <Typography
                   variant="h6"
@@ -124,7 +124,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                 {project.location}
               </Typography>
             </div>
-            <div className="flex flex-col items-end text-right">
+            <div className="flex w-full flex-row items-baseline justify-between pr-2 sm:w-auto sm:flex-col sm:items-end sm:pr-0 sm:text-right">
               <Typography
                 variant="h6"
                 className="font-bold leading-none tracking-tight text-gray-900"
@@ -134,7 +134,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               {project.areaRange && (
                 <Typography
                   variant="caption"
-                  className="mt-1 rounded-md border border-gray-100 bg-gray-50 px-2 py-0.5 font-medium text-gray-500"
+                  className="mt-0 rounded-md border border-gray-100 bg-gray-50 px-2 py-0.5 font-medium text-gray-500 sm:mt-1"
                 >
                   {project.areaRange}
                 </Typography>
@@ -147,9 +147,13 @@ function ProjectCard({ project }: ProjectCardProps) {
             {project.configurations.map((conf, idx) => (
               <div
                 key={idx}
-                className={`grid grid-cols-12 items-center gap-2 py-2 ${idx !== project.configurations.length - 1 ? 'border-b border-gray-200' : ''}`}
+                className={`flex flex-wrap items-center gap-y-2 py-2 md:grid md:grid-cols-12 md:gap-2 ${
+                  idx !== project.configurations.length - 1
+                    ? 'border-b border-gray-200'
+                    : ''
+                }`}
               >
-                <div className="col-span-4 w-full border-r border-gray-200 pr-2 text-center md:col-span-3">
+                <div className="w-1/2 border-r border-gray-200 pr-2 md:col-span-3 md:w-auto md:text-center">
                   <Typography className="text-sm font-bold text-gray-800">
                     {conf.bhk}
                   </Typography>
@@ -157,7 +161,8 @@ function ProjectCard({ project }: ProjectCardProps) {
                     {conf.type || 'Flat'}
                   </Typography>
                 </div>
-                <div className="col-span-4 w-full border-r border-gray-200 px-2 text-center md:col-span-4">
+
+                <div className="w-1/2 border-gray-200 px-2 pl-4 md:col-span-4 md:w-auto md:border-r md:pl-2 md:text-center">
                   <Typography className="text-sm font-bold text-gray-800">
                     {conf.area}
                   </Typography>
@@ -165,8 +170,9 @@ function ProjectCard({ project }: ProjectCardProps) {
                     Super Built-up
                   </Typography>
                 </div>
-                <div className="col-span-4 flex w-full flex-col items-center justify-center gap-0 pl-2 text-center md:col-span-5">
-                  <Typography className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-sm font-bold text-blue-600">
+
+                <div className="mt-1 flex w-full items-center justify-start md:col-span-5 md:mt-0 md:justify-center">
+                  <Typography className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-600 md:px-2 md:py-0.5">
                     {conf.price}
                     <Tooltip title="Excluding Gov. Charges">
                       <Info
@@ -201,14 +207,22 @@ function ProjectCard({ project }: ProjectCardProps) {
                 key={i}
                 label={`${item.name} (${item.distanceKm} km)`}
                 size="small"
-                className="h-6 border border-transparent bg-gray-100 text-xs text-gray-600 hover:border-gray-300"
+                className="h-6 max-w-[150px] border border-transparent bg-gray-100 text-xs text-gray-600 hover:border-gray-300 sm:max-w-none"
+                sx={{
+                  '& .MuiChip-label': {
+                    display: 'block',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  },
+                }}
               />
             ))}
             {!showAllLandmarks &&
               project.landmarks &&
               project.landmarks.length > INITIAL_LANDMARKS_COUNT && (
                 <Chip
-                  label="Show More"
+                  label="More"
                   size="small"
                   variant="outlined"
                   className="h-6 cursor-pointer border-gray-300 text-xs text-gray-500 hover:bg-gray-50"
@@ -220,7 +234,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               project.landmarks &&
               project.landmarks.length > INITIAL_LANDMARKS_COUNT && (
                 <Chip
-                  label="Show Less"
+                  label="Less"
                   size="small"
                   variant="outlined"
                   className="h-6 cursor-pointer border-gray-300 text-xs text-gray-500 hover:bg-gray-50"
@@ -232,9 +246,9 @@ function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         {/* Action Footer */}
-        <div className="mt-auto flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-4 sm:flex-row">
-          <div className="w-full sm:w-auto">
-            <Typography className="mr-2 flex flex-col items-baseline gap-1 text-xs text-gray-500">
+        <div className="mt-auto flex flex-col justify-between gap-4 border-t border-gray-100 pt-4 lg:flex-row lg:items-center">
+          <div className="w-full lg:w-auto">
+            <Typography className="mr-2 flex flex-col items-baseline gap-1 text-xs text-gray-500 sm:flex-row">
               Builder:
               <span className="cursor-pointer text-sm font-bold text-gray-700 hover:underline">
                 {project.builderName}
@@ -242,7 +256,7 @@ function ProjectCard({ project }: ProjectCardProps) {
             </Typography>
           </div>
 
-          <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+          <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto lg:justify-end lg:gap-2">
             <Tooltip title="Share on WhatsApp">
               <IconButton
                 className="border border-green-500 text-green-600 hover:bg-green-50"
@@ -261,7 +275,7 @@ function ProjectCard({ project }: ProjectCardProps) {
             </Tooltip>
             <Button
               variant="outlined"
-              className="rounded-full border-secondary-900 px-4 py-1.5 text-xs font-bold normal-case text-secondary-900 hover:bg-secondary-900 hover:text-white"
+              className="flex-1 whitespace-nowrap rounded-full border-secondary-900 px-4 py-1.5 text-xs font-bold normal-case text-secondary-900 hover:bg-secondary-900 hover:text-white sm:flex-none"
               startIcon={<Download fontSize="small" />}
               sx={{ textTransform: 'none' }}
             >
@@ -269,7 +283,7 @@ function ProjectCard({ project }: ProjectCardProps) {
             </Button>
             <Button
               variant="contained"
-              className="rounded-full bg-secondary-900 px-5 py-2 text-xs font-bold normal-case text-white shadow-md hover:bg-black"
+              className="flex-1 whitespace-nowrap rounded-full bg-secondary-900 px-5 py-2 text-xs font-bold normal-case text-white shadow-md hover:bg-black sm:flex-none"
               endIcon={<East fontSize="small" />}
               sx={{ textTransform: 'none' }}
             >

@@ -32,6 +32,7 @@ export interface PropertyAmenity {
   category: AmenityCategory;
 }
 
+import { ApiBuilder } from './api-project.types';
 import { AmenityCategory, PropertyType, ViewType } from './enums';
 
 export type PropertyStatus =
@@ -58,8 +59,8 @@ export interface Property {
   type?: string;
   status: PropertyStatus;
   listingType?: PropertyListingType;
-  bedrooms?: number;
-  bathrooms?: number;
+  bedrooms?: number | string;
+  bathrooms?: number | string;
   area: string;
   size?: number;
   location?: string;
@@ -75,6 +76,7 @@ export interface Property {
   views?: number;
   builder?: string;
   builderId?: string;
+  builders?: ApiBuilder[];
   nearbyTransport?: string[];
   schools?: string[];
   hospitals?: string[];

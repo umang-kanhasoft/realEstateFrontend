@@ -56,11 +56,17 @@ export interface PropertyState {
   favorites: string[];
   recentlyViewed: string[];
   compareList: string[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    hasNextPage: boolean;
+  };
 }
 
 export interface PropertyContextValue {
   state: PropertyState;
-  fetchProperties: () => Promise<void>;
+  fetchProperties: (page?: number, append?: boolean) => Promise<void>;
   fetchPropertyById: (id: string) => Promise<Property | null>;
   setFilters: (filters: Partial<PropertyFilter>) => void;
   resetFilters: () => void;
@@ -81,6 +87,7 @@ export interface UIState {
   activeModal: string | null;
   scrollPosition: number;
   isScrolled: boolean;
+  isFooterVisible: boolean;
 }
 
 export interface UIContextValue {
@@ -99,6 +106,8 @@ export interface UIContextValue {
   closeFilterDrawer: () => void;
   setActiveModal: (modal: string | null) => void;
   updateScrollPosition: (position: number) => void;
+  showFooter: () => void;
+  hideFooter: () => void;
 }
 
 // Provider Props
@@ -132,7 +141,18 @@ export type PropertyAction =
   | { type: 'ADD_TO_COMPARE'; payload: string }
   | { type: 'REMOVE_FROM_COMPARE'; payload: string }
   | { type: 'CLEAR_COMPARE_LIST' }
-  | { type: 'ADD_TO_RECENTLY_VIEWED'; payload: string };
+  | { type: 'CLEAR_COMPARE_LIST' }
+  | { type: 'ADD_TO_RECENTLY_VIEWED'; payload: string }
+  | {
+      type: 'SET_PAGINATION';
+      payload: {
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+        hasNextPage: boolean;
+      };
+    }
+  | { type: 'APPEND_PROPERTIES'; payload: Property[] };
 
 export type UIAction =
   | { type: 'TOGGLE_MOBILE_MENU' }
@@ -148,4 +168,6 @@ export type UIAction =
   | { type: 'OPEN_FILTER_DRAWER' }
   | { type: 'CLOSE_FILTER_DRAWER' }
   | { type: 'SET_ACTIVE_MODAL'; payload: string | null }
-  | { type: 'UPDATE_SCROLL_POSITION'; payload: number };
+  | { type: 'UPDATE_SCROLL_POSITION'; payload: number }
+  | { type: 'SHOW_FOOTER' }
+  | { type: 'HIDE_FOOTER' };

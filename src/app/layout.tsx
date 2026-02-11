@@ -1,11 +1,14 @@
-import Chatbot from '@/components/common/Chatbot';
 import FloatingDock from '@/components/layout/FloatingDock';
 import Footer from '@/components/layout/Footer';
-import { AppProvider } from '@/context/AppContext';
 import { PropertyProvider } from '@/context/PropertyContext';
 import { ThemeContextProvider } from '@/context/ThemeContext';
 import { UIProvider } from '@/context/UIContext';
 import type { Metadata, Viewport } from 'next';
+import dynamic from 'next/dynamic';
+
+const Chatbot = dynamic(() => import('@/components/common/Chatbot'), {
+  ssr: false,
+});
 // Google Fonts removed to prevent build timeouts in restricted environments
 // Using system fonts instead
 const inter = { variable: 'font-sans' };
@@ -95,6 +98,7 @@ interface RootLayoutProps {
 import { AuthProvider } from '@/context/AuthContext';
 import { ChatProvider } from '@/context/ChatContext';
 import { CompareProvider } from '@/context/CompareContext';
+import { FavoritesProvider } from '@/context/FavoritesContext';
 import { SearchProvider } from '@/context/SearchContext';
 import QueryProvider from '@/providers/QueryProvider';
 
@@ -107,12 +111,12 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
         style={{ backgroundColor: '#fff' }}
       >
         <QueryProvider>
-          <AppProvider>
-            <ThemeContextProvider>
-              <AuthProvider>
-                <PropertyProvider>
-                  <SearchProvider>
-                    <CompareProvider>
+          <ThemeContextProvider>
+            <AuthProvider>
+              <PropertyProvider>
+                <SearchProvider>
+                  <CompareProvider>
+                    <FavoritesProvider>
                       <UIProvider>
                         <ChatProvider>
                           <div className="relative flex min-h-screen flex-col">
@@ -123,12 +127,12 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
                           </div>
                         </ChatProvider>
                       </UIProvider>
-                    </CompareProvider>
-                  </SearchProvider>
-                </PropertyProvider>
-              </AuthProvider>
-            </ThemeContextProvider>
-          </AppProvider>
+                    </FavoritesProvider>
+                  </CompareProvider>
+                </SearchProvider>
+              </PropertyProvider>
+            </AuthProvider>
+          </ThemeContextProvider>
         </QueryProvider>
       </body>
     </html>

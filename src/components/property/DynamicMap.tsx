@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface DynamicMapProps {
   latitude?: number;
@@ -152,7 +152,7 @@ export default function DynamicMap({
   };
 
   // Initialize map
-  const initializeMap = async () => {
+  const initializeMap = useCallback(async () => {
     if (!mapRef.current || !coordinates || !window.L) {
       return;
     }
@@ -248,7 +248,7 @@ export default function DynamicMap({
       setError('Failed to initialize map');
       setLoading(false);
     }
-  };
+  }, [coordinates, address, locality]);
 
   useEffect(() => {
     const initMap = async () => {
@@ -304,13 +304,13 @@ export default function DynamicMap({
         mapInstanceRef.current = null;
       }
     };
-  }, [latitude, longitude, address, locality, city]);
+  }, [latitude, longitude, address, locality, city, initializeMap]);
 
   useEffect(() => {
     if (coordinates && window.L) {
       initializeMap();
     }
-  }, [coordinates]);
+  }, [coordinates, initializeMap]);
 
   const handleGetDirections = () => {
     if (mapControls.directionsUrl) {

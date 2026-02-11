@@ -8,6 +8,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
+import Image from 'next/image';
 import { useState } from 'react';
 
 interface RoomDimensions {
@@ -104,15 +105,16 @@ function FloorPlans({
                   justifyContent: 'center',
                   border: '1px dashed #d0d0d0',
                   overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
                 {item.floorPlanUrl ? (
-                  <img
+                  <Image
                     src={item.floorPlanUrl}
                     alt={`${item.label} Floor Plan`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     style={{
-                      maxWidth: '100%',
-                      maxHeight: '100%',
                       objectFit: 'contain',
                       cursor: 'pointer',
                     }}
@@ -250,9 +252,12 @@ function FloorPlans({
             <CloseIcon />
           </IconButton>
           {selectedImage && (
-            <img
+            <Image
               src={selectedImage}
               alt="Floor Plan Full Size"
+              width={1200}
+              height={800}
+              sizes="(max-width: 1200px) 100vw, 1200px"
               style={{
                 width: '100%',
                 height: 'auto',

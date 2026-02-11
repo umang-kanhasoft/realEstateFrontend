@@ -1,98 +1,85 @@
 import {
-  AmenityCategory,
+  ConstructionStatus,
   LandmarkType,
-  ProjectMediaType,
+  PropertyType,
   ViewType,
 } from './enums';
 
 export interface ApiBuilder {
   id: string;
   name: string;
-  logo?: string;
+  logoUrl?: string | null;
+  isPrimary?: boolean;
 }
 
 export interface ApiLandmark {
-  type: LandmarkType; // Using Enum
+  id: string;
+  type: LandmarkType;
   name: string;
-  distance?: string;
-}
-
-export interface ApiProjectLocation {
-  city: string;
-  area?: string;
-  locality?: string;
-  sector?: string;
-  addressLine2?: string;
-  landmarks: ApiLandmark[];
+  distanceKm: number | null;
+  travelTimeMin: number | null;
 }
 
 export interface ApiUnitType {
-  id?: string;
+  id: string;
   label: string;
   carpetAreaSqft: number;
-  builtUpAreaSqft?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  price?: number;
-  totalUnits?: number;
-  availableUnits?: number;
-  viewType?: ViewType | null;
+  builtUpAreaSqft: number;
+  bedrooms: number;
+  bathrooms: number;
+  price: number;
+  totalUnits: number | null;
+  availableUnits: number | null;
+  viewType: ViewType | null;
 }
 
-export interface ApiProjectMedia {
-  thumbnail?: string;
-  images: { url: string; type?: ProjectMediaType }[];
-}
-
-export interface ApiPricingAndInventory {
-  priceRange: {
-    minPrice?: number;
-    maxPrice?: number;
-  };
-  avgPricePerSqft?: number;
-  configurations?: {
-    label: string;
-    carpetAreaSqft: number;
-    floorPlanUrl?: string;
-  }[];
-}
-
-export interface ApiProjectInfo {
-  name: string;
-  developer?: ApiBuilder;
-  status: string; // Backend string, mapped to ConstructionStatus
-  possessionDate?: string;
-  totalArea: { value?: number; unit?: string };
-  reraId?: string;
-  avgRating?: number;
-  totalReviews?: number;
-  description?: string;
-}
-
-export interface ApiProjectListItem {
+export interface ApiProjectObject {
   id: string;
   name: string;
-  builder?: ApiBuilder;
-  locality?: string;
-  area?: string;
+  slug: string;
+  propertyType: PropertyType;
+  status: ConstructionStatus;
+  addressLine1: string;
+  addressLine2: string;
+  area: string;
   city: string;
-  priceStartingFrom?: number;
-  pricePerSqFt?: number;
-  unitTypes?: ApiUnitType[];
-  mainImageUrl?: string;
-  size?: number;
-  status: string; // Backend string
-  possessionDate?: string;
-  amenities?: string[]; // Arrays of strings in list item?
-  ecoFriendly?: boolean;
-  reraNumber?: string;
-  avgRating?: number;
-  totalReviews?: number;
-  completionTime?: number;
+  state: string | null;
+  priceStartingFrom: number | null;
+  pricePerSqFt: number | null;
+  size: number | null;
+  totalArea: number | null;
+  purchaseType?: string | null;
+  residentialType?: string | null;
+  keyFeatures?: string[] | null;
+  ecoFriendly: boolean;
+  isFeatured: boolean;
+  possessionDate: string | null;
+  currency: string;
+  completionTime: number | null;
+  totalUnits: number | null;
+  totalTowers: number | null;
+  reraNumber: string | null;
+  locality: string | null;
+  totalProjectArea: number | null;
+  areaUnit: string | null;
+  avgRating: number;
+  totalReviews: number;
+  mainImageUrl: string | null;
+  unitTypes: ApiUnitType[] | null;
+  landmarks: ApiLandmark[] | null;
+  amenities: string[];
+  builders: ApiBuilder[] | null;
+  description?: string;
+  launchDate?: string;
+  availableUnits?: number;
+  openArea?: number;
+  thumbnail?: string;
+  isActive: boolean;
+  maxPrice?: number;
 }
 
 export interface ProjectsListResponseData {
-  projects: ApiProjectListItem[];
+  projects: ApiProjectObject[];
   totalCount: number;
   limit: number;
   offset: number;
@@ -100,11 +87,64 @@ export interface ProjectsListResponseData {
 
 export interface ApiProjectDetail {
   id: string;
-  projectInfo: ApiProjectInfo;
-  location: ApiProjectLocation;
-  pricingAndInventory: ApiPricingAndInventory;
-  media: ApiProjectMedia;
+  projectInfo: {
+    name: string;
+    developer: {
+      id: string;
+      name: string;
+    };
+    totalArea: {
+      value: number;
+      unit: string;
+    };
+    status: string;
+    possessionDate: string;
+    reraId: string;
+    avgRating: number;
+    totalReviews: number;
+    description: string;
+  };
+  location: {
+    sector: string;
+    addressLine2: string;
+    city: string;
+    landmarks: {
+      type: string;
+      name: string;
+    }[];
+  };
+  pricingAndInventory: {
+    priceRange: {
+      minPrice: number;
+      maxPrice: number;
+    };
+    avgPricePerSqft: number;
+    configurations: {
+      label: string;
+      carpetAreaSqft: number;
+      floorPlanUrl: string;
+    }[];
+  };
+  media: {
+    thumbnail: string;
+    images: {
+      url: string;
+    }[];
+  };
   amenities: {
-    [key in AmenityCategory]?: string[]; // Using Enum keys
+    leisure: string[];
+    safety: string[];
+    health: string[];
+    environment: string[];
+    convenience: string[];
+    sports: string[];
+    kids: string[];
+  };
+}
+
+export interface ApiProjectListItem extends Omit<ApiProjectObject, 'builders'> {
+  builder?: {
+    id: string;
+    name: string;
   };
 }

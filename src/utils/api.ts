@@ -21,8 +21,7 @@ async function request<T>(
     Object.entries(config.params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
-          // Handle array parameters (e.g., propertyType[]=Flat&propertyType[]=Villa)
-          value.forEach(item => searchParams.append(`${key}[]`, String(item)));
+          value.forEach(item => searchParams.append(key, String(item)));
         } else {
           searchParams.append(key, String(value));
         }

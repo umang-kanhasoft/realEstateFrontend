@@ -14,11 +14,19 @@ export interface Message {
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  searchResult?: {
+    count: number;
+    filters: Record<string, unknown>;
+    // TODO: fix any to ai response property types
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    properties: Record<string, any>[];
+  };
 }
 
 interface ChatContextType {
   messages: Message[];
   addMessage: (message: Message) => void;
+  updateLastMessage: (updates: Partial<Message>) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   isOpen: boolean;
@@ -92,11 +100,21 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages(prev => [...prev, message]);
   };
 
+  const updateLastMessage = (updates: Partial<Message>) => {
+    setMessages(prev => {
+      if (prev.length === 0) return prev;
+      const newMessages = [...prev];
+      const lastIndex = newMessages.length - 1;
+      newMessages[lastIndex] = { ...newMessages[lastIndex], ...updates };
+      return newMessages;
+    });
+  };
+
   const clearChat = () => {
     setMessages([
       {
         id: Date.now().toString(),
-        text: 'Chat history cleared. How can I help you today?',
+        text: 'Hi! I can help you find your dream property. Try "3 BHK in Sola under 1 Cr".',
         sender: 'ai',
         timestamp: new Date(),
       },
@@ -110,6 +128,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       value={{
         messages,
         addMessage,
+        updateLastMessage,
         isLoading,
         setIsLoading,
         isOpen,

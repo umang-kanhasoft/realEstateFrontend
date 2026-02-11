@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  ChatBubbleOutline as ChatIcon,
-  FavoriteBorder as HeartIcon,
-  Home as HomeIcon,
-  Phone as PhoneIcon,
-  GridView as ProjectIcon,
-  Search as SearchIcon,
+  Article,
+  FavoriteBorder,
+  GridView,
+  Home,
+  Phone,
+  Search,
 } from '@mui/icons-material';
 import { Box, Tooltip, Zoom } from '@mui/material';
 import {
@@ -50,7 +50,7 @@ function DockItem({
 
   return (
     <Tooltip title={label} placement="top" TransitionComponent={Zoom} arrow>
-      <Link href={href} passHref>
+      <Link href={href} passHref prefetch={true}>
         <motion.div
           ref={ref}
           style={{ width }}
@@ -59,6 +59,7 @@ function DockItem({
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
               : 'border border-gray-200/50 bg-white/10 text-gray-600 hover:bg-white/20 hover:text-blue-600'
           } backdrop-blur-md transition-colors duration-200`}
+          whileTap={{ scale: 0.9 }}
         >
           <Icon className={isActive ? 'text-[24px]' : 'text-[20px]'} />
           {isActive && (
@@ -77,12 +78,12 @@ export default function FloatingDock() {
   const mouseX = useMotionValue(Infinity);
 
   const navItems = [
-    { icon: HomeIcon, label: 'Home', href: '/' },
-    { icon: SearchIcon, label: 'Properties', href: '/properties' },
-    { icon: ProjectIcon, label: 'Projects', href: '/projects' },
-    { icon: HeartIcon, label: 'Saved', href: '/saved' },
-    { icon: ChatIcon, label: 'Chat', href: '/chat' },
-    { icon: PhoneIcon, label: 'Contact', href: '/contact' },
+    { icon: Home, label: 'Home', href: '/' },
+    { icon: Search, label: 'Properties', href: '/properties' },
+    { icon: GridView, label: 'Projects', href: '/projects' },
+    { icon: FavoriteBorder, label: 'Favorites', href: '/favorites' },
+    { icon: Article, label: 'Blogs', href: '/blogs' },
+    { icon: Phone, label: 'Contact', href: '/contact' },
   ];
 
   return (

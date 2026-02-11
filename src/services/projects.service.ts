@@ -1,8 +1,9 @@
+import { ApiProjectObject } from '@/types/api-project.types';
 import { api } from '@/utils/api';
 
 export interface ProjectFiltersParams {
   // Index signature for compatibility with Record<string, unknown>
-  [key: string]: string | number | boolean | string[] | undefined;
+  [key: string]: string | number | boolean | string[] | number[] | undefined;
 
   // Pagination
   limit?: number;
@@ -38,6 +39,8 @@ export interface ProjectFiltersParams {
 
   // Status & Timeline
   status?: string | string[];
+  possessionBefore?: string;
+  possessionAfter?: string;
 
   // Builder
   builder?: string | string[];
@@ -56,6 +59,7 @@ export interface ProjectFiltersParams {
   nearPark?: boolean;
 
   // Floor Details
+  bedrooms?: number[];
   floorNumber?: number;
   totalFloors?: number;
 
@@ -90,6 +94,9 @@ export interface ProjectFiltersParams {
   legalStatus?: string | string[];
   occupancyStatus?: string | string[];
   additionalFacilities?: string | string[];
+
+  // Special
+  isFeatured?: boolean;
 }
 
 export interface UnitType {
@@ -136,36 +143,7 @@ export interface Landmarks {
   travelTimeMin: string;
 }
 
-export interface Project {
-  id: string;
-  name: string;
-  slug: string;
-  city: string;
-  area: string;
-  description?: string;
-  addressLine1: string;
-  addressLine2?: string;
-  propertyType: string;
-  reraNumber?: string;
-  launchDate?: string;
-  possessionDate?: string;
-  totalUnits?: number;
-  availableUnits?: number;
-  totalArea?: number;
-  openArea?: number;
-  thumbnail?: string;
-  isFeatured: boolean;
-  isActive: boolean;
-  builders: Builder[];
-  unitTypes: UnitType[];
-  amenities: Amenity[];
-  totalReviews: number;
-  avgRating: number;
-  maxPrice?: number;
-  landmarks?: Landmarks[];
-  mainImageUrl?: string;
-  priceStartingFrom?: number;
-}
+export type Project = ApiProjectObject;
 
 export interface ProjectsResponse {
   totalCount: number;

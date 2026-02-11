@@ -24,10 +24,10 @@ export function CompareProvider({ children }: { children: ReactNode }) {
   // Load from local storage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('compare-context-storage');
-      if (saved) {
+      const favorites = localStorage.getItem('compare-context-storage');
+      if (favorites) {
         try {
-          setCompareProperties(JSON.parse(saved));
+          setCompareProperties(JSON.parse(favorites));
         } catch (e) {
           console.error('Failed to parse compare list', e);
         }

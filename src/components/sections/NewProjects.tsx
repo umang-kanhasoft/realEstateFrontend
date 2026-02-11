@@ -15,6 +15,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import { AreaStats, areaService } from '@/services/area.service';
 
+import Link from 'next/link';
 import 'swiper/css';
 import 'swiper/css/effect-fade';
 
@@ -66,60 +67,66 @@ function AreaCard({ area, gridSize, index }: AreaCardProps) {
 
   return (
     <Grid item xs={12} md={gridSize}>
-      <Box className="group relative h-[320px] cursor-pointer overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:rounded-[32px]">
-        {/* Image Slider - Fade Effect */}
-        {hasMultipleImages ? (
-          <Swiper
-            modules={[Autoplay, EffectFade]}
-            effect="fade"
-            fadeEffect={{ crossFade: true }}
-            speed={1000}
-            autoplay={{
-              delay: autoplayDelay,
-              disableOnInteraction: false,
-            }}
-            loop
-            allowTouchMove={false}
-            className="absolute inset-0 h-full w-full"
-          >
-            {images.map((imageUrl, idx) => (
-              <SwiperSlide key={idx}>
-                <Box
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
-                  sx={{ backgroundImage: `url(${imageUrl})` }}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        ) : (
-          <Box
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
-            sx={{ backgroundImage: `url(${images[0]})` }}
-          />
-        )}
-
-        {/* Gradient Overlay */}
-        <Box className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-70" />
-
-        {/* Content */}
-        <Box className="absolute bottom-0 left-0 z-10 w-full p-6 md:p-8">
-          <Typography
-            variant="h5"
-            className="mb-2 font-bold text-white drop-shadow-md"
-          >
-            {area.name}
-          </Typography>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Box className="h-2 w-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />
-            <Typography
-              variant="subtitle2"
-              className="font-medium text-white/90 drop-shadow-sm"
+      <Link
+        href={`/projects?area=${encodeURIComponent(area.name)}`}
+        prefetch
+        className="block h-full"
+      >
+        <Box className="group relative h-[320px] cursor-pointer overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:rounded-[32px]">
+          {/* Image Slider - Fade Effect */}
+          {hasMultipleImages ? (
+            <Swiper
+              modules={[Autoplay, EffectFade]}
+              effect="fade"
+              fadeEffect={{ crossFade: true }}
+              speed={1000}
+              autoplay={{
+                delay: autoplayDelay,
+                disableOnInteraction: false,
+              }}
+              loop
+              allowTouchMove={false}
+              className="absolute inset-0 h-full w-full"
             >
-              {area.propertiesCount}+ Projects
+              {images.map((imageUrl, idx) => (
+                <SwiperSlide key={idx}>
+                  <Box
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
+                    sx={{ backgroundImage: `url(${imageUrl})` }}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <Box
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
+              sx={{ backgroundImage: `url(${images[0]})` }}
+            />
+          )}
+
+          {/* Gradient Overlay */}
+          <Box className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-70" />
+
+          {/* Content */}
+          <Box className="absolute bottom-0 left-0 z-10 w-full p-6 md:p-8">
+            <Typography
+              variant="h5"
+              className="mb-2 font-bold text-white drop-shadow-md"
+            >
+              {area.name}
             </Typography>
-          </Stack>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Box className="h-2 w-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />
+              <Typography
+                variant="subtitle2"
+                className="font-medium text-white/90 drop-shadow-sm"
+              >
+                {area.propertiesCount}+ Projects
+              </Typography>
+            </Stack>
+          </Box>
         </Box>
-      </Box>
+      </Link>
     </Grid>
   );
 }
@@ -193,17 +200,19 @@ export default function NewProjects() {
             Explore Prime Neighborhoods<span className="text-sky-500">.</span>
           </Typography>
         </Box>
-        <Button
-          variant="outlined"
-          size="large"
-          endIcon={
-            <ArrowForwardRounded className="transition-transform duration-300 group-hover:translate-x-1" />
-          }
-          className="group rounded-full border-2 border-secondary-900 px-6 py-2 font-semibold text-secondary-900 transition-all duration-300 hover:bg-secondary-900 hover:text-white"
-          sx={{ textTransform: 'none' }}
-        >
-          View map
-        </Button>
+        <Link href="/projects" prefetch>
+          <Button
+            variant="outlined"
+            size="large"
+            endIcon={
+              <ArrowForwardRounded className="transition-transform duration-300 group-hover:translate-x-1" />
+            }
+            className="group rounded-full border-2 border-secondary-900 px-6 py-2 font-semibold text-secondary-900 transition-all duration-300 hover:bg-secondary-900 hover:text-white"
+            sx={{ textTransform: 'none' }}
+          >
+            View map
+          </Button>
+        </Link>
       </Stack>
 
       {isLoading ? (
