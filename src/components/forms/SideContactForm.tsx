@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@/context/AuthContext';
+import { useAuthModal } from '@/context/AuthModalContext';
 import {
   Box,
   Button,
@@ -11,6 +13,8 @@ import {
 import { useState } from 'react';
 
 export default function SideContactForm() {
+  const { user } = useAuth();
+  const { openLogin } = useAuthModal();
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
@@ -28,6 +32,12 @@ export default function SideContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      openLogin();
+      return;
+    }
+
     // Logic to submit form
     console.log('Form submitted:', formData);
   };

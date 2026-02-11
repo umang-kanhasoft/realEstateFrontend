@@ -113,10 +113,8 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
       ...amenities.slice(0, 1),
     ],
     reraId: project.reraNumber || 'RERA Pending',
-    badges: [
-      project.reraNumber ? 'ECO_FRIENDLY' : '',
-      project.isFeatured ? 'FEATURED' : '',
-    ].filter(Boolean),
+    isFeatured: project.isFeatured,
+    ecoFriendly: project.ecoFriendly,
     image:
       project.mainImageUrl ||
       'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',

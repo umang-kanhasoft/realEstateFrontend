@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@/context/AuthContext';
+import { useAuthModal } from '@/context/AuthModalContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useProperty } from '@/hooks/useProperty';
 import { formatCurrency } from '@/lib/utils/format';
@@ -7,8 +9,8 @@ import { Property, PropertyImage } from '@/types';
 import { formatArea } from '@/utils/helpers';
 import {
   SquareFoot as AreaIcon,
-  BathtubOutlined as BathtubIcon,
-  BedOutlined as BedIcon,
+  Bathtub as BathtubIcon,
+  Bed as BedIcon,
   Compare as CompareIcon,
   FavoriteBorder as FavoriteBorderIcon,
   Favorite as FavoriteIcon,
@@ -21,6 +23,7 @@ import {
   Button,
   Card,
   IconButton,
+  Stack,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -37,6 +40,8 @@ const PropertyCard = ({
   property,
   variant = 'default',
 }: PropertyCardProps): JSX.Element => {
+  const { user } = useAuth();
+  const { openLogin } = useAuthModal();
   const {
     state: { compareList },
     addToCompare,
@@ -52,6 +57,12 @@ const PropertyCard = ({
   const handleFavoriteClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      openLogin();
+      return;
+    }
+
     toggleFavorite(property.id);
   };
 
@@ -78,7 +89,7 @@ const PropertyCard = ({
         {/* Image Section - Compact Fixed Width */}
         <Box className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100 md:h-full md:w-[260px] lg:w-[280px]">
           <Link
-            href={`/properties/${property.slug}`}
+            href={`/projects/${property.id}`}
             className="block h-full w-full"
           >
             <Image
@@ -279,156 +290,181 @@ const PropertyCard = ({
 
   // --- Default Variant (Grid View) ---
   return (
-    <Card className="group h-full cursor-pointer overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
-      {/* Image Container */}
-      <Box className="relative h-64 w-full overflow-hidden">
-        <Link
-          href={`/properties/${property.slug}`}
-          className="block h-full w-full"
-        >
-          <Image
-            src={primaryImage}
-            alt={property.title}
-            fill
-            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-110 ${
-              isImageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            onLoad={() => setIsImageLoaded(true)}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+    <Card
+      className="group cursor-pointer rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      sx={{
+        transform: 'translateZ(0)',
+      }}
+    >
+      <Box
+        className="overflow-hidden rounded-2xl"
+        sx={{
+          WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+          maskImage: 'radial-gradient(white, black)',
+        }}
+      >
+        {/* Image Container */}
+        <Box className="relative h-48 w-full overflow-hidden">
+          <Link
+            href={`/properties/${property.slug}`}
+            className="block h-full w-full"
+          >
+            <Image
+              src={primaryImage}
+              alt={property.title}
+              fill
+              className={`object-cover transition-transform duration-500 group-hover:scale-110 ${
+                isImageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setIsImageLoaded(true)}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
 
-          {/* Loading Skeleton */}
-          {!isImageLoaded && (
-            <Box className="absolute inset-0 animate-pulse bg-secondary-200" />
-          )}
-
-          {/* Gradient Overlay */}
-          <Box className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-          {/* Badges: Featured / Eco-Friendly only */}
-          <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
-            {property.isFeatured && (
-              <span className="w-fit rounded-lg bg-yellow-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-lg backdrop-blur-sm">
-                Featured
-              </span>
+            {/* Loading Skeleton */}
+            {!isImageLoaded && (
+              <Box className="absolute inset-0 animate-pulse bg-secondary-200" />
             )}
-            {property.ecoFriendly && (
-              <span className="w-fit rounded-lg bg-green-600/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg backdrop-blur-sm">
-                Eco Friendly
-              </span>
-            )}
-          </div>
 
-          {/* Price */}
-          <Box className="absolute bottom-3 left-3">
+            {/* Gradient Overlay */}
+            <Box className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+            {/* Badges */}
+            <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
+              {property.isFeatured && (
+                <Box className="rounded-md bg-yellow-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-black shadow-lg backdrop-blur-sm">
+                  Featured
+                </Box>
+              )}
+              {property.ecoFriendly && (
+                <Box className="rounded-md bg-green-600/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm">
+                  Eco Friendly
+                </Box>
+              )}
+              {/* Type Badge */}
+              <Box className="rounded-md bg-primary-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                For {property.listingType === 'rent' ? 'Rent' : 'Sale'}
+              </Box>
+            </div>
+
+            {/* Price */}
+            <Box className="absolute bottom-3 left-3">
+              <Typography
+                variant="h6"
+                className="font-bold text-white drop-shadow-md"
+              >
+                {formatCurrency(property.price)}
+                {property.listingType === 'rent' && (
+                  <span className="text-sm font-normal">/month</span>
+                )}
+              </Typography>
+            </Box>
+          </Link>
+
+          {/* Action Buttons (Fav & Compare) */}
+          <Box className="absolute right-3 top-3 z-10 flex flex-col gap-2">
+            <Tooltip
+              title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+              arrow
+            >
+              <IconButton
+                size="small"
+                onClick={handleFavoriteClick}
+                className={`shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 ${
+                  isFav
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-red-500'
+                }`}
+              >
+                {isFav ? (
+                  <FavoriteIcon fontSize="small" />
+                ) : (
+                  <FavoriteBorderIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip
+              title={isInCompare ? 'Remove from compare' : 'Add to compare'}
+              arrow
+            >
+              <IconButton
+                size="small"
+                onClick={handleCompareClick}
+                className={`shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 ${
+                  isInCompare
+                    ? 'bg-primary-500 text-white hover:bg-primary-600'
+                    : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-primary-600'
+                }`}
+              >
+                <CompareIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+
+        {/* Content */}
+        <Box className="p-4">
+          <Link href={`/properties/${property.slug}`}>
             <Typography
-              variant="h5"
-              className="text-xl font-bold text-white drop-shadow-lg"
+              variant="subtitle1"
+              className="mb-1 truncate font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
             >
-              {formatCurrency(property.price)}
-              {property.listingType === 'rent' && (
-                <span className="text-sm font-normal">/month</span>
-              )}
+              {property.title}
             </Typography>
-          </Box>
-        </Link>
-        {/* Action Buttons */}
-        <Box className="absolute right-3 top-3 z-10 flex flex-col gap-2">
-          <Tooltip
-            title={isFav ? 'Remove from favorites' : 'Add to favorites'}
-            arrow
+          </Link>
+
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={0.5}
+            className="mb-3 text-secondary-500"
           >
-            <IconButton
-              size="small"
-              onClick={handleFavoriteClick}
-              className={`shadow-lg transition-all duration-300 hover:scale-110 ${
-                isFav
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-white/90 text-secondary-600 hover:bg-white'
-              }`}
-            >
-              {isFav ? (
-                <FavoriteIcon fontSize="small" />
-              ) : (
-                <FavoriteBorderIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title={isInCompare ? 'Remove from compare' : 'Add to compare'}
-            arrow
-          >
-            <IconButton
-              size="small"
-              onClick={handleCompareClick}
-              className={`shadow-lg transition-all duration-300 hover:scale-110 ${
-                isInCompare
-                  ? 'bg-primary-500 text-white hover:bg-primary-600'
-                  : 'bg-white/90 text-secondary-600 hover:bg-white'
-              }`}
-            >
-              <CompareIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-
-      {/* Content */}
-      <Box className="p-5">
-        {/* Title */}
-        <Link href={`/properties/${property.slug}`}>
-          <Typography
-            variant="h6"
-            className="mb-2 truncate text-lg font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
-          >
-            {property.title}
-          </Typography>
-        </Link>
-
-        {/* Location */}
-        <Box className="mb-4 flex items-center gap-1 text-secondary-500">
-          <LocationIcon className="text-primary-500" fontSize="small" />
-          <Typography variant="body2" className="truncate">
-            {property.location ||
-              (property.address?.city
-                ? `${property.address.city}, ${property.address.state}`
-                : 'Location not available')}
-          </Typography>
-        </Box>
-
-        {/* Features / Specs Chips */}
-        <Box className="flex flex-wrap items-center gap-2 border-t border-secondary-100 pt-4">
-          {property.bedrooms !== undefined && (
-            <Box className="flex items-center gap-1.5 rounded-full bg-secondary-50 px-3 py-1.5 text-xs font-semibold text-secondary-700 transition-colors group-hover:bg-primary-50 group-hover:text-primary-700">
-              <BedIcon sx={{ fontSize: 14 }} />
-              <Typography variant="caption" className="font-bold">
-                {property.bedrooms} Beds
-              </Typography>
-            </Box>
-          )}
-
-          {property.bathrooms !== undefined && (
-            <Box className="flex items-center gap-1.5 rounded-full bg-secondary-50 px-3 py-1.5 text-xs font-semibold text-secondary-700 transition-colors group-hover:bg-primary-50 group-hover:text-primary-700">
-              <BathtubIcon sx={{ fontSize: 14 }} />
-              <Typography variant="caption" className="font-bold">
-                {property.bathrooms} Baths
-              </Typography>
-            </Box>
-          )}
-
-          <Box className="flex items-center gap-1.5 rounded-full bg-secondary-50 px-3 py-1.5 text-xs font-semibold text-secondary-700 transition-colors group-hover:bg-primary-50 group-hover:text-primary-700">
-            <AreaIcon sx={{ fontSize: 14 }} />
-            <Typography variant="caption" className="font-bold">
-              {property.area
-                ? property.area
-                : property.size
-                  ? `${property.size} ${property.areaUnit || 'sqft'}`
-                  : formatArea(
-                      property.area || '0',
-                      property.areaUnit || 'sqft'
-                    )}
+            <LocationIcon sx={{ fontSize: 16 }} />
+            <Typography variant="caption" className="truncate">
+              {property.location ||
+                (property.address?.city
+                  ? `${property.address.city}, ${property.address.state}`
+                  : 'Location not available')}
             </Typography>
-          </Box>
+          </Stack>
+
+          {/* Features */}
+          <Stack
+            direction="row"
+            spacing={2}
+            divider={<Box className="h-4 w-px bg-secondary-200" />}
+            className="text-secondary-600 transition-colors duration-300 group-hover:text-primary-600"
+          >
+            {property.bedrooms !== undefined && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <BedIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" fontWeight={500}>
+                  {property.bedrooms}
+                </Typography>
+              </Stack>
+            )}
+            {property.bathrooms !== undefined && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <BathtubIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" fontWeight={500}>
+                  {property.bathrooms}
+                </Typography>
+              </Stack>
+            )}
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <AreaIcon sx={{ fontSize: 16 }} />
+              <Typography variant="caption" fontWeight={500}>
+                {property.area
+                  ? property.area
+                  : property.size
+                    ? `${property.size} ${property.areaUnit || 'sqft'}`
+                    : formatArea(
+                        property.area || '0',
+                        property.areaUnit || 'sqft'
+                      )}
+              </Typography>
+            </Stack>
+          </Stack>
         </Box>
       </Box>
     </Card>
