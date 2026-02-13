@@ -216,7 +216,6 @@ const FeaturedProperties = (): JSX.Element => {
           </Swiper>
         </Box>
 
-        {/* CTA */}
         <Box className="group mt-8 flex justify-center">
           <Link href="/projects" prefetch>
             <Button

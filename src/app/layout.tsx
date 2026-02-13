@@ -96,7 +96,6 @@ interface RootLayoutProps {
 }
 
 import AuthModal from '@/components/auth/AuthModal'; // Import AuthModal
-import TopUserMenu from '@/components/layout/TopUserMenu'; // Import TopUserMenu
 import { AuthProvider } from '@/context/AuthContext';
 import { AuthModalProvider } from '@/context/AuthModalContext'; // Import AuthModalProvider
 import { ChatProvider } from '@/context/ChatContext';
@@ -126,7 +125,6 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
                           <UIProvider>
                             <ChatProvider>
                               <div className="relative flex min-h-screen flex-col">
-                                <TopUserMenu />
                                 <main className="flex-1">{children}</main>
                                 <FloatingDock />
                                 <Footer />

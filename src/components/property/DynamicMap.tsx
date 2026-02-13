@@ -198,11 +198,6 @@ export default function DynamicMap({
               ? `<p style="margin: 4px 0; color: #888; font-size: 12px;">📍 ${locality}</p>`
               : ''
           }
-          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
-            <small style="color: #999;">Coordinates: ${coordinates.lat.toFixed(
-              6
-            )}, ${coordinates.lng.toFixed(6)}</small>
-          </div>
         </div>
       `;
 

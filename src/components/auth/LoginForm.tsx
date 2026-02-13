@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
+import { useAuthModal } from '@/context/AuthModalContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
@@ -43,6 +44,7 @@ export default function LoginForm({
 }: LoginFormProps) {
   const router = useRouter();
   const { login } = useAuth();
+  const { openForgotPassword } = useAuthModal();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export default function LoginForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -173,15 +175,12 @@ export default function LoginForm({
           )}
         />
         <Link
-          href="/forgot-password"
+          href="#"
           className="text-sm font-medium text-violet-600 hover:text-violet-700"
-          onClick={
-            isModal
-              ? () => {
-                  // If in modal, maybe close it or handle differently. For now, let it navigate.
-                }
-              : undefined
-          }
+          onClick={e => {
+            e.preventDefault();
+            openForgotPassword();
+          }}
         >
           Forgot password?
         </Link>

@@ -2,13 +2,14 @@
 
 import { createContext, ReactNode, useContext, useState } from 'react';
 
-type AuthView = 'login' | 'register';
+type AuthView = 'login' | 'register' | 'forgot-password';
 
 interface AuthModalContextType {
   isOpen: boolean;
   view: AuthView;
   openLogin: () => void;
   openRegister: () => void;
+  openForgotPassword: () => void;
   closeModal: () => void;
   toggleView: () => void;
 }
@@ -31,6 +32,11 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
     setIsOpen(true);
   };
 
+  const openForgotPassword = () => {
+    setView('forgot-password');
+    setIsOpen(true);
+  };
+
   const closeModal = () => {
     setIsOpen(false);
   };
@@ -46,6 +52,7 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
         view,
         openLogin,
         openRegister,
+        openForgotPassword,
         closeModal,
         toggleView,
       }}

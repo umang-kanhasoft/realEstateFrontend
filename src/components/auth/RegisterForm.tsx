@@ -110,7 +110,7 @@ export default function RegisterForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push('/dashboard');
+        router.push('/login');
       }
     } catch {
       setError('Registration failed. Please try again.');

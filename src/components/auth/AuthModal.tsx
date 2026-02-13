@@ -9,11 +9,12 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
 export default function AuthModal() {
-  const { isOpen, view, closeModal, toggleView } = useAuthModal();
+  const { isOpen, view, closeModal, toggleView, openLogin } = useAuthModal();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -52,16 +53,18 @@ export default function AuthModal() {
           <div
             className={`max-h-[90vh] w-full overflow-y-auto p-6 md:w-full md:p-10`}
           >
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {view === 'login' ? 'Sign In' : 'Create Account'}
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                {view === 'login'
-                  ? 'Enter your details to proceed'
-                  : 'Join us to explore premium properties'}
-              </p>
-            </div>
+            {view !== 'forgot-password' && (
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {view === 'login' ? 'Sign In' : 'Create Account'}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {view === 'login'
+                    ? 'Enter your details to proceed'
+                    : 'Join us to explore premium properties'}
+                </p>
+              </div>
+            )}
 
             {view === 'login' ? (
               <LoginForm
@@ -69,12 +72,14 @@ export default function AuthModal() {
                 onRegisterClick={toggleView}
                 isModal
               />
-            ) : (
+            ) : view === 'register' ? (
               <RegisterForm
                 onSuccess={closeModal}
                 onLoginClick={toggleView}
                 isModal
               />
+            ) : (
+              <ForgotPasswordForm onBackToLogin={openLogin} />
             )}
           </div>
         </div>

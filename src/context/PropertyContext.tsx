@@ -361,19 +361,20 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
             // For now, using what we have, but ideally we'd have a separate mapper for details
             // Re-using list object mapping might lack details, but ApiProjectDetail has different structure
             // Let's create a temporary object or map it manually here
-            const detail = response.data;
-            // Simple mapping for now
+            const { project: detail } = response.data;
+            const totalArea = detail.projectInfo?.totalArea;
+            const mediaImages = detail.media?.images ?? [];
+
             property = {
               id: detail.id,
               title: detail.projectInfo.name,
-              description: detail.projectInfo.description,
+              description: detail.projectInfo?.description ?? '',
               price: detail.pricingAndInventory.priceRange.minPrice,
-              status: 'for-sale', // Default or derive
-              location: `${detail.location.city}`,
-              images: detail.media.images.map(img => img.url),
-              amenities: [], // Map amenities object to string array if needed
-              area: `${detail.projectInfo.totalArea.value} ${detail.projectInfo.totalArea.unit}`,
-              // ... other fields
+              status: 'for-sale',
+              location: detail.location?.city ?? '',
+              images: mediaImages.map((img: { url: string }) => img.url),
+              amenities: [],
+              area: totalArea ? `${totalArea.value} ${totalArea.unit}` : '',
             } as Property;
           }
         }

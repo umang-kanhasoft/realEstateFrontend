@@ -27,7 +27,7 @@ const Loader = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="flex flex-col items-center justify-center rounded-3xl border border-white/20 bg-white/60 p-8 shadow-2xl backdrop-blur-md"
+      className="flex flex-col items-center justify-center rounded-3xl border border-white/20 bg-white/60 p-8 backdrop-blur-md"
     >
       <CircularProgress
         size={sizeMap[size]}
