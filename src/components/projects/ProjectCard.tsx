@@ -7,7 +7,6 @@ import { useFavorites } from '@/context/FavoritesContext';
 import {
   Collections,
   Download,
-  East,
   Email,
   ExpandLess,
   ExpandMore,
@@ -26,6 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { memo, useState } from 'react';
 
@@ -33,10 +33,7 @@ export interface ProjectCardProps {
   project: {
     id: string;
     name: string;
-    builderName: string;
-    builderEmail?: string;
-    builderPhone?: string;
-    builderId?: string;
+    builders: { id: string; name: string }[];
     location: string;
     priceRange: string;
     brochureUrl?: string;
@@ -86,11 +83,12 @@ function ProjectCard({ project }: ProjectCardProps) {
 
     toggleFavorite(project.id);
   };
-
+  console.log('ProjectCard.tsx-88==>project.image', project.image);
   return (
     <div
       className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl"
       style={{ cursor: 'pointer' }}
+      onClick={() => router.push(`/projects/${project.id}`)}
     >
       {/* Image Section */}
       <Box className="relative h-56 w-full flex-shrink-0 overflow-hidden bg-gray-100 sm:h-64 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
@@ -115,17 +113,16 @@ function ProjectCard({ project }: ProjectCardProps) {
           )}
         </div>
         <IconButton
-          className="absolute right-2 top-2 z-10 bg-white/80 text-gray-700 backdrop-blur-[2px] hover:bg-white hover:text-red-500"
+          className="absolute right-2 top-2 z-10 bg-white/80 p-1 text-gray-700 backdrop-blur-[2px] hover:bg-white hover:text-red-500"
           size="small"
           onClick={handleFavoriteClick}
-          sx={{ padding: '4px' }}
         >
           {isFav ? <Favorite className="text-red-500" /> : <FavoriteBorder />}
         </IconButton>
 
         <Box className="absolute bottom-4 right-4 z-10 flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur-sm">
           <Collections sx={{ fontSize: 12 }} />
-          12
+          {project.image.length}
         </Box>
       </Box>
 
@@ -257,7 +254,10 @@ function ProjectCard({ project }: ProjectCardProps) {
                   variant="outlined"
                   className="h-6 cursor-pointer border-gray-300 text-xs text-gray-500 hover:bg-gray-50"
                   icon={<ExpandMore fontSize="small" />}
-                  onClick={() => setShowAllLandmarks(true)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setShowAllLandmarks(true);
+                  }}
                 />
               )}
             {showAllLandmarks &&
@@ -269,7 +269,10 @@ function ProjectCard({ project }: ProjectCardProps) {
                   variant="outlined"
                   className="h-6 cursor-pointer border-gray-300 text-xs text-gray-500 hover:bg-gray-50"
                   icon={<ExpandLess fontSize="small" />}
-                  onClick={() => setShowAllLandmarks(false)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setShowAllLandmarks(false);
+                  }}
                 />
               )}
           </div>
@@ -278,14 +281,22 @@ function ProjectCard({ project }: ProjectCardProps) {
         {/* Action Footer */}
         <div className="mt-auto flex flex-col justify-between gap-4 border-t border-gray-100 pt-4 lg:flex-row lg:items-center">
           <div className="w-full lg:w-auto">
-            <Typography className="mr-2 flex flex-col items-baseline gap-1 text-xs text-gray-500 sm:flex-row">
-              Builder:
-              <span
-                className="cursor-pointer text-sm font-bold text-gray-700 hover:underline"
-                onClick={() => router.push(`/builder/${project.builderId}`)}
-              >
-                {project.builderName}
-              </span>
+            <Typography className="mr-2 flex flex-wrap items-baseline gap-1 text-xs text-gray-500 sm:flex-row">
+              {project.builders.length > 1 ? 'Builders:' : 'Builder:'}
+              {project.builders.map((builder, idx) => (
+                <Link
+                  key={idx}
+                  onClick={e => e.stopPropagation()}
+                  href={`/builders/${builder.id}`}
+                >
+                  <span>
+                    <span className="cursor-pointer text-sm font-bold text-gray-700 hover:underline">
+                      {builder.name}
+                    </span>
+                    {idx < project.builders.length - 1 && ','}
+                  </span>
+                </Link>
+              ))}
             </Typography>
           </div>
 
@@ -294,13 +305,14 @@ function ProjectCard({ project }: ProjectCardProps) {
               <IconButton
                 className="border border-green-500 text-green-600 hover:bg-green-50"
                 size="small"
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation();
                   const phoneNumber = env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(
                     /\s+/g,
                     ''
                   ).replace(/[^0-9+]/g, '');
                   if (phoneNumber) {
-                    const message = `Hi, I'm interested in ${project.name} by ${project.builderName}.`;
+                    const message = `Hi, I'm interested in ${project.name} by ${project.builders.map(b => b.name).join(', ')}.`;
                     window.open(
                       `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
                       '_blank'
@@ -315,10 +327,12 @@ function ProjectCard({ project }: ProjectCardProps) {
               <IconButton
                 className="border border-blue-500 text-blue-600 hover:bg-blue-50"
                 size="small"
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation();
+
                   if (env.NEXT_PUBLIC_EMAIL) {
                     const subject = `Inquiry about ${project.name}`;
-                    const body = `Hi ${project.builderName},\n\nI'm interested in your project ${project.name} located at ${project.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
+                    const body = `Hi ${project.builders.map(b => b.name).join(', ')},\n\nI'm interested in your project ${project.name} located at ${project.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
                     window.location.href = `mailto:${env.NEXT_PUBLIC_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                   }
                 }}
@@ -331,20 +345,14 @@ function ProjectCard({ project }: ProjectCardProps) {
               className="flex-1 whitespace-nowrap rounded-full border-secondary-900 px-4 py-1.5 text-xs font-bold normal-case text-secondary-900 hover:bg-secondary-900 hover:text-white sm:flex-none"
               startIcon={<Download fontSize="small" />}
               sx={{ textTransform: 'none' }}
+              onClick={e => {
+                e.stopPropagation();
+              }}
               href={String(project.brochureUrl)}
               target="_blank"
               download
             >
               Brochure
-            </Button>
-            <Button
-              variant="contained"
-              className="flex-1 whitespace-nowrap rounded-full bg-secondary-900 px-5 py-2 text-xs font-bold normal-case text-white shadow-md hover:bg-black sm:flex-none"
-              endIcon={<East fontSize="small" />}
-              onClick={() => router.push(`/projects/${project.id}`)}
-              sx={{ textTransform: 'none' }}
-            >
-              View Details
             </Button>
           </div>
         </div>

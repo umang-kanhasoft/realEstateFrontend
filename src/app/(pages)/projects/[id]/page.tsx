@@ -51,7 +51,7 @@ export default function ProjectPage() {
           area: data.location?.locality || undefined,
         }),
         ProjectsService.getProjects({
-          builder: data.projectInfo?.developer?.id || undefined,
+          builder: data.projectInfo?.developer?.[0]?.id || undefined,
         }),
       ]);
 

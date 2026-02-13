@@ -54,7 +54,6 @@ import type { ProjectCardProps } from '@/components/projects/ProjectCard';
 // Map backend Project to ProjectCardProps
 function mapProjectToCard(project: Project): ProjectCardProps['project'] {
   const builders = project.builders || [];
-  const primaryBuilder = builders.find(b => b.isPrimary) || builders[0];
   const location = [
     project?.addressLine1,
     project?.addressLine2,
@@ -101,10 +100,7 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
   return {
     id: project.id,
     name: project.name,
-    builderName: primaryBuilder?.name || 'Unknown Builder',
-    builderId: primaryBuilder?.id || 'Unknown Builder',
-    builderPhone: primaryBuilder?.phone || 'Unknown Builder',
-    builderEmail: primaryBuilder?.contactEmail || 'Unknown Builder',
+    builders: builders.map(b => ({ id: b.id || '', name: b.name })),
     location: location,
     priceRange,
     brochureUrl: project.brochureUrl,

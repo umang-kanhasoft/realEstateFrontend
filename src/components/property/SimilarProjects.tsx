@@ -195,15 +195,7 @@ export default function SimilarProjects({
 
                   {/* Favorite Button */}
                   <IconButton
-                    sx={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      bgcolor: 'rgba(255,255,255,0.9)',
-                      '&:hover': {
-                        bgcolor: 'rgba(255,255,255,1)',
-                      },
-                    }}
+                    className="absolute right-2 top-2 z-10 bg-white/80 p-1 text-gray-700 backdrop-blur-[2px] hover:bg-white hover:text-red-500"
                     onClick={e => {
                       e.stopPropagation();
                       toggleFavorite(project?.id || index.toString());
