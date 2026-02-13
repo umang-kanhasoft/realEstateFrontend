@@ -1,5 +1,9 @@
 'use client';
 
+import { env } from '@/config/env';
+import { useAuth } from '@/context/AuthContext';
+import { useAuthModal } from '@/context/AuthModalContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import {
   Collections,
   Download,
@@ -7,6 +11,7 @@ import {
   Email,
   ExpandLess,
   ExpandMore,
+  Favorite,
   FavoriteBorder,
   Info,
   LocationOn,
@@ -60,10 +65,27 @@ const INITIAL_LANDMARKS_COUNT = 3;
 
 function ProjectCard({ project }: ProjectCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const { openLogin } = useAuthModal();
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  const isFav = isFavorite(project.id);
   const [showAllLandmarks, setShowAllLandmarks] = useState(false);
   const visibleLandmarks = showAllLandmarks
     ? project.landmarks || []
     : (project.landmarks || []).slice(0, INITIAL_LANDMARKS_COUNT);
+
+  const handleFavoriteClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      openLogin();
+      return;
+    }
+
+    toggleFavorite(project.id);
+  };
 
   return (
     <div
@@ -93,10 +115,12 @@ function ProjectCard({ project }: ProjectCardProps) {
           )}
         </div>
         <IconButton
-          className="absolute right-4 top-4 z-10 bg-white/80 text-gray-700 shadow-sm backdrop-blur-sm hover:bg-white"
+          className="absolute right-2 top-2 z-10 bg-white/80 text-gray-700 backdrop-blur-[2px] hover:bg-white hover:text-red-500"
           size="small"
+          onClick={handleFavoriteClick}
+          sx={{ padding: '4px' }}
         >
-          <FavoriteBorder fontSize="small" />
+          {isFav ? <Favorite className="text-red-500" /> : <FavoriteBorder />}
         </IconButton>
 
         <Box className="absolute bottom-4 right-4 z-10 flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur-sm">
@@ -258,7 +282,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               Builder:
               <span
                 className="cursor-pointer text-sm font-bold text-gray-700 hover:underline"
-                onClick={() => router.push(`/builders/${project.builderId}`)}
+                onClick={() => router.push(`/builder/${project.builderId}`)}
               >
                 {project.builderName}
               </span>
@@ -271,9 +295,10 @@ function ProjectCard({ project }: ProjectCardProps) {
                 className="border border-green-500 text-green-600 hover:bg-green-50"
                 size="small"
                 onClick={() => {
-                  const phoneNumber = project.builderPhone
-                    ?.replace(/\s+/g, '')
-                    .replace(/[^0-9+]/g, '');
+                  const phoneNumber = env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(
+                    /\s+/g,
+                    ''
+                  ).replace(/[^0-9+]/g, '');
                   if (phoneNumber) {
                     const message = `Hi, I'm interested in ${project.name} by ${project.builderName}.`;
                     window.open(
@@ -291,10 +316,10 @@ function ProjectCard({ project }: ProjectCardProps) {
                 className="border border-blue-500 text-blue-600 hover:bg-blue-50"
                 size="small"
                 onClick={() => {
-                  if (project.builderEmail) {
+                  if (env.NEXT_PUBLIC_EMAIL) {
                     const subject = `Inquiry about ${project.name}`;
                     const body = `Hi ${project.builderName},\n\nI'm interested in your project ${project.name} located at ${project.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
-                    window.location.href = `mailto:${project.builderEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.location.href = `mailto:${env.NEXT_PUBLIC_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                   }
                 }}
               >

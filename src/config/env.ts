@@ -17,6 +17,8 @@ const envSchema = z.object({
 
   // Analytics
   NEXT_PUBLIC_GA_ID: z.string().optional(),
+  NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().optional(),
+  NEXT_PUBLIC_EMAIL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -32,6 +34,8 @@ function validateEnv(): Env {
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
+    NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
+    NEXT_PUBLIC_EMAIL: process.env.NEXT_PUBLIC_EMAIL,
   };
 
   const parsed = envSchema.safeParse(envVars);
@@ -59,4 +63,6 @@ export const clientEnv = {
   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
   gaId: process.env.NEXT_PUBLIC_GA_ID,
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
+  email: process.env.NEXT_PUBLIC_EMAIL,
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { env } from '@/config/env';
 import { useAuth } from '@/context/AuthContext';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -12,10 +13,10 @@ import {
   Bathtub as BathtubIcon,
   Bed as BedIcon,
   Compare as CompareIcon,
+  Email,
   FavoriteBorder as FavoriteBorderIcon,
   Favorite as FavoriteIcon,
   LocationOn as LocationIcon,
-  Phone,
   WhatsApp,
 } from '@mui/icons-material';
 import {
@@ -29,6 +30,7 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 interface PropertyCardProps {
@@ -40,6 +42,7 @@ const PropertyCard = ({
   property,
   variant = 'default',
 }: PropertyCardProps): JSX.Element => {
+  const pathname = usePathname();
   const { user } = useAuth();
   const { openLogin } = useAuthModal();
   const {
@@ -53,6 +56,10 @@ const PropertyCard = ({
   const isFav = isFavorite(property.id);
   const isInCompare = compareList.includes(property.id);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+
+  const linkHref = pathname?.startsWith('/properties')
+    ? `/properties/${property.id}`
+    : `/projects/${property.id}`;
 
   const handleFavoriteClick = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -88,10 +95,7 @@ const PropertyCard = ({
       <Card className="group mb-4 flex w-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-black/5 hover:shadow-lg md:h-[180px] md:flex-row">
         {/* Image Section - Compact Fixed Width */}
         <Box className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100 md:h-full md:w-[260px] lg:w-[280px]">
-          <Link
-            href={`/projects/${property.id}`}
-            className="block h-full w-full"
-          >
+          <Link href={linkHref} className="block h-full w-full">
             <Image
               src={primaryImage}
               alt={property.title}
@@ -137,7 +141,7 @@ const PropertyCard = ({
           {/* Top Row: Title, Location & Price */}
           <div className="flex flex-col justify-between gap-1 md:flex-row md:items-start">
             <div className="min-w-0 flex-1 pr-2">
-              <Link href={`/properties/${property.slug}`}>
+              <Link href={linkHref}>
                 <Typography
                   variant="h6"
                   className="truncate text-base font-bold text-gray-900 hover:text-primary-600 md:text-lg"
@@ -258,6 +262,22 @@ const PropertyCard = ({
                 <IconButton
                   size="small"
                   className="h-7 w-7 text-green-600 hover:bg-green-50"
+                  onClick={() => {
+                    console.log(env.NEXT_PUBLIC_WHATSAPP_NUMBER, '1231231234');
+                    const phoneNumber =
+                      env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(
+                        /\s+/g,
+                        ''
+                      ).replace(/[^0-9+]/g, '');
+                    if (phoneNumber) {
+                      console.log(phoneNumber, 'phoneNumber');
+                      const message = `Hi, I'm interested in ${property.title} by Chirag.`;
+                      window.open(
+                        `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
+                        '_blank'
+                      );
+                    }
+                  }}
                 >
                   <WhatsApp sx={{ fontSize: 18 }} />
                 </IconButton>
@@ -266,19 +286,26 @@ const PropertyCard = ({
                 <IconButton
                   size="small"
                   className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                  onClick={() => {
+                    if (env.NEXT_PUBLIC_EMAIL) {
+                      const subject = `Inquiry about ${property.title}`;
+                      const body = `Hi ${'Chirag'},\n\nI'm interested in your project ${property.title} located at ${property.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
+                      window.location.href = `mailto:${env.NEXT_PUBLIC_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    }
+                  }}
                 >
-                  <Phone sx={{ fontSize: 18 }} />
+                  <Email sx={{ fontSize: 18 }} />
                 </IconButton>
               </Tooltip>
 
-              <Link href={`/properties/${property.slug}`} className="ml-1">
+              <Link href={linkHref} className="ml-1">
                 <Button
                   variant="outlined"
                   size="small"
                   className="min-w-[80px] rounded-full border-gray-300 px-3 py-1 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white"
                   sx={{ textTransform: 'none', height: '28px' }}
                 >
-                  Details
+                  View Details
                 </Button>
               </Link>
             </div>
@@ -305,10 +332,7 @@ const PropertyCard = ({
       >
         {/* Image Container */}
         <Box className="relative h-48 w-full overflow-hidden">
-          <Link
-            href={`/properties/${property.slug}`}
-            className="block h-full w-full"
-          >
+          <Link href={linkHref} className="block h-full w-full">
             <Image
               src={primaryImage}
               alt={property.title}
@@ -340,10 +364,6 @@ const PropertyCard = ({
                   Eco Friendly
                 </Box>
               )}
-              {/* Type Badge */}
-              <Box className="rounded-md bg-primary-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow">
-                For {property.listingType === 'rent' ? 'Rent' : 'Sale'}
-              </Box>
             </div>
 
             {/* Price */}
@@ -404,7 +424,7 @@ const PropertyCard = ({
 
         {/* Content */}
         <Box className="p-4">
-          <Link href={`/properties/${property.slug}`}>
+          <Link href={linkHref}>
             <Typography
               variant="subtitle1"
               className="mb-1 truncate font-semibold text-secondary-900 transition-colors group-hover:text-primary-600"
