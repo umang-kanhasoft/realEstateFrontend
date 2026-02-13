@@ -29,9 +29,6 @@ importers:
       '@mui/material-nextjs':
         specifier: ^7.3.7
         version: 7.3.7(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(next@14.2.4(@babel/core@7.29.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
-      '@mui/styled-engine-sc':
-        specifier: ^7.3.7
-        version: 7.3.7(@types/react@18.3.27)(styled-components@6.3.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@18.3.1)
@@ -53,12 +50,6 @@ importers:
       next-pwa:
         specifier: ^5.6.0
         version: 5.6.0(@babel/core@7.29.0)(next@14.2.4(@babel/core@7.29.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.0)
-      prettier-plugin-organize-imports:
-        specifier: ^4.3.0
-        version: 4.3.0(prettier@3.8.1)(typescript@5.9.3)
-      prettier-plugin-tailwindcss:
-        specifier: ^0.7.2
-        version: 0.7.2(prettier-plugin-organize-imports@4.3.0(prettier@3.8.1)(typescript@5.9.3))(prettier@3.8.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -138,6 +129,12 @@ importers:
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
+      prettier-plugin-organize-imports:
+        specifier: ^4.3.0
+        version: 4.3.0(prettier@3.8.1)(typescript@5.9.3)
+      prettier-plugin-tailwindcss:
+        specifier: ^0.7.2
+        version: 0.7.2(prettier-plugin-organize-imports@4.3.0(prettier@3.8.1)(typescript@5.9.3))(prettier@3.8.1)
       tailwindcss:
         specifier: ^3.4.4
         version: 3.4.19(yaml@2.8.2)
@@ -1047,12 +1044,6 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@7.3.7':
-    resolution: {integrity: sha512-BJ91ujrXXaYW0wXdEw8K1EoUzsqA6e/sJhxxLlwWjqgRWC8spa+MFP+H+5vCUqAHRiB38dAOcvgZxflUG5oeZg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      styled-components: ^6.0.0
-
   '@mui/styled-engine@5.18.0':
     resolution: {integrity: sha512-BN/vKV/O6uaQh2z5rXV+MBlVrEkwoS/TK75rFQ2mjxA7+NBo8qtTAOA4UaM0XeJfn7kh2wZ+xQw2HAx0u+TiBg==}
     engines: {node: '>=12.0.0'}
@@ -1261,11 +1252,6 @@ packages:
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
-
-  '@types/hoist-non-react-statics@3.3.7':
-    resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
-    peerDependencies:
-      '@types/react': '*'
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -5145,17 +5131,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.27
 
-  '@mui/styled-engine-sc@7.3.7(@types/react@18.3.27)(styled-components@6.3.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
-    dependencies:
-      '@babel/runtime': 7.28.6
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@18.3.27)
-      csstype: 3.2.3
-      hoist-non-react-statics: 3.3.2
-      prop-types: 15.8.1
-      styled-components: 6.3.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-
   '@mui/styled-engine@5.18.0(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.6
@@ -5343,11 +5318,6 @@ snapshots:
     dependencies:
       '@types/minimatch': 6.0.0
       '@types/node': 20.19.31
-
-  '@types/hoist-non-react-statics@3.3.7(@types/react@18.3.27)':
-    dependencies:
-      '@types/react': 18.3.27
-      hoist-non-react-statics: 3.3.2
 
   '@types/json-schema@7.0.15': {}
 

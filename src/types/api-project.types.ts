@@ -106,7 +106,7 @@ export interface ApiProjectDetail {
       name: string;
       logoUrl?: string;
       website?: string;
-    };
+    }[];
     projectType?: string;
     status?: string;
     possessionDate?: string;

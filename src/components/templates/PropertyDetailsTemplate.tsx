@@ -44,6 +44,7 @@ import {
   Typography,
   Zoom,
 } from '@mui/material';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import 'swiper/css';
@@ -173,7 +174,11 @@ export default function PropertyDetailsTemplate({
       },
       {
         label: 'Developer',
-        value: projectInfo?.developer?.name || '',
+        value:
+          projectInfo?.developer
+            ?.map(d => d.name)
+            .filter(Boolean)
+            .join(', ') || '',
       },
       { label: 'Possession', value: projectInfo?.possessionDate || '' },
       { label: 'RERA No', value: projectInfo?.reraId || '' },
@@ -292,9 +297,22 @@ export default function PropertyDetailsTemplate({
               <BusinessIcon fontSize="small" color="action" />
               <Typography variant="subtitle1">
                 By{' '}
-                <Box component="span" fontWeight={600} color="primary.main">
-                  {projectInfo?.developer?.name}
-                </Box>
+                {projectInfo?.developer?.map((dev, idx) => (
+                  <Link key={dev.id || idx} href={`/builders/${dev.id}`}>
+                    <Box
+                      component="span"
+                      fontWeight={600}
+                      color="primary.main"
+                      sx={{
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' },
+                      }}
+                    >
+                      {dev.name}
+                      {idx < (projectInfo.developer?.length ?? 0) - 1 && ', '}
+                    </Box>
+                  </Link>
+                ))}
               </Typography>
             </Box>
           </Box>
@@ -629,7 +647,22 @@ export default function PropertyDetailsTemplate({
             {otherProjects.length > 0 && (
               <Box mb={6}>
                 <Typography variant="h5" fontWeight={700} mb={3}>
-                  Other Projects By {projectInfo?.developer?.name}
+                  Other Projects By{' '}
+                  {projectInfo?.developer?.map((dev, idx) => (
+                    <Box
+                      component="span"
+                      key={dev.id || idx}
+                      color="primary.main"
+                      sx={{
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' },
+                      }}
+                      onClick={() => router.push(`/builders/${dev.id}`)}
+                    >
+                      {dev.name}
+                      {idx < (projectInfo?.developer?.length ?? 0) - 1 && ', '}
+                    </Box>
+                  ))}
                 </Typography>
                 <Swiper
                   spaceBetween={24}

@@ -51,11 +51,73 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [openImageModal, setOpenImageModal] = useState(false);
 
+  const images = media?.images ?? [];
+  const videos = media?.videos ?? [];
+  const imageCount = images.length;
+  const hasVideos = videos.length > 0;
+  const isSingleImage = imageCount <= 1;
+
+  const sidebarVisibleCount = hasVideos ? 1 : Math.min(imageCount - 1, 2);
+  const remainingPhotos = Math.max(imageCount - 1 - sidebarVisibleCount, 0);
+
+  const renderImageCard = (
+    imgSrc: string | undefined,
+    alt: string,
+    height: Record<string, string | number>,
+    overlay?: React.ReactNode,
+    mt?: string | number
+  ) => {
+    if (!imgSrc) return null;
+    return (
+      <Card
+        sx={{
+          flex: 1,
+          borderRadius: '16px',
+          overflow: 'hidden',
+          cursor: 'pointer',
+          position: 'relative',
+          height,
+          ...(mt != null && { mt }),
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        }}
+        onClick={() => setOpenImageModal(true)}
+      >
+        <Image
+          src={imgSrc}
+          className="h-full w-full object-cover"
+          alt={alt}
+          fill
+        />
+        {overlay}
+      </Card>
+    );
+  };
+
+  const viewAllOverlay = remainingPhotos > 0 && (
+    <Box
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        bgcolor: 'rgba(0,0,0,0.6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        fontSize: '1.1rem',
+        fontWeight: 600,
+        transition: '0.3s',
+        '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
+      }}
+    >
+      +{remainingPhotos} Photos
+    </Box>
+  );
+
   return (
     <>
       <Grid container spacing={2} px={{ xs: 2, sm: 4, md: 6, lg: 10 }} mt={2}>
-        {/* Main Large Image (Slider) */}
-        <Grid item xs={12} md={8}>
+        {/* Main Large Image / Slider — takes full width when only 1 image & no video */}
+        <Grid item xs={12} md={isSingleImage && !hasVideos ? 12 : 8}>
           <Card
             sx={{
               borderRadius: '16px',
@@ -65,138 +127,109 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
               height: { xs: 300, md: 500 },
             }}
           >
-            <Swiper
-              modules={[Navigation, Autoplay]}
-              navigation={!isMobile}
-              loop
-              autoplay={{ delay: 4000, disableOnInteraction: false }}
-              speed={800}
-              style={{ height: '100%', width: '100%' }}
-            >
-              {media?.images.map((img, idx: number) => (
-                <SwiperSlide key={idx} onClick={() => setOpenImageModal(true)}>
-                  <Box
-                    component="img"
-                    src={img.url}
-                    alt={img.url}
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </Card>
-        </Grid>
-
-        {/* Right Side Grid (Video + Small Images) */}
-        <Grid item xs={12} md={4}>
-          <Box display="flex" flexDirection="column" gap={2} height="100%">
-            {/* Video Card */}
-            {media?.videos.length > 0 && (
-              <Card
-                sx={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  height: { xs: 200, md: 'calc(50% - 8px)' },
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  position: 'relative',
-                  cursor: 'pointer',
-                }}
+            {imageCount > 1 ? (
+              <Swiper
+                modules={[Navigation, Autoplay]}
+                navigation={!isMobile}
+                loop
+                autoplay={{ delay: 4000, disableOnInteraction: false }}
+                speed={800}
+                style={{ height: '100%', width: '100%' }}
               >
-                {media?.videos.map((video, idx: number) => (
+                {images.map((img, idx) => (
                   <SwiperSlide
-                    key={idx}
+                    key={img.id || idx}
                     onClick={() => setOpenImageModal(true)}
                   >
-                    <video
-                      src={video?.url}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{
+                    <Box
+                      component="img"
+                      src={img.url}
+                      alt={`Project image ${idx + 1}`}
+                      sx={{
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
+                        cursor: 'pointer',
                       }}
                     />
                   </SwiperSlide>
                 ))}
-              </Card>
+              </Swiper>
+            ) : (
+              /* Single image — no slider needed */
+              <Box
+                component="img"
+                src={images[0]?.url}
+                alt="Project image"
+                onClick={() => setOpenImageModal(true)}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  cursor: 'pointer',
+                }}
+              />
             )}
-            {/* Small Images Grid */}
-            <Box
-              // display="flex"
-              gap={2}
-              height={{ xs: 'auto', md: 'calc(50% - 8px)' }}
-            >
-              {media?.videos.length == 0 && (
+          </Card>
+        </Grid>
+
+        {/* Right Side Grid — hidden when only 1 image & no video */}
+        {!(isSingleImage && !hasVideos) && (
+          <Grid item xs={12} md={4}>
+            <Box display="flex" flexDirection="column" gap={2} height="100%">
+              {/* Top slot: Video if available, otherwise 2nd image */}
+              {hasVideos ? (
                 <Card
                   sx={{
-                    flex: 1,
                     borderRadius: '16px',
                     overflow: 'hidden',
-                    cursor: 'pointer',
+                    height: { xs: 200, md: 'calc(50% - 8px)' },
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                     position: 'relative',
-                    height: { xs: 150, md: '100%' },
+                    cursor: 'pointer',
                   }}
                   onClick={() => setOpenImageModal(true)}
                 >
-                  <Image
-                    src={media?.images[2]?.url}
-                    className="h-full w-full object-cover"
-                    alt="Small 2"
-                    fill
+                  <video
+                    src={videos[0]?.url}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                    }}
                   />
                 </Card>
+              ) : (
+                /* No video — show 2nd image in the top slot */
+                renderImageCard(images[1]?.url, 'Project image 2', {
+                  xs: 150,
+                  md: 'calc(50% - 8px)',
+                })
               )}
-              <Card
-                sx={{
-                  flex: 1,
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  marginTop: '10px',
-                  height: { xs: 150, md: '100%' },
-                }}
-                onClick={() => setOpenImageModal(true)}
-              >
-                <Image
-                  src={media?.images[2]?.url}
-                  className="h-full w-full object-cover"
-                  alt="Small 2"
-                  fill
-                />
-                {/* View All Overlay */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    transition: '0.3s',
-                    '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
-                  }}
-                >
-                  +{media?.images?.length - 3} Photos
-                </Box>
-              </Card>
+
+              {/* Bottom slot: next available image with "+N Photos" overlay */}
+              {(() => {
+                // Pick the next image that isn't already shown in the top slot
+                const bottomImage = hasVideos ? images[1] : images[2];
+                if (!bottomImage) return null;
+
+                return renderImageCard(
+                  bottomImage.url,
+                  'View all photos',
+                  { xs: 150, md: 'calc(50% - 8px)' },
+                  viewAllOverlay
+                );
+              })()}
             </Box>
-          </Box>
-        </Grid>
+          </Grid>
+        )}
       </Grid>
 
       {/* Full Screen Gallery Modal */}
@@ -239,8 +272,8 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
 
           <Box sx={{ overflowY: 'auto', p: 3, flexGrow: 1 }}>
             <ImageList cols={isMobile ? 1 : 3} gap={16}>
-              {media?.images.map(img => (
-                <ImageListItem key={img.url}>
+              {images.map(img => (
+                <ImageListItem key={img.id || img.url}>
                   <Image
                     src={img.url}
                     alt={img.url}

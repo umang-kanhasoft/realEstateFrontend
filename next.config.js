@@ -49,9 +49,14 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
-  // compiler: {
-  //   removeConsole: process.env.NODE_ENV === 'production',
-  // },
+  compiler: {
+    styledComponents: true,
+  },
+  modularizeImports: {
+    '@mui/icons-material': {
+      transform: '@mui/icons-material/{{member}}',
+    },
+  },
   experimental: {
     optimizePackageImports: [
       '@mui/material',
@@ -59,6 +64,7 @@ const nextConfig = {
       '@mui/lab',
       'date-fns',
       'lodash',
+      'framer-motion',
     ],
   },
   // async rewrites() {

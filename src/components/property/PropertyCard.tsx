@@ -21,7 +21,6 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
-  Button,
   Card,
   IconButton,
   Stack,
@@ -92,10 +91,10 @@ const PropertyCard = ({
   // --- Horizontal Variant (List View - Compact & Minimal) ---
   if (variant === 'horizontal') {
     return (
-      <Card className="group mb-4 flex w-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-black/5 hover:shadow-lg md:h-[180px] md:flex-row">
-        {/* Image Section - Compact Fixed Width */}
-        <Box className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100 md:h-full md:w-[260px] lg:w-[280px]">
-          <Link href={linkHref} className="block h-full w-full">
+      <Link href={linkHref} className="block h-full w-full">
+        <Card className="group mb-4 flex w-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-black/5 hover:shadow-lg md:h-[180px] md:flex-row">
+          {/* Image Section - Compact Fixed Width */}
+          <Box className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100 md:h-full md:w-[260px] lg:w-[280px]">
             <Image
               src={primaryImage}
               alt={property.title}
@@ -116,7 +115,7 @@ const PropertyCard = ({
               )}
               {property.ecoFriendly && (
                 <span className="w-fit rounded bg-green-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
-                  Eco
+                  Eco Friendly
                 </span>
               )}
             </div>
@@ -133,185 +132,186 @@ const PropertyCard = ({
                 <FavoriteBorderIcon sx={{ fontSize: 16 }} />
               )}
             </IconButton>
-          </Link>
-        </Box>
+          </Box>
 
-        {/* Content Section - Compact Layout */}
-        <Box className="flex flex-1 flex-col justify-between px-4 py-3 md:px-5">
-          {/* Top Row: Title, Location & Price */}
-          <div className="flex flex-col justify-between gap-1 md:flex-row md:items-start">
-            <div className="min-w-0 flex-1 pr-2">
-              <Link href={linkHref}>
+          {/* Content Section - Compact Layout */}
+          <Box className="flex flex-1 flex-col justify-between px-4 py-3 md:px-5">
+            {/* Top Row: Title, Location & Price */}
+            <div className="flex flex-col justify-between gap-1 md:flex-row md:items-start">
+              <div className="min-w-0 flex-1 pr-2">
+                <Link href={linkHref}>
+                  <Typography
+                    variant="h6"
+                    className="truncate text-base font-bold text-gray-900 hover:text-primary-600 md:text-lg"
+                  >
+                    {property.title}
+                  </Typography>
+                </Link>
+                <div className="flex items-center gap-1 text-gray-500">
+                  <LocationIcon
+                    className="text-gray-400"
+                    sx={{ fontSize: 14 }}
+                  />
+                  <Typography variant="body2" className="truncate text-xs">
+                    {property.location ||
+                      (property.address?.city
+                        ? `${property.address.city}, ${property.address.state}`
+                        : 'Location not available')}
+                  </Typography>
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="flex flex-row items-baseline gap-1 md:flex-col md:items-end md:gap-0">
                 <Typography
                   variant="h6"
-                  className="truncate text-base font-bold text-gray-900 hover:text-primary-600 md:text-lg"
+                  className="text-lg font-bold text-primary-600 md:text-xl"
                 >
-                  {property.title}
+                  {formatCurrency(property.price)}
                 </Typography>
-              </Link>
-              <div className="flex items-center gap-1 text-gray-500">
-                <LocationIcon className="text-gray-400" sx={{ fontSize: 14 }} />
-                <Typography variant="body2" className="truncate text-xs">
-                  {property.location ||
-                    (property.address?.city
-                      ? `${property.address.city}, ${property.address.state}`
-                      : 'Location not available')}
-                </Typography>
+                {property.listingType === 'rent' && (
+                  <Typography
+                    variant="caption"
+                    className="text-[10px] text-gray-500"
+                  >
+                    /month
+                  </Typography>
+                )}
               </div>
             </div>
 
-            {/* Price */}
-            <div className="flex flex-row items-baseline gap-1 md:flex-col md:items-end md:gap-0">
-              <Typography
-                variant="h6"
-                className="text-lg font-bold text-primary-600 md:text-xl"
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600 md:mt-0">
+              {property.bedrooms !== undefined && (
+                <div className="flex items-center gap-1.5">
+                  <BedIcon sx={{ fontSize: 16 }} className="text-gray-400" />
+                  <span className="font-semibold">
+                    {property.bedrooms}
+                  </span>{' '}
+                  Beds
+                </div>
+              )}
+              <div className="hidden h-3 w-px bg-gray-300 sm:block"></div>
+              {property.bathrooms !== undefined && (
+                <div className="flex items-center gap-1.5">
+                  <BathtubIcon
+                    sx={{ fontSize: 16 }}
+                    className="text-gray-400"
+                  />
+                  <span className="font-semibold">{property.bathrooms}</span>{' '}
+                  Baths
+                </div>
+              )}
+              <div className="hidden h-3 w-px bg-gray-300 sm:block"></div>
+              <div className="flex items-center gap-1.5">
+                <AreaIcon sx={{ fontSize: 16 }} className="text-gray-400" />
+                <span className="font-semibold">
+                  {property.area
+                    ? property.area.replace(/(sqft|Sq-ft)/i, '').trim()
+                    : property.size || 0}
+                </span>
+                Sq. Ft.
+              </div>
+
+              {/* Status Pill */}
+              <span
+                className={`ml-auto hidden rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide md:inline-flex ${
+                  property.status === 'Ready to Move'
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-blue-50 text-blue-600'
+                }`}
               >
-                {formatCurrency(property.price)}
-              </Typography>
-              {property.listingType === 'rent' && (
+                {property.status}
+              </span>
+            </div>
+
+            {/* Bottom Row: Builder & Actions */}
+            <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 md:mt-2 md:pt-2">
+              <div className="flex items-center gap-1.5">
+                <Typography variant="caption" className="text-xs text-gray-500">
+                  By
+                </Typography>
                 <Typography
                   variant="caption"
-                  className="text-[10px] text-gray-500"
+                  className="max-w-[200px] truncate text-xs text-gray-900"
                 >
-                  /month
-                </Typography>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600 md:mt-0">
-            {property.bedrooms !== undefined && (
-              <div className="flex items-center gap-1.5">
-                <BedIcon sx={{ fontSize: 16 }} className="text-gray-400" />
-                <span className="font-semibold">{property.bedrooms}</span> Beds
-              </div>
-            )}
-            <div className="hidden h-3 w-px bg-gray-300 sm:block"></div>
-            {property.bathrooms !== undefined && (
-              <div className="flex items-center gap-1.5">
-                <BathtubIcon sx={{ fontSize: 16 }} className="text-gray-400" />
-                <span className="font-semibold">{property.bathrooms}</span>{' '}
-                Baths
-              </div>
-            )}
-            <div className="hidden h-3 w-px bg-gray-300 sm:block"></div>
-            <div className="flex items-center gap-1.5">
-              <AreaIcon sx={{ fontSize: 16 }} className="text-gray-400" />
-              <span className="font-semibold">
-                {property.area
-                  ? property.area.replace(/(sqft|Sq-ft)/i, '').trim()
-                  : property.size || 0}
-              </span>
-              Sq. Ft.
-            </div>
-
-            {/* Status Pill */}
-            <span
-              className={`ml-auto hidden rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide md:inline-flex ${
-                property.status === 'Ready to Move'
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-blue-50 text-blue-600'
-              }`}
-            >
-              {property.status}
-            </span>
-          </div>
-
-          {/* Bottom Row: Builder & Actions */}
-          <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 md:mt-2 md:pt-2">
-            <div className="flex items-center gap-1.5">
-              <Typography variant="caption" className="text-xs text-gray-500">
-                By
-              </Typography>
-              <Typography
-                variant="caption"
-                className="max-w-[200px] truncate text-xs text-gray-900"
-              >
-                {property.builders && property.builders.length > 0 ? (
-                  property.builders.map((builder, index) => (
-                    <span key={builder.id}>
-                      <Link
-                        href={`/builders/${builder.id}`}
-                        className="font-bold hover:text-primary-600 hover:underline"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {builder.name}
-                      </Link>
-                      {index < property.builders!.length - 1 && ', '}
+                  {property.builders && property.builders.length > 0 ? (
+                    property.builders.map((builder, index) => (
+                      <span key={builder.id}>
+                        <Link
+                          href={`/builders/${builder.id}`}
+                          className="font-bold hover:text-primary-600 hover:underline"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          {builder.name}
+                        </Link>
+                        {index < property.builders!.length - 1 && ', '}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="font-bold">
+                      {property.builder || 'Builder'}
                     </span>
-                  ))
-                ) : (
-                  <span className="font-bold">
-                    {property.builder || 'Builder'}
-                  </span>
-                )}
-              </Typography>
-            </div>
+                  )}
+                </Typography>
+              </div>
 
-            <div className="flex items-center gap-1">
-              <Tooltip title="Compare">
-                <IconButton
-                  size="small"
-                  onClick={handleCompareClick}
-                  className={`h-7 w-7 ${isInCompare ? 'text-primary-600' : 'text-gray-400 hover:text-gray-900'}`}
-                >
-                  <CompareIcon sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="WhatsApp">
-                <IconButton
-                  size="small"
-                  className="h-7 w-7 text-green-600 hover:bg-green-50"
-                  onClick={() => {
-                    console.log(env.NEXT_PUBLIC_WHATSAPP_NUMBER, '1231231234');
-                    const phoneNumber =
-                      env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(
-                        /\s+/g,
-                        ''
-                      ).replace(/[^0-9+]/g, '');
-                    if (phoneNumber) {
-                      console.log(phoneNumber, 'phoneNumber');
-                      const message = `Hi, I'm interested in ${property.title} by Chirag.`;
-                      window.open(
-                        `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
-                        '_blank'
-                      );
-                    }
-                  }}
-                >
-                  <WhatsApp sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Call">
-                <IconButton
-                  size="small"
-                  className="h-7 w-7 text-blue-600 hover:bg-blue-50"
-                  onClick={() => {
-                    if (env.NEXT_PUBLIC_EMAIL) {
-                      const subject = `Inquiry about ${property.title}`;
-                      const body = `Hi ${'Chirag'},\n\nI'm interested in your project ${property.title} located at ${property.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
-                      window.location.href = `mailto:${env.NEXT_PUBLIC_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    }
-                  }}
-                >
-                  <Email sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Tooltip>
-
-              <Link href={linkHref} className="ml-1">
-                <Button
-                  variant="outlined"
-                  size="small"
-                  className="min-w-[80px] rounded-full border-gray-300 px-3 py-1 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white"
-                  sx={{ textTransform: 'none', height: '28px' }}
-                >
-                  View Details
-                </Button>
-              </Link>
+              <div className="flex items-center gap-1">
+                <Tooltip title="Compare">
+                  <IconButton
+                    size="small"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleCompareClick(e);
+                    }}
+                    className={`h-7 w-7 ${isInCompare ? 'text-primary-600' : 'text-gray-400 hover:text-gray-900'}`}
+                  >
+                    <CompareIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="WhatsApp">
+                  <IconButton
+                    size="small"
+                    className="h-7 w-7 text-green-600 hover:bg-green-50"
+                    onClick={e => {
+                      e.stopPropagation();
+                      const phoneNumber =
+                        env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(
+                          /\s+/g,
+                          ''
+                        ).replace(/[^0-9+]/g, '');
+                      if (phoneNumber) {
+                        const message = `Hi, I'm interested in ${property.title} by Chirag.`;
+                        window.open(
+                          `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
+                          '_blank'
+                        );
+                      }
+                    }}
+                  >
+                    <WhatsApp sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Call">
+                  <IconButton
+                    size="small"
+                    className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (env.NEXT_PUBLIC_EMAIL) {
+                        const subject = `Inquiry about ${property.title}`;
+                        const body = `Hi ${'Chirag'},\n\nI'm interested in your project ${property.title} located at ${property.location}.\n\nCould you please provide more information about the available configurations and pricing?\n\nThank you.`;
+                        window.location.href = `mailto:${env.NEXT_PUBLIC_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      }
+                    }}
+                  >
+                    <Email sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              </div>
             </div>
-          </div>
-        </Box>
-      </Card>
+          </Box>
+        </Card>
+      </Link>
     );
   }
 
@@ -389,14 +389,10 @@ const PropertyCard = ({
               <IconButton
                 size="small"
                 onClick={handleFavoriteClick}
-                className={`shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 ${
-                  isFav
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-red-500'
-                }`}
+                className={`bg-white/80 text-gray-700 shadow-sm backdrop-blur-sm hover:bg-white hover:text-red-500`}
               >
                 {isFav ? (
-                  <FavoriteIcon fontSize="small" />
+                  <FavoriteIcon className="text-red-500" fontSize="small" />
                 ) : (
                   <FavoriteBorderIcon fontSize="small" />
                 )}
