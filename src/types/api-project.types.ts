@@ -12,6 +12,7 @@ export interface ApiBuilder {
   isPrimary?: boolean;
   contactEmail?: string;
   phone?: string;
+  website?: string;
 }
 
 export interface ApiLandmark {
@@ -88,60 +89,158 @@ export interface ProjectsListResponseData {
   offset: number;
 }
 
+export interface ProjectDocument {
+  id?: string;
+  url: string;
+  name?: string;
+  type?: string;
+}
+
 export interface ApiProjectDetail {
   id: string;
   projectInfo: {
     name: string;
+    slug?: string;
     developer: {
       id: string;
       name: string;
+      logoUrl?: string;
+      website?: string;
     };
-    totalArea: {
+    projectType?: string;
+    status?: string;
+    possessionDate?: string;
+    reraId?: string;
+    avgRating?: number;
+    totalReviews?: number;
+    description?: string;
+    totalArea?: {
       value: number;
       unit: string;
     };
-    status: string;
-    possessionDate: string;
-    reraId: string;
-    avgRating: number;
-    totalReviews: number;
-    description: string;
+    launchDate?: string;
+    totalTowers?: number;
+    totalUnits?: number;
+    totalFloors?: number;
+    completionTime?: number;
+    ecoFriendly?: boolean;
   };
   location: {
-    sector: string;
-    addressLine2: string;
-    city: string;
-    landmarks: {
-      type: string;
-      name: string;
+    areaId?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    locality?: string;
+    sector?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    coordinates?: {
+      latitude: number;
+      longitude: number;
+    };
+    landmarks?: {
+      id?: string;
+      type?: string;
+      name?: string;
+      distanceKm?: number;
+      travelTimeMin?: number;
     }[];
   };
   pricingAndInventory: {
     priceRange: {
       minPrice: number;
       maxPrice: number;
+      currency?: string;
+      displayString?: string;
     };
-    avgPricePerSqft: number;
+    avgPricePerSqft?: number;
     configurations: {
+      id?: string;
+      type?: string;
       label: string;
+      bedrooms?: number;
+      bathrooms?: number;
+      balconies?: number;
       carpetAreaSqft: number;
-      floorPlanUrl: string;
+      builtUpAreaSqft?: number;
+      superBuiltUpAreaSqft?: number;
+      terraceAvailable?: boolean;
+      gardenAccess?: boolean;
+      orientation?: string;
+      price?: number;
+      currency?: string;
+      floorPlanUrl?: string;
+      viewType?: string;
+      parkingSpace?: number;
+      maintenanceCharges?: number;
+      totalUnits?: number;
+      availableUnits?: number;
+      roomDetails?: {
+        kitchen?: { width: number; length: number };
+        bedroom_2?: { width: number; length: number };
+        bedroom_3?: { width: number; length: number };
+        living_room?: { width: number; length: number };
+        master_bedroom?: { width: number; length: number };
+      };
     }[];
   };
   media: {
-    thumbnail: string;
-    images: {
+    thumbnail?: string;
+    images?: {
+      id?: string;
       url: string;
+      order?: number;
     }[];
+    videos?: { url: string }[];
+    documents?: ProjectDocument[];
+    brochureUrl?: string;
+    virtualTourUrl?: string | null;
+    masterPlanUrl?: string;
   };
   amenities: {
-    leisure: string[];
-    safety: string[];
-    health: string[];
-    environment: string[];
-    convenience: string[];
-    sports: string[];
-    kids: string[];
+    leisure?: { id?: string; name: string; category?: string }[];
+    safety?: { id?: string; name: string; category?: string }[];
+    health?: { id?: string; name: string; category?: string }[];
+    environment?: { id?: string; name: string; category?: string }[];
+    convenience?: { id?: string; name: string; category?: string }[];
+    sports?: { id?: string; name: string; category?: string }[];
+    kids?: { id?: string; name: string; category?: string }[];
+  };
+  towers?: {
+    id: string;
+    blockName: string;
+    unitsPerFloor: number;
+    lift: number;
+    towerLabel: string;
+    storey: number;
+  }[];
+  specifications?: {
+    constructionQuality?: string;
+    architecturalStyle?: string;
+    interiorCondition?: string;
+    furnishingStatus?: string[];
+    smartHomeFeature?: string[];
+    parkingType?: string[];
+    waterSupply?: string[];
+    powerBackup?: string[];
+    internetConnectivity?: string[];
+    legalStatus?: string[];
+    additionalFacilities?: string[];
+    structure?: string;
+    flooring?: Record<string, string>;
+    kitchen?: Record<string, string>;
+    toilets?: Record<string, string>;
+    electrical?: string;
+    doors_windows?: string;
+  };
+  metadata?: {
+    isFeatured: boolean;
+    tags?: string[];
+    bankApprovals?: string[];
+    createdAt?: string;
+    updatedAt?: string;
+    keyFeatures?: string[];
+    builderIds?: string[];
   };
 }
 

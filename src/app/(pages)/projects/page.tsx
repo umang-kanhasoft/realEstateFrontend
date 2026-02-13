@@ -47,6 +47,7 @@ const ListingBanner = dynamic(
   { ssr: false }
 );
 
+import Loader from '@/components/common/Loader';
 import type { ProjectCardProps } from '@/components/projects/ProjectCard';
 
 // Map backend Project to ProjectCard props
@@ -164,7 +165,8 @@ const ProjectsList = memo(
       return (
         <div className="mb-20 mt-12 flex h-24 w-full items-center justify-center">
           {isFetchingNextPage ? (
-            <div className="flex scale-100 flex-col items-center gap-3 rounded-full border border-gray-100 bg-white px-6 py-3 opacity-100 shadow-lg">
+            <div className="flex scale-100 flex-col items-center gap-3 rounded-full border border-gray-100 bg-white px-6 py-3 opacity-100 shadow-sm">
+              <Loader text="Loading More" />
               <CircularProgress
                 size={24}
                 thickness={5}

@@ -1,4 +1,4 @@
-import BuilderDetails from '@/components/common/BuilderDetails';
+import BuilderDetails from '@/components/builders/BuilderDetails';
 
 export default function BuilderPage({
   params,

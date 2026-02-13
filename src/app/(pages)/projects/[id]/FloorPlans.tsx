@@ -1,14 +1,15 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Chip, Dialog, Grid, IconButton, Typography } from '@mui/material';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-interface RoomDimensions {
+export interface RoomDimensions {
   width: number;
   length: number;
 }
 
-interface RoomDetails {
+export interface RoomDetails {
   kitchen: RoomDimensions;
   bedroom_2: RoomDimensions | null;
   bedroom_3: RoomDimensions | null;
@@ -16,7 +17,7 @@ interface RoomDetails {
   master_bedroom: RoomDimensions;
 }
 
-interface FloorPlan {
+export interface FloorPlan {
   id: string;
   type: string;
   label: string;
@@ -48,6 +49,7 @@ function FloorPlans({
   bhk: string;
   floorPlan: FloorPlan[];
 }) {
+  const pathname = usePathname();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Filter configurations by BHK type
@@ -55,6 +57,10 @@ function FloorPlans({
     const bedrooms = item.bedrooms;
     return bedrooms.toString() === bhk;
   });
+
+  const { mdGrid, smGrid } = pathname?.startsWith('/properties')
+    ? { mdGrid: 6, smGrid: 6 }
+    : { mdGrid: 4, smGrid: 6 };
 
   // Format price to display in Indian format
   const formatPrice = (price: number) => {
@@ -70,7 +76,7 @@ function FloorPlans({
     <>
       <Grid container spacing={3}>
         {filteredPlans.map((item: FloorPlan, index: number) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id || index}>
+          <Grid item xs={12} sm={smGrid} md={mdGrid} key={item.id || index}>
             <Box
               sx={{
                 backgroundColor: '#fff',

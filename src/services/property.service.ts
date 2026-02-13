@@ -61,7 +61,8 @@ export interface PropertyFilters {
 }
 
 class PropertyService {
-  private readonly basePath = '/projects';
+  private readonly projectsPath = '/projects';
+  private readonly basePath = '/project';
 
   async getProperties(
     filters?: PropertyFilters
@@ -77,13 +78,19 @@ class PropertyService {
     }
 
     const queryString = params.toString();
-    const url = queryString ? `${this.basePath}?${queryString}` : this.basePath;
+    const url = queryString
+      ? `${this.projectsPath}?${queryString}`
+      : this.projectsPath;
 
     return apiClient.get<ProjectsListResponseData>(url);
   }
 
-  async getPropertyById(id: string): Promise<ApiResponse<ApiProjectDetail>> {
-    return apiClient.get<ApiProjectDetail>(`${this.basePath}/${id}`);
+  async getPropertyById(
+    id: string
+  ): Promise<ApiResponse<{ project: ApiProjectDetail }>> {
+    return apiClient.get<{ project: ApiProjectDetail }>(
+      `${this.basePath}/${id}`
+    );
   }
 
   async getPropertyBySlug(

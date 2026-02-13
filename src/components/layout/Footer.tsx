@@ -18,7 +18,7 @@ const Footer = (): JSX.Element | null => {
   // const [error, setError] = useState<string | null>(null);
 
   const { data } = useQuery({
-    queryKey: ['featured-projects'],
+    queryKey: ['footer-projects'],
     queryFn: () =>
       ProjectsService.getProjects({
         isFeatured: true,

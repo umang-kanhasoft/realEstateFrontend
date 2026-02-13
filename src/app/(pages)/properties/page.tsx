@@ -1,6 +1,5 @@
 'use client';
 
-import PropertyChatbot from '@/components/common/PropertyChatbot';
 import PropertyCard from '@/components/property/PropertyCard';
 import { useChat } from '@/context/ChatContext';
 import { useProperty } from '@/hooks/useProperty';
@@ -22,7 +21,6 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Components, Virtuoso, VirtuosoGrid } from 'react-virtuoso';
@@ -63,7 +61,6 @@ export default function PropertiesPage() {
   const {
     state: uiState,
     toggleFilterDrawer,
-    closeFilterDrawer,
     hideFooter,
     showFooter,
   } = useUI();
@@ -168,197 +165,133 @@ export default function PropertiesPage() {
   }, [localFilters]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50/50 font-sans">
-      {/* Left Panel - Fixed Chat (Desktop) */}
-      <div className="hidden w-[350px] shrink-0 flex-col border-r border-gray-200 bg-white lg:flex xl:w-[400px]">
-        <div className="h-full w-full p-4">
-          <PropertyChatbot />
-        </div>
-      </div>
+    <Container maxWidth={false} className="max-w-[1600px] px-4 py-4 md:px-8">
+      {/* Toolbar */}
+      <Box className="sticky top-0 z-10 mb-8 flex w-full flex-wrap items-center justify-between gap-4 border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all">
+        <Box className="flex items-center gap-3">
+          <Typography variant="h6" className="font-bold text-gray-900">
+            {propertyState.pagination.totalCount} Properties
+          </Typography>
+          {activeFiltersCount > 0 && (
+            <Chip
+              label={`${activeFiltersCount} active val`}
+              size="small"
+              onDelete={handleResetFilters}
+              className="h-7 bg-black font-medium text-white"
+            />
+          )}
+        </Box>
 
-      {/* Right Panel - Scrollable Properties */}
-      <div className="scrollbar-hide flex-1 overflow-y-auto">
-        <Container
-          maxWidth={false}
-          className="max-w-[1600px] px-4 py-4 md:px-8"
-        >
-          {/* Toolbar */}
-          <Box className="sticky top-0 z-10 mb-8 flex w-full flex-wrap items-center justify-between gap-4 border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all">
-            <Box className="flex items-center gap-3">
-              <Typography variant="h6" className="font-bold text-gray-900">
-                {propertyState.pagination.totalCount} Properties
-              </Typography>
-              {activeFiltersCount > 0 && (
-                <Chip
-                  label={`${activeFiltersCount} active val`}
-                  size="small"
-                  onDelete={handleResetFilters}
-                  className="h-7 bg-black font-medium text-white"
-                />
-              )}
-            </Box>
-
-            <Box className="flex items-center gap-3">
-              {/* View Mode Toggle */}
-              <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
-                <IconButton
-                  size="small"
-                  onClick={() => setViewMode('grid')}
-                  className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  <GridViewIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => setViewMode('list')}
-                  className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  <ListViewIcon fontSize="small" />
-                </IconButton>
-              </Box>
-
-              {/* Mobile Chat Button */}
-              <Button
-                variant="contained"
-                startIcon={<SmartToyRounded />}
-                onClick={toggleFilterDrawer}
-                className="rounded-full bg-black font-semibold text-white shadow-lg transition-all hover:bg-gray-800 lg:hidden"
-                sx={{ textTransform: 'none' }}
-              >
-                Ask AI
-                {activeFiltersCount > 0 && (
-                  <Chip
-                    label={activeFiltersCount}
-                    size="small"
-                    className="ml-2 h-5 w-5 bg-white text-black"
-                  />
-                )}
-              </Button>
-            </Box>
+        <Box className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          <Box className="hidden rounded-xl border border-gray-200 bg-white p-1 shadow-sm md:flex">
+            <IconButton
+              size="small"
+              onClick={() => setViewMode('grid')}
+              className={`rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              <GridViewIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => setViewMode('list')}
+              className={`rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              <ListViewIcon fontSize="small" />
+            </IconButton>
           </Box>
 
-          {/* Properties Grid with Virtuoso */}
-          {filteredProperties.length > 0 ? (
-            <Box className="h-[calc(100vh-140px)] w-full">
-              {viewMode === 'grid' ? (
-                <VirtuosoGrid
-                  useWindowScroll={false}
-                  style={{ height: '100%', width: '100%' }}
-                  data={filteredProperties}
-                  endReached={loadMore}
-                  components={{
-                    List: ListContainer as Components['List'],
-                    Item: ItemContainer,
-                    Footer: () =>
-                      propertyState.isLoading ? (
-                        <Box
-                          py={2}
-                          display="flex"
-                          width="100%"
-                          justifyContent="center"
-                        >
-                          <CircularProgress size={24} />
-                        </Box>
-                      ) : null,
-                  }}
-                  itemContent={(_index, property) => (
-                    <PropertyCard property={property} variant="default" />
-                  )}
-                />
-              ) : (
-                <Virtuoso
-                  useWindowScroll={false}
-                  style={{ height: '100%', width: '100%' }}
-                  data={filteredProperties}
-                  endReached={loadMore}
-                  components={{
-                    Footer: () =>
-                      propertyState.isLoading ? (
-                        <Box py={2} display="flex" justifyContent="center">
-                          <CircularProgress size={24} />
-                        </Box>
-                      ) : null,
-                  }}
-                  itemContent={(index, property) => (
-                    <Box className="mb-4 pr-2">
-                      <PropertyCard property={property} variant="horizontal" />
-                    </Box>
-                  )}
-                />
-              )}
-            </Box>
-          ) : (
-            <Box className="rounded-2xl border-2 border-dashed border-gray-100 bg-white py-24 text-center">
-              <Box className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50">
-                <SearchIcon className="text-4xl text-gray-300" />
-              </Box>
-              <Typography variant="h5" className="mb-2 font-bold text-gray-900">
-                No Properties Found
-              </Typography>
-              <Typography className="mx-auto mb-8 max-w-md text-gray-500">
-                We couldn&apos;t find any properties matching your current
-                criteria. Try removing some filters.
-              </Typography>
-              <Button
-                variant="outlined"
-                onClick={handleResetFilters}
-                className="rounded-full border-gray-300 px-8 py-3 text-gray-700 transition-all hover:border-black hover:bg-black hover:text-white"
-              >
-                Clear All Filters
-              </Button>
-            </Box>
-          )}
-        </Container>
-      </div>
+          {/* Mobile Chat Button */}
+          <Button
+            variant="contained"
+            startIcon={<SmartToyRounded />}
+            onClick={toggleFilterDrawer}
+            className="rounded-full bg-black font-semibold text-white shadow-lg transition-all hover:bg-gray-800 lg:hidden"
+            sx={{ textTransform: 'none' }}
+          >
+            Ask AI
+            {activeFiltersCount > 0 && (
+              <Chip
+                label={activeFiltersCount}
+                size="small"
+                className="ml-2 h-5 w-5 bg-white text-black"
+              />
+            )}
+          </Button>
+        </Box>
+      </Box>
 
-      {/* Mobile Chat Dialog Overlay */}
-      <AnimatePresence>
-        {uiState.isFilterDrawerOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeFilterDrawer}
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+      {/* Properties Grid with Virtuoso */}
+      {filteredProperties.length > 0 ? (
+        <Box className="h-[calc(100vh-140px)] w-full">
+          {viewMode === 'grid' ? (
+            <VirtuosoGrid
+              useWindowScroll={false}
+              style={{ height: '100%', width: '100%' }}
+              data={filteredProperties}
+              endReached={loadMore}
+              components={{
+                List: ListContainer as Components['List'],
+                Item: ItemContainer,
+                Footer: () =>
+                  propertyState.isLoading ? (
+                    <Box
+                      py={2}
+                      display="flex"
+                      width="100%"
+                      justifyContent="center"
+                    >
+                      <CircularProgress size={24} />
+                    </Box>
+                  ) : null,
+              }}
+              itemContent={(_index, property) => (
+                <PropertyCard property={property} variant="default" />
+              )}
             />
-            {/* Dialog Container */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.1,
-                x: '40%',
-                y: -40,
+          ) : (
+            <Virtuoso
+              useWindowScroll={false}
+              style={{ height: '100%', width: '100%' }}
+              data={filteredProperties}
+              endReached={loadMore}
+              components={{
+                Footer: () =>
+                  propertyState.isLoading ? (
+                    <Box py={2} display="flex" justifyContent="center">
+                      <CircularProgress size={24} />
+                    </Box>
+                  ) : null,
               }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                x: 0,
-                y: 0,
-              }}
-              exit={{
-                opacity: 0,
-                scale: 0.1,
-                x: '40%',
-                y: -40,
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 25,
-              }}
-              className="fixed bottom-32 left-4 right-4 top-20 z-50 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl lg:hidden"
-              style={{ transformOrigin: 'top right' }}
-            >
-              {/* Chat Content */}
-              <Box className="flex-1 overflow-hidden bg-gray-50/50">
-                <PropertyChatbot />
-              </Box>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
+              itemContent={(index, property) => (
+                <Box className="mb-4 pr-2">
+                  <PropertyCard property={property} variant="horizontal" />
+                </Box>
+              )}
+            />
+          )}
+        </Box>
+      ) : (
+        <Box className="rounded-2xl border-2 border-dashed border-gray-100 bg-white py-24 text-center">
+          <Box className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50">
+            <SearchIcon className="text-4xl text-gray-300" />
+          </Box>
+          <Typography variant="h5" className="mb-2 font-bold text-gray-900">
+            No Properties Found
+          </Typography>
+          <Typography className="mx-auto mb-8 max-w-md text-gray-500">
+            We couldn&apos;t find any properties matching your current criteria.
+            Try removing some filters.
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={handleResetFilters}
+            className="rounded-full border-gray-300 px-8 py-3 text-gray-700 transition-all hover:border-black hover:bg-black hover:text-white"
+          >
+            Clear All Filters
+          </Button>
+        </Box>
+      )}
+    </Container>
   );
 }
