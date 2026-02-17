@@ -5,7 +5,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import {
-  Collections,
   Download,
   Email,
   ExpandLess,
@@ -83,7 +82,7 @@ function ProjectCard({ project }: ProjectCardProps) {
 
     toggleFavorite(project.id);
   };
-  console.log('ProjectCard.tsx-88==>project.image', project.image);
+
   return (
     <div
       className="group mb-6 flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl md:flex-row md:rounded-2xl hover:md:rounded-2xl"
@@ -119,11 +118,6 @@ function ProjectCard({ project }: ProjectCardProps) {
         >
           {isFav ? <Favorite className="text-red-500" /> : <FavoriteBorder />}
         </IconButton>
-
-        <Box className="absolute bottom-4 right-4 z-10 flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur-sm">
-          <Collections sx={{ fontSize: 12 }} />
-          {project.image.length}
-        </Box>
       </Box>
 
       {/* Content Section */}
