@@ -51,8 +51,12 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [openImageModal, setOpenImageModal] = useState(false);
 
-  const images = media?.images ?? [];
-  const videos = media?.videos ?? [];
+  const images = [
+    { id: 'main-image', url: media.thumbnail },
+    ...(media?.images || []),
+  ];
+  const videos = media?.videos || [];
+
   const imageCount = images.length;
   const hasVideos = videos.length > 0;
   const isSingleImage = imageCount <= 1;
@@ -136,7 +140,7 @@ export default function ProjectGallary({ media }: { media: PropertyMedia }) {
                 speed={800}
                 style={{ height: '100%', width: '100%' }}
               >
-                {images.map((img, idx) => (
+                {[...images].map((img, idx) => (
                   <SwiperSlide
                     key={img.id || idx}
                     onClick={() => setOpenImageModal(true)}
