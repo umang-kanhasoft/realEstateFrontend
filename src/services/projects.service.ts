@@ -1,6 +1,6 @@
 import { Specifications } from '@/components/sections/Faq';
+import { apiClient } from '@/lib/api/client';
 import { ApiProjectObject } from '@/types/api-project.types';
-import { api } from '@/utils/api';
 
 export interface ProjectFiltersParams {
   // Index signature for compatibility with Record<string, unknown>
@@ -298,7 +298,9 @@ export class ProjectsService {
   static async getProjects(
     filters: ProjectFiltersParams = {}
   ): Promise<ProjectsResponse> {
-    const response = await api.get<ProjectsResponse>('/projects', filters);
+    const response = await apiClient.get<ProjectsResponse>('/projects', {
+      params: filters,
+    });
 
     if (!response.data) {
       throw new Error('Failed to fetch projects');
@@ -311,7 +313,7 @@ export class ProjectsService {
    * Fetch a single project by ID
    */
   static async getProjectById(id: string): Promise<ProjectApiResponse> {
-    const response = await api.get<ProjectApiResponse>(`/project/${id}`);
+    const response = await apiClient.get<ProjectApiResponse>(`/project/${id}`);
 
     if (!response.data) {
       throw new Error('Project not found');
@@ -324,7 +326,7 @@ export class ProjectsService {
    * Fetch a project by slug
    */
   static async getProjectBySlug(slug: string): Promise<Project> {
-    const response = await api.get<Project>(`/project/slug/${slug}`);
+    const response = await apiClient.get<Project>(`/project/slug/${slug}`);
 
     if (!response.data) {
       throw new Error('Project not found');

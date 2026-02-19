@@ -7,7 +7,7 @@ import {
 import {
   ProjectFiltersProvider,
   useProjectFilters,
-} from '@/contexts/ProjectFiltersContext';
+} from '@/context/ProjectFiltersContext';
 import { formatCurrency } from '@/lib/utils/format';
 import {
   ProjectsService,
@@ -51,7 +51,6 @@ import Loader from '@/components/common/Loader';
 import type { ProjectCardProps } from '@/components/projects/ProjectCard';
 
 // Map backend Project to ProjectCard props
-// Map backend Project to ProjectCardProps
 function mapProjectToCard(project: Project): ProjectCardProps['project'] {
   const builders = project.builders || [];
   const location = [
@@ -69,31 +68,95 @@ function mapProjectToCard(project: Project): ProjectCardProps['project'] {
   let maxA = -Infinity;
 
   const unitTypes = project.unitTypes || [];
-  const configurations = unitTypes.map(unit => {
+
+  // Group by bedrooms count
+  const groupedUnits: Record<
+    number,
+    {
+      minPrice: number;
+      maxPrice: number;
+      minArea: number;
+      maxArea: number;
+      count: number;
+    }
+  > = {};
+
+  unitTypes.forEach(unit => {
+    // Global min/max for project card header
     minP = Math.min(minP, unit.price || Infinity);
     maxP = Math.max(maxP, unit.price || -Infinity);
     minA = Math.min(minA, unit.carpetAreaSqft || Infinity);
     maxA = Math.max(maxA, unit.carpetAreaSqft || -Infinity);
-    return {
-      bhk: unit.label,
-      area: `${unit.carpetAreaSqft || unit.builtUpAreaSqft || 0} Sq-ft`,
-      price: unit.price
-        ? new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            notation: 'compact',
-            currency: 'INR',
-          }).format(unit.price)
-        : 'Price on Request',
-      type: project.possessionDate ? 'Under Construction' : 'Ready to Move',
-    };
+
+    const bedrooms = unit.bedrooms || 0;
+    if (!groupedUnits[bedrooms]) {
+      groupedUnits[bedrooms] = {
+        minPrice: Infinity,
+        maxPrice: -Infinity,
+        minArea: Infinity,
+        maxArea: -Infinity,
+        count: 0,
+      };
+    }
+
+    const group = groupedUnits[bedrooms];
+    group.minPrice = Math.min(group.minPrice, unit.price || Infinity);
+    group.maxPrice = Math.max(group.maxPrice, unit.price || -Infinity);
+    group.minArea = Math.min(
+      group.minArea,
+      unit.carpetAreaSqft || unit.builtUpAreaSqft || 0
+    );
+    group.maxArea = Math.max(
+      group.maxArea,
+      unit.carpetAreaSqft || unit.builtUpAreaSqft || 0
+    );
+    group.count++;
+  });
+
+  const configurations = Object.entries(groupedUnits).map(
+    ([bedrooms, group]) => {
+      const priceStr =
+        group.minPrice === Infinity
+          ? 'Price on Request'
+          : group.minPrice === group.maxPrice
+            ? formatCurrency(group.minPrice)
+            : `${formatCurrency(group.minPrice)} - ${formatCurrency(group.maxPrice).replace('₹ ', '')}`;
+
+      const areaStr =
+        group.minArea === Infinity || group.minArea === 0
+          ? 'Area on Request'
+          : group.minArea === group.maxArea
+            ? `${group.minArea} Sq.ft`
+            : `${group.minArea} - ${group.maxArea} Sq.ft`;
+
+      return {
+        bhk: `${bedrooms} BHK`,
+        area: areaStr,
+        price: priceStr,
+        type: project.possessionDate ? 'Under Construction' : 'Ready to Move',
+      };
+    }
+  );
+
+  // Sort configurations by BHK number (extract number from string)
+  configurations.sort((a, b) => {
+    const numA = parseInt(a.bhk) || 0;
+    const numB = parseInt(b.bhk) || 0;
+    return numA - numB;
   });
 
   const priceRange =
     minP !== Infinity
-      ? `${formatCurrency(minP)} - ${formatCurrency(maxP).replace('₹ ', '')}`
+      ? minP === maxP
+        ? formatCurrency(minP)
+        : `${formatCurrency(minP)} - ${formatCurrency(maxP).replace('₹ ', '')}`
       : 'Price on Request';
   const areaRange =
-    minA !== Infinity ? `${minA} - ${maxA} Sq.ft` : 'Area on Request';
+    minA !== Infinity
+      ? minA === maxA
+        ? `${minA} Sq.ft`
+        : `${minA} - ${maxA} Sq.ft`
+      : 'Area on Request';
 
   const amenities = project.amenities || [];
 
@@ -161,16 +224,16 @@ const ProjectsList = memo(
       return (
         <div className="mb-20 mt-12 flex h-24 w-full items-center justify-center">
           {isFetchingNextPage ? (
-            <div className="flex scale-100 flex-col items-center gap-3 rounded-full border border-gray-100 bg-white px-6 py-3 opacity-100 shadow-sm">
+            <div className="flex scale-100 flex-col items-center gap-3 border border-gray-100 bg-white px-6 py-3 opacity-100">
               <Loader text="Loading More" />
-              <CircularProgress
+              {/* <CircularProgress
                 size={24}
                 thickness={5}
                 className="text-black"
               />
               <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
                 Loading More
-              </span>
+              </span> */}
             </div>
           ) : hasNextPage ? (
             <span className="opacity-0">Scroll to load</span>
@@ -336,8 +399,6 @@ function ProjectsContent() {
       possessionAfter: possessionAfter,
       bedrooms: bedrooms,
     };
-
-    console.log('Sending API Params:', apiParams);
 
     const response = await ProjectsService.getProjects(apiParams);
     return response;

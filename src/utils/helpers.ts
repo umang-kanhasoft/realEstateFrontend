@@ -349,3 +349,53 @@ export const budgetToNumber = (budget: string): number | undefined => {
   }
   return parseFloat(clean);
 };
+
+export const mapChatProjectToProperty = (
+  // TODO: fix any to ai response property types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  item: Record<string, any>
+): Property => {
+  // Parse fields that might be JSON strings
+  let keyFeatures: string[] = [];
+  try {
+    keyFeatures = JSON.parse(item.key_features || '[]');
+  } catch {
+    keyFeatures = [item.key_features].filter(Boolean);
+  }
+
+  return {
+    id: item.id,
+    title: item.name,
+    slug: item.slug,
+    description: item.description || '',
+    price: item.priceStartingFrom || 0, // Fallback if not present in list
+    status: (item.status === 'new_launch'
+      ? 'New Launch'
+      : item.status === 'ready_to_move'
+        ? 'Ready to Move'
+        : 'Under Construction') as Property['status'],
+    location: item.city || '',
+    images: item.mainImageUrl ? [item.mainImageUrl] : [],
+    amenities: item.amenities || [],
+    type: item.propertyType,
+    bedrooms: item.totalUnits ? undefined : undefined, // Mapping logic for bedrooms if available in data
+    bathrooms: undefined, // Not available in list object usually
+    area: item.totalArea?.toString() || '', // Use total_area or size
+    size: item.totalArea || 0,
+    isFeatured: item.isFeatured,
+    ecoFriendly: item.ecoFriendly,
+    possessionDate: item.possessionDate,
+    completionTime: item.completionTime,
+    reraId: item.reraNumber,
+    rating: 0, // Not in list response
+    reviews: 0,
+    builders: [], // Not in list response
+    unitTypes: [], // Not in list response
+    features: keyFeatures.map((f, i) => ({
+      id: i.toString(),
+      name: f,
+      value: '',
+      icon: '',
+    })),
+  };
+};

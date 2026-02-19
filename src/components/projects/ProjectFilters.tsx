@@ -1,6 +1,6 @@
 'use client';
 
-import { useProjectFilters } from '@/contexts/ProjectFiltersContext';
+import { useProjectFilters } from '@/context/ProjectFiltersContext';
 import { areaService } from '@/services/area.service';
 import {
   Check,

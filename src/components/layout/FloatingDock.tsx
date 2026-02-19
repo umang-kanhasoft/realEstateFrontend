@@ -154,6 +154,10 @@ export default function FloatingDock() {
     { icon: Phone, label: 'Contact', href: '/contact' },
   ];
 
+  const resetMouse = () => {
+    mouseX.set(Infinity);
+  };
+
   return (
     <>
       <Box
@@ -168,7 +172,12 @@ export default function FloatingDock() {
           className="flex items-end gap-3 rounded-full border border-white/20 bg-white/50 px-4 py-3 shadow-2xl backdrop-blur-xl supports-[backdrop-filter]:bg-white/60"
         >
           {navItems.map(item => (
-            <DockItem key={item.href} {...item} mouseX={mouseX} />
+            <DockItem
+              key={item.href}
+              {...item}
+              mouseX={mouseX}
+              onClick={resetMouse}
+            />
           ))}
 
           {/* Auth Item */}
@@ -176,7 +185,10 @@ export default function FloatingDock() {
             <DockItem
               label={user.fullName}
               mouseX={mouseX}
-              onClick={handleOpenUserMenu}
+              onClick={e => {
+                handleOpenUserMenu(e);
+                resetMouse();
+              }}
               customIcon={
                 <Avatar
                   sx={{ width: 32, height: 32, bgcolor: '#7C3AED' }} // Adjusted size for dock
@@ -192,7 +204,10 @@ export default function FloatingDock() {
               icon={Login}
               label="Login"
               mouseX={mouseX}
-              onClick={openLogin}
+              onClick={() => {
+                openLogin();
+                resetMouse();
+              }}
             />
           )}
         </motion.div>

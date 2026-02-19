@@ -32,6 +32,7 @@ interface ChatContextType {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   clearChat: () => void;
+  userId: string;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -52,12 +53,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [userId, setUserId] = useState<string>('');
 
   // Load from localStorage on mount
   useEffect(() => {
     try {
       const storedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
       const storedExpiry = localStorage.getItem(CHAT_EXPIRY_KEY);
+      const storedUserId = localStorage.getItem('chat_user_id');
+
+      if (storedUserId) {
+        setUserId(storedUserId);
+      } else {
+        const newUserId = crypto.randomUUID();
+        localStorage.setItem('chat_user_id', newUserId);
+        setUserId(newUserId);
+      }
+
       const now = Date.now();
 
       if (storedMessages && storedExpiry) {
@@ -77,10 +89,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Failed to load chat history:', error);
+      // Fallback for UUID if crypto not available (unlikely in modern browsers but good practice)
+      if (!userId) {
+        const newUserId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('chat_user_id', newUserId);
+        setUserId(newUserId);
+      }
     } finally {
       setIsInitialized(true);
     }
-  }, []);
+  }, [userId]);
 
   // Save to localStorage whenever messages change
   useEffect(() => {
@@ -134,6 +152,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         isOpen,
         setIsOpen,
         clearChat,
+        userId,
       }}
     >
       {children}

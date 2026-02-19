@@ -90,7 +90,7 @@ function ProjectCard({ project }: ProjectCardProps) {
       onClick={() => router.push(`/projects/${project.id}`)}
     >
       {/* Image Section */}
-      <Box className="relative h-56 w-full flex-shrink-0 overflow-hidden bg-gray-100 sm:h-64 md:h-auto md:w-72 md:rounded-l-2xl hover:md:rounded-l-2xl">
+      <Box className="relative h-56 w-full flex-shrink-0 overflow-hidden bg-gray-100 sm:h-64 md:h-auto md:w-80 md:rounded-l-2xl hover:md:rounded-l-2xl xl:w-96">
         <Image
           src={project.image}
           alt={project.name}
@@ -163,43 +163,52 @@ function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
 
-          {/* Configurations Table-like Grid */}
-          <div className="mb-3 mt-2 rounded-lg border border-gray-100/50 bg-gray-50 p-2">
+          {/* Configurations Grid */}
+          <div className="mb-3 mt-3 flex flex-col gap-2 border border-gray-100 bg-white px-2 py-1">
             {project.configurations.map((conf, idx) => (
               <div
                 key={idx}
-                className={`flex flex-wrap items-center gap-y-2 py-2 md:grid md:grid-cols-12 md:gap-2 ${
+                className={`grid grid-cols-12 items-center gap-2 rounded-lg p-2 transition-colors ${
                   idx !== project.configurations.length - 1
-                    ? 'border-b border-gray-200'
+                    ? 'border-b border-gray-100'
                     : ''
                 }`}
               >
-                <div className="w-1/2 border-r border-gray-200 pr-2 md:col-span-3 md:w-auto md:text-center">
-                  <Typography className="text-sm font-bold text-gray-800">
+                {/* BHK Box */}
+                <div className="col-span-3 flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-1">
+                  <Typography className="text-xs font-bold text-gray-800 sm:text-sm">
                     {conf.bhk}
                   </Typography>
-                  <Typography className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                    {conf.type || 'Flat'}
+                  <Typography className="text-[9px] font-medium text-gray-400 sm:text-[10px]">
+                    {conf.type || 'Unit'}
                   </Typography>
                 </div>
 
-                <div className="w-1/2 border-gray-200 px-2 pl-4 md:col-span-4 md:w-auto md:border-r md:pl-2 md:text-center">
-                  <Typography className="text-sm font-bold text-gray-800">
+                {/* Area Box */}
+                <div className="col-span-5 flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-1 md:col-span-4">
+                  <Typography className="text-xs font-bold text-gray-800 sm:text-sm">
                     {conf.area}
                   </Typography>
-                  <Typography className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                  <Typography className="text-[9px] font-medium text-gray-400 sm:text-[10px]">
                     Super Built-up
                   </Typography>
                 </div>
 
-                <div className="mt-1 flex w-full items-center justify-start md:col-span-5 md:mt-0 md:justify-center">
-                  <Typography className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-600 md:px-2 md:py-0.5">
-                    {conf.price}
+                {/* Price Section */}
+                <div className="col-span-4 flex flex-col items-end justify-center pr-1 md:col-span-5 md:pr-2">
+                  <div className="flex items-center justify-end gap-1">
+                    <Typography className="text-xs font-bold text-blue-600 sm:text-base">
+                      {conf.price}
+                    </Typography>
                     <Tooltip title="Excluding Gov. Charges">
                       <Info
-                        sx={{ fontSize: 10, color: 'inherit', opacity: 0.7 }}
+                        sx={{ fontSize: 12 }}
+                        className="cursor-help text-gray-300 hover:text-blue-500"
                       />
                     </Tooltip>
+                  </div>
+                  <Typography className="text-[9px] font-medium text-gray-400 sm:text-[10px]">
+                    Base Price
                   </Typography>
                 </div>
               </div>

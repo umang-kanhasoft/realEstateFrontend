@@ -1,7 +1,7 @@
 'use client';
 
 import { Message, useChat } from '@/context/ChatContext';
-import { api } from '@/utils/api';
+import { apiClient } from '@/lib/api/client';
 import {
   AutoAwesomeRounded,
   ChatBubbleRounded,
@@ -73,7 +73,7 @@ export default function Chatbot() {
       }));
       history.push({ role: 'user', content: userMsg.text });
 
-      const response = await api.post<AIResponseData>('/ai/parse-query', {
+      const response = await apiClient.post<AIResponseData>('/ai/parse-query', {
         messages: history,
       });
 

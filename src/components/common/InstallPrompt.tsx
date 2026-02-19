@@ -42,43 +42,40 @@ export default function InstallPrompt() {
   if (!show) return null;
 
   return (
-    <Slide direction="up" in={show} mountOnEnter unmountOnExit>
-      <Box className="fixed bottom-6 left-6 right-6 z-[9999] mx-auto flex max-w-[500px] items-center justify-between gap-4 rounded-3xl border border-white/50 bg-white/95 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] backdrop-blur-3xl">
-        <Box className="flex items-center gap-4">
-          <Box className="flex items-center justify-center rounded-xl bg-primary-50 p-3 text-primary-600">
-            <DownloadIcon />
+    <Slide direction="left" in={show} mountOnEnter unmountOnExit>
+      <Box className="fixed right-4 top-4 z-[9999] flex max-w-[340px] items-center justify-between gap-3 rounded-2xl border border-white/50 bg-white/95 p-3 shadow-[0_10px_20px_rgba(0,0,0,0.1)] backdrop-blur-3xl">
+        <Box className="flex items-center gap-3">
+          <Box className="flex items-center justify-center rounded-lg bg-primary-50 p-2 text-primary-600">
+            <DownloadIcon fontSize="small" />
           </Box>
           <Box>
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               className="font-bold leading-tight text-gray-900"
             >
-              Install Real Estate
+              Install App
             </Typography>
-            <Typography
-              variant="body2"
-              className="text-sm font-medium text-gray-500"
-            >
-              Add to home screen for the best experience
+            <Typography variant="caption" className="font-medium text-gray-500">
+              Add to home screen
             </Typography>
           </Box>
         </Box>
-        <Box className="flex items-center gap-2">
+        <Box className="flex items-center gap-1">
           <Button
             variant="contained"
             onClick={handleInstall}
             size="small"
             disableElevation
-            className="rounded-full bg-primary-600 px-6 py-2 text-sm font-bold normal-case text-white hover:bg-primary-700"
+            className="min-w-0 rounded-full bg-primary-600 px-4 py-1 text-xs font-bold normal-case text-white hover:bg-primary-700"
           >
-            Install
+            Get
           </Button>
           <IconButton
             size="small"
             onClick={() => setShow(false)}
-            className="text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="h-6 w-6 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
           >
-            <CloseIcon fontSize="small" />
+            <CloseIcon sx={{ fontSize: 16 }} />
           </IconButton>
         </Box>
       </Box>

@@ -28,6 +28,20 @@ class ApiClient {
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      paramsSerializer: params => {
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            if (Array.isArray(value)) {
+              value.forEach(item => searchParams.append(key, String(item)));
+            } else {
+              searchParams.append(key, String(value));
+            }
+          }
+        });
+        return searchParams.toString();
       },
     });
 
