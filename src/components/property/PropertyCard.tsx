@@ -471,9 +471,9 @@ const PropertyCard = ({
               <AreaIcon sx={{ fontSize: 16 }} />
               <Typography variant="caption" fontWeight={500}>
                 {property.area
-                  ? property.area
+                  ? formatArea(property.area, property.areaUnit || 'sqft')
                   : property.size
-                    ? `${property.size} ${property.areaUnit || 'sqft'}`
+                    ? formatArea(property.size, property.areaUnit || 'sqft')
                     : formatArea(
                         property.area || '0',
                         property.areaUnit || 'sqft'

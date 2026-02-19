@@ -30,14 +30,18 @@ function validateEnv(): Env {
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL ||
+      (typeof window !== 'undefined'
+        ? `https://${window.location.hostname}:3000/api/v1`
+        : 'https://localhost:3000/api/v1'),
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
     NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
     NEXT_PUBLIC_EMAIL: process.env.NEXT_PUBLIC_EMAIL,
-    NEXT_PUBLIC_CHAT_API: 'http://192.168.11.135:8000',
+    NEXT_PUBLIC_CHAT_API: process.env.NEXT_PUBLIC_CHAT_API,
   };
 
   const parsed = envSchema.safeParse(envVars);
@@ -61,7 +65,7 @@ export const env = validateEnv();
 export const clientEnv = {
   appUrl: process.env.NEXT_PUBLIC_APP_URL!,
   appName: process.env.NEXT_PUBLIC_APP_NAME || 'Real Estate Platform',
-  apiUrl: process.env.NEXT_PUBLIC_API_URL!,
+  apiUrl: env.NEXT_PUBLIC_API_URL,
   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
   gaId: process.env.NEXT_PUBLIC_GA_ID,

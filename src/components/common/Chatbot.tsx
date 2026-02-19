@@ -1,7 +1,11 @@
 'use client';
 
+import { env } from '@/config/env';
 import { Message, useChat } from '@/context/ChatContext';
+import { useProperty } from '@/hooks/useProperty';
 import { apiClient } from '@/lib/api/client';
+import { AiSearchResponse, ApiProjectObject } from '@/types/api-project.types';
+import { mapChatProjectToProperty } from '@/utils/helpers'; // Import helper
 import {
   AutoAwesomeRounded,
   ChatBubbleRounded,
@@ -13,14 +17,6 @@ import {
 import { CircularProgress, IconButton, Input, Tooltip } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 
-// Define the expected structure of the AI response data
-interface AIResponseData {
-  action: 'chat' | 'search';
-  reply_text: string;
-  sort_by?: 'price_asc' | 'price_desc' | 'newest' | 'rating' | 'featured';
-  filters?: Record<string, unknown>; // Simplified for brevity as per original file structure logic
-}
-
 export default function Chatbot() {
   const {
     messages,
@@ -30,15 +26,23 @@ export default function Chatbot() {
     isOpen,
     setIsOpen,
     clearChat,
+    userId,
   } = useChat();
+  const { setSearchResultsFromAI } = useProperty(); // Use PropertyContext
   const [input, setInput] = useState('');
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Scroll to bottom
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (isOpen) {
+      // Small timeout to ensure DOM is rendered
+      setTimeout(scrollToBottom, 100);
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isLoading]);
 
   const [showNotification, setShowNotification] = useState(false);
 
@@ -73,44 +77,48 @@ export default function Chatbot() {
       }));
       history.push({ role: 'user', content: userMsg.text });
 
-      const response = await apiClient.post<AIResponseData>('/ai/parse-query', {
-        messages: history,
-      });
+      // Changed response type to AiSearchResponse
+      const response = await apiClient.post<AiSearchResponse>(
+        '/api/chat/',
+        {
+          message: userMsg.text,
+          user_id: userId,
+        },
+        {
+          baseURL: env.NEXT_PUBLIC_CHAT_API,
+        }
+      );
 
-      if (!response.data) {
-        throw new Error('Invalid response from AI service');
-      }
+      if (!response.data) throw new Error('Invalid response from AI service');
 
-      const { filters, reply_text, action } = response.data;
+      // TODO: update response by wrapping in ApiResponse
+      const tempResponse: {
+        status: 'succcess';
+        message: string;
+        data: AiSearchResponse;
+      } = {
+        status: 'succcess',
+        message: 'Hellooooo',
+        data: response as unknown as AiSearchResponse,
+      };
+
+      let reply = "I've found some properties for you!";
+      let projects: ApiProjectObject[] = [];
+
+      reply = tempResponse.data.reply || reply;
+      projects = tempResponse.data.data || [];
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
-        text:
-          reply_text || "I've found some properties for you! Redirecting...",
+        text: reply,
         sender: 'ai',
         timestamp: new Date(),
       };
       addMessage(aiMsg);
 
-      if (action === 'search' && filters && Object.keys(filters).length > 0) {
-        const params = new URLSearchParams();
-
-        const buildParams = (obj: Record<string, unknown>, prefix = '') => {
-          Object.entries(obj).forEach(([key, value]) => {
-            const paramKey = prefix ? `${prefix}.${key}` : key;
-            if (value !== undefined && value !== null) {
-              if (Array.isArray(value)) {
-                value.forEach(v => params.append(paramKey, String(v)));
-              } else if (typeof value === 'object') {
-                buildParams(value as Record<string, unknown>, paramKey);
-              } else {
-                params.append(paramKey, String(value));
-              }
-            }
-          });
-        };
-
-        buildParams(filters);
+      if (projects && Array.isArray(projects) && projects.length > 0) {
+        const properties = projects.map(mapChatProjectToProperty);
+        setSearchResultsFromAI(properties);
       }
     } catch (error) {
       console.error('AI Search Error:', error);
@@ -209,10 +217,7 @@ export default function Chatbot() {
           </div>
 
           {/* Messages Area */}
-          <div
-            ref={scrollRef}
-            className="h-[400px] max-h-[500px] w-full flex-1 overflow-y-auto bg-white/80 p-4"
-          >
+          <div className="h-[400px] max-h-[500px] w-full flex-1 overflow-y-auto bg-white/80 p-4">
             {messages.map(msg => (
               <div
                 key={msg.id}
