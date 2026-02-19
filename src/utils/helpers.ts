@@ -1,4 +1,9 @@
-import { Property, PropertyAmenity, PropertyFilter } from '@/types';
+import {
+  ApiProjectObject,
+  Property,
+  PropertyAmenity,
+  PropertyFilter,
+} from '@/types';
 
 export const formatPrice = (
   price: number,
@@ -24,6 +29,13 @@ export const formatArea = (
   area: number | string,
   unit: 'sqft' | 'sqm' = 'sqft'
 ): string => {
+  if (typeof area === 'string' && area.includes('-')) {
+    const parts = area.split('-').map(part => {
+      const cleanPart = parseFloat(part.trim().replace(/,/g, ''));
+      return isNaN(cleanPart) ? part.trim() : cleanPart.toLocaleString();
+    });
+    return `${parts.join('-')} ${unit}`;
+  }
   const value =
     typeof area === 'string' ? parseFloat(area.replace(/,/g, '')) : area;
   return `${value.toLocaleString()} ${unit}`;
@@ -196,7 +208,7 @@ export const filterProperties = (
 
     // Amenities filter
     if (filters.amenities.length > 0) {
-      const propertyAmenityIds =
+      const propertyAmenityIds: string[] =
         property.amenities.length > 0 &&
         typeof property.amenities[0] === 'string'
           ? (property.amenities as string[])
@@ -350,17 +362,76 @@ export const budgetToNumber = (budget: string): number | undefined => {
   return parseFloat(clean);
 };
 
-export const mapChatProjectToProperty = (
-  // TODO: fix any to ai response property types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  item: Record<string, any>
-): Property => {
+export const mapChatProjectToProperty = (item: ApiProjectObject): Property => {
   // Parse fields that might be JSON strings
   let keyFeatures: string[] = [];
-  try {
-    keyFeatures = JSON.parse(item.key_features || '[]');
-  } catch {
-    keyFeatures = [item.key_features].filter(Boolean);
+  // api object usually returns array of strings for key features
+  if (Array.isArray(item.keyFeatures)) {
+    keyFeatures = item.keyFeatures;
+  }
+
+  // Calculate bedrooms and bathrooms range from unitTypes
+  let bedrooms: string | number | undefined = undefined;
+  let bathrooms: string | number | undefined = undefined;
+  let areaRange: string = '';
+
+  if (item.unitTypes && item.unitTypes.length > 0) {
+    const beds = item.unitTypes
+      .map(u => u.bedrooms)
+      .filter(b => b !== undefined && b !== null);
+    const baths = item.unitTypes
+      .map(u => u.bathrooms)
+      .filter(b => b !== undefined && b !== null);
+    const areas = item.unitTypes
+      .map(u => u.carpetAreaSqft || u.builtUpAreaSqft)
+      .filter(a => a !== undefined && a !== null && a > 0);
+
+    if (beds.length > 0) {
+      const minBed = Math.min(...beds);
+      const maxBed = Math.max(...beds);
+      bedrooms = minBed === maxBed ? minBed : `${minBed}-${maxBed}`;
+    }
+
+    if (baths.length > 0) {
+      const minBath = Math.min(...baths);
+      const maxBath = Math.max(...baths);
+      bathrooms = minBath === maxBath ? minBath : `${minBath}-${maxBath}`;
+    }
+
+    if (areas.length > 0) {
+      const minArea = Math.min(...areas);
+      const maxArea = Math.max(...areas);
+      areaRange = minArea === maxArea ? `${minArea}` : `${minArea}-${maxArea}`;
+    }
+  }
+
+  // Fallback to totalUnits if no unitTypes (legacy/fallback logic from original)
+  if (bedrooms === undefined && item.totalUnits) {
+    bedrooms = undefined; // totalUnits is not bedrooms
+  }
+
+  // Determine area and size
+  // Priority: calculated range from unitTypes -> area string (if likely a range) -> totalArea -> size
+  let area = '';
+  let size = 0;
+
+  if (areaRange) {
+    area = areaRange;
+    const parsed = parseFloat(areaRange.split('-')[0]);
+    if (!isNaN(parsed)) size = parsed;
+  } else if (item.totalArea && item.totalArea > 0) {
+    area = item.totalArea.toString();
+    size = item.totalArea;
+  } else if (item.size && item.size > 0) {
+    area = item.size.toString();
+    size = item.size;
+  } else if (item.area && item.area !== '0' && item.area !== '') {
+    area = item.area;
+    // Try to parse number from string area if possible for size
+    const parsed = parseFloat(item.area.replace(/[^0-9.]/g, ''));
+    if (!isNaN(parsed)) {
+      size = parsed;
+    }
   }
 
   return {
@@ -368,7 +439,7 @@ export const mapChatProjectToProperty = (
     title: item.name,
     slug: item.slug,
     description: item.description || '',
-    price: item.priceStartingFrom || 0, // Fallback if not present in list
+    price: item.priceStartingFrom || 0,
     status: (item.status === 'new_launch'
       ? 'New Launch'
       : item.status === 'ready_to_move'
@@ -378,19 +449,19 @@ export const mapChatProjectToProperty = (
     images: item.mainImageUrl ? [item.mainImageUrl] : [],
     amenities: item.amenities || [],
     type: item.propertyType,
-    bedrooms: item.totalUnits ? undefined : undefined, // Mapping logic for bedrooms if available in data
-    bathrooms: undefined, // Not available in list object usually
-    area: item.totalArea?.toString() || '', // Use total_area or size
-    size: item.totalArea || 0,
+    bedrooms,
+    bathrooms,
+    area,
+    size,
     isFeatured: item.isFeatured,
     ecoFriendly: item.ecoFriendly,
-    possessionDate: item.possessionDate,
-    completionTime: item.completionTime,
-    reraId: item.reraNumber,
-    rating: 0, // Not in list response
+    possessionDate: item.possessionDate ?? undefined,
+    completionTime: item.completionTime ?? undefined,
+    reraId: item.reraNumber ?? undefined,
+    rating: 0,
     reviews: 0,
-    builders: [], // Not in list response
-    unitTypes: [], // Not in list response
+    builders: item.builders || [],
+    unitTypes: item.unitTypes || [],
     features: keyFeatures.map((f, i) => ({
       id: i.toString(),
       name: f,

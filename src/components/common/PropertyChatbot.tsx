@@ -1,8 +1,12 @@
 'use client';
 
+import { env } from '@/config/env';
 import { Message, useChat } from '@/context/ChatContext';
+import { useProperty } from '@/hooks/useProperty';
 import { useUI } from '@/hooks/useUI';
 import { apiClient } from '@/lib/api/client';
+import { AiSearchResponse, ApiProjectObject } from '@/types/api-project.types';
+import { mapChatProjectToProperty } from '@/utils/helpers';
 import {
   Close,
   DeleteOutlineRounded,
@@ -12,27 +16,26 @@ import {
 import { IconButton, Input, Tooltip } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 
-// Define the expected structure of the AI response data
-interface AIResponseData {
-  action: 'chat' | 'search';
-  reply_text: string;
-  sort_by?: 'price_asc' | 'price_desc' | 'newest' | 'rating' | 'featured';
-  filters?: Record<string, unknown>; // Simplified for brevity as per original file structure logic
-}
-
 export default function PropertyChatbot() {
-  const { messages, addMessage, isLoading, setIsLoading, clearChat } =
+  const { messages, addMessage, isLoading, setIsLoading, clearChat, userId } =
     useChat();
   const { closeFilterDrawer } = useUI();
+  const { setSearchResultsFromAI } = useProperty(); // Use PropertyContext
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
+  // Scroll to bottom when messages change or on mount
+  const scrollToBottom = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
-  }, [messages]);
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   // Handle initial chat query from URL
   useEffect(() => {
@@ -63,31 +66,48 @@ export default function PropertyChatbot() {
           }));
           history.push({ role: 'user', content: chatQuery });
 
-          const response = await apiClient.post<AIResponseData>(
-            '/ai/parse-query',
+          const response = await apiClient.post<AiSearchResponse>(
+            '/api/chat/',
             {
-              messages: history,
+              message: chatQuery,
+              user_id: userId,
+            },
+            {
+              baseURL: env.NEXT_PUBLIC_CHAT_API,
             }
           );
 
           if (!response.data) throw new Error('Invalid response');
 
-          const { filters, reply_text, action } = response.data;
+          // TODO: update response by wrapping in ApiResponse
+          const tempResponse: {
+            status: 'succcess';
+            message: string;
+            data: AiSearchResponse;
+          } = {
+            status: 'succcess',
+            message: 'Hellooooo',
+            data: response as unknown as AiSearchResponse,
+          };
+
+          let reply = "I've found some properties for you!";
+          let projects: ApiProjectObject[] = [];
+
+          reply = tempResponse.data.reply || reply;
+          projects = tempResponse.data.data || [];
 
           addMessage({
             id: (Date.now() + 1).toString(),
-            text: reply_text || "I've found some properties for you!",
+            text: reply,
             sender: 'ai',
             timestamp: new Date(),
           });
 
-          // Filters processing logic removed
-          if (
-            action === 'search' &&
-            filters &&
-            Object.keys(filters).length > 0
-          ) {
-            // Logic removed to keep chatbot text-only
+          if (projects && Array.isArray(projects) && projects.length > 0) {
+            const properties = projects.map(project => {
+              return mapChatProjectToProperty(project);
+            });
+            setSearchResultsFromAI(properties);
           }
         } catch (error) {
           console.error('Initial Query Error:', error);
@@ -128,28 +148,52 @@ export default function PropertyChatbot() {
       }));
       history.push({ role: 'user', content: userMsg.text });
 
-      const response = await apiClient.post<AIResponseData>('/ai/parse-query', {
-        messages: history,
-      });
+      const response = await apiClient.post<AiSearchResponse>(
+        '/api/chat/',
+        {
+          message: userMsg.text,
+          user_id: userId,
+        },
+        {
+          baseURL: env.NEXT_PUBLIC_CHAT_API,
+        }
+      );
+      if (!response.data) throw new Error('Invalid response from AI service');
 
-      if (!response.data) {
-        throw new Error('Invalid response from AI service');
-      }
+      // TODO: update response by wrapping in ApiResponse
+      const tempResponse: {
+        status: 'succcess';
+        message: string;
+        data: AiSearchResponse;
+      } = {
+        status: 'succcess',
+        message: 'Hellooooo',
+        data: response as unknown as AiSearchResponse,
+      };
 
-      const { filters, reply_text, action } = response.data;
+      let reply = "I've found some properties for you!";
+      let projects: ApiProjectObject[] = [];
+
+      reply = tempResponse.data.reply || reply;
+      projects = tempResponse.data.data || [];
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
-        text:
-          reply_text || "I've found some properties for you! Redirecting...",
+        text: reply,
         sender: 'ai',
         timestamp: new Date(),
       };
       addMessage(aiMsg);
 
-      // Filters processing logic removed
-      if (action === 'search' && filters && Object.keys(filters).length > 0) {
-        // Logic removed to keep chatbot text-only
+      if (projects && Array.isArray(projects) && projects.length > 0) {
+        try {
+          const properties = projects.map(p => {
+            return mapChatProjectToProperty(p);
+          });
+          setSearchResultsFromAI(properties);
+        } catch (err) {
+          console.error('Error mapping properties:', err);
+        }
       }
     } catch (error) {
       console.error('AI Search Error:', error);
@@ -238,7 +282,10 @@ export default function PropertyChatbot() {
                 </div>
 
                 {/* Timestamp */}
-                <span className="px-2 text-[10px] font-semibold tracking-wide text-gray-400/80">
+                <span
+                  suppressHydrationWarning
+                  className="px-2 text-[10px] font-semibold tracking-wide text-gray-400/80"
+                >
                   {msg.sender === 'ai' ? 'RealEstate AI • ' : 'YOU • '}
                   {msg.timestamp.toLocaleTimeString([], {
                     hour: '2-digit',

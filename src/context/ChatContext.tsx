@@ -1,5 +1,6 @@
 'use client';
 
+import { Property } from '@/types';
 import {
   createContext,
   ReactNode,
@@ -17,9 +18,7 @@ export interface Message {
   searchResult?: {
     count: number;
     filters: Record<string, unknown>;
-    // TODO: fix any to ai response property types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    properties: Record<string, any>[];
+    properties: Property[];
   };
 }
 
@@ -115,7 +114,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, [messages, isInitialized]);
 
   const addMessage = (message: Message) => {
-    setMessages(prev => [...prev, message]);
+    setMessages(prev => {
+      const newMessages = [...prev, message];
+      return newMessages;
+    });
   };
 
   const updateLastMessage = (updates: Partial<Message>) => {
@@ -139,6 +141,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     ]);
     localStorage.removeItem(CHAT_STORAGE_KEY);
     localStorage.removeItem(CHAT_EXPIRY_KEY);
+
+    // Generate new userId to reset backend context
+    try {
+      const newUserId = crypto.randomUUID();
+      localStorage.setItem('chat_user_id', newUserId);
+      setUserId(newUserId);
+    } catch {
+      const newUserId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('chat_user_id', newUserId);
+      setUserId(newUserId);
+    }
   };
 
   return (

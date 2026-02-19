@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Components, Virtuoso, VirtuosoGrid } from 'react-virtuoso';
+import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 import styled from 'styled-components';
 
 // Styled components for VirtuosoGrid
@@ -57,7 +57,12 @@ const ListContainer = styled.div`
 
 export default function PropertiesPage() {
   const searchParams = useSearchParams();
-  const { state: propertyState, resetFilters, fetchProperties } = useProperty();
+  const {
+    state: propertyState,
+    resetFilters,
+    fetchProperties,
+    setSearchResultsFromAI,
+  } = useProperty();
   const {
     state: uiState,
     toggleFilterDrawer,
@@ -72,8 +77,16 @@ export default function PropertiesPage() {
 
   // Fetch properties on mount
   useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+    // Only fetch if not displaying AI results
+    const hasChatQuery = searchParams.get('chat_query');
+    if (
+      (!propertyState.searchResults ||
+        propertyState.searchResults.properties.length === 0) &&
+      !hasChatQuery
+    ) {
+      fetchProperties();
+    }
+  }, [fetchProperties, propertyState.searchResults, searchParams]);
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -115,9 +128,22 @@ export default function PropertiesPage() {
 
   // Filter and sort properties
   const filteredProperties = useMemo(() => {
+    if (
+      propertyState.searchResults &&
+      propertyState.searchResults.properties.length > 0
+    ) {
+      return propertyState.searchResults.properties;
+    }
     const filtered = filterProperties(propertyState.properties, localFilters);
     return sortProperties(filtered, localFilters.sortBy);
-  }, [propertyState.properties, localFilters]);
+  }, [propertyState.properties, propertyState.searchResults, localFilters]);
+
+  const isAISearch = useMemo(() => {
+    return !!(
+      propertyState.searchResults &&
+      propertyState.searchResults.properties.length > 0
+    );
+  }, [propertyState.searchResults]);
 
   // Sync Search Results to Chat
   useEffect(() => {
@@ -145,15 +171,35 @@ export default function PropertiesPage() {
   const handleResetFilters = (): void => {
     resetFilters();
     setLocalFilters(propertyState.filters);
+    if (isAISearch) {
+      setSearchResultsFromAI([]);
+    }
+  };
+
+  const clearAISearch = () => {
+    setSearchResultsFromAI([]);
   };
 
   const loadMore = useCallback(() => {
     // Check if we can load more
+    // If AI search is active, do not load more (assuming AI results are complete for now)
+    if (
+      propertyState.searchResults &&
+      propertyState.searchResults.properties.length > 0
+    ) {
+      return;
+    }
+
     const { hasNextPage, currentPage } = propertyState.pagination;
     if (!propertyState.isLoading && hasNextPage) {
       fetchProperties(currentPage + 1, true);
     }
-  }, [propertyState.isLoading, propertyState.pagination, fetchProperties]);
+  }, [
+    propertyState.isLoading,
+    propertyState.pagination,
+    fetchProperties,
+    propertyState.searchResults,
+  ]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -170,7 +216,10 @@ export default function PropertiesPage() {
       <Box className="sticky top-0 z-10 mb-8 flex w-full flex-wrap items-center justify-between gap-4 border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all">
         <Box className="flex items-center gap-3">
           <Typography variant="h6" className="font-bold text-gray-900">
-            {propertyState.pagination.totalCount} Properties
+            {isAISearch
+              ? filteredProperties.length
+              : propertyState.pagination.totalCount}{' '}
+            Properties
           </Typography>
           {activeFiltersCount > 0 && (
             <Chip
@@ -178,6 +227,15 @@ export default function PropertiesPage() {
               size="small"
               onDelete={handleResetFilters}
               className="h-7 bg-black font-medium text-white"
+            />
+          )}
+          {isAISearch && (
+            <Chip
+              label="AI Search Results"
+              size="small"
+              onDelete={clearAISearch}
+              color="primary"
+              className="h-7 font-medium"
             />
           )}
         </Box>
@@ -231,7 +289,7 @@ export default function PropertiesPage() {
               data={filteredProperties}
               endReached={loadMore}
               components={{
-                List: ListContainer as Components['List'],
+                List: ListContainer,
                 Item: ItemContainer,
                 Footer: () =>
                   propertyState.isLoading ? (
