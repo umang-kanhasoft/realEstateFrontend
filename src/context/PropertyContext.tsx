@@ -86,6 +86,18 @@ const propertyReducer = (
       };
     case 'CLEAR_COMPARE_LIST':
       return { ...state, compareList: [] };
+    case 'SET_AI_SEARCH_RESULTS':
+      return {
+        ...state,
+        searchResults: {
+          properties: action.payload,
+          totalCount: action.payload.length,
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
     case 'ADD_TO_RECENTLY_VIEWED': {
       const filteredViewed = state.recentlyViewed.filter(
         id => id !== action.payload
@@ -454,6 +466,10 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
     dispatch({ type: 'CLEAR_COMPARE_LIST' });
   }, []);
 
+  const setSearchResultsFromAI = useCallback((properties: Property[]): void => {
+    dispatch({ type: 'SET_AI_SEARCH_RESULTS', payload: properties });
+  }, []);
+
   const value = useMemo<PropertyContextValue>(
     () => ({
       state,
@@ -467,6 +483,7 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
       addToCompare,
       removeFromCompare,
       clearCompareList,
+      setSearchResultsFromAI,
     }),
     [
       state,
@@ -480,6 +497,7 @@ export const PropertyProvider = ({ children }: ProviderProps): JSX.Element => {
       addToCompare,
       removeFromCompare,
       clearCompareList,
+      setSearchResultsFromAI,
     ]
   );
 

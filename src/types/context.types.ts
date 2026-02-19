@@ -76,6 +76,7 @@ export interface PropertyContextValue {
   addToCompare: (propertyId: string) => void;
   removeFromCompare: (propertyId: string) => void;
   clearCompareList: () => void;
+  setSearchResultsFromAI: (properties: Property[]) => void;
 }
 
 // UI Context Types
@@ -142,6 +143,7 @@ export type PropertyAction =
   | { type: 'REMOVE_FROM_COMPARE'; payload: string }
   | { type: 'CLEAR_COMPARE_LIST' }
   | { type: 'CLEAR_COMPARE_LIST' }
+  | { type: 'SET_AI_SEARCH_RESULTS'; payload: Property[] }
   | { type: 'ADD_TO_RECENTLY_VIEWED'; payload: string }
   | {
       type: 'SET_PAGINATION';

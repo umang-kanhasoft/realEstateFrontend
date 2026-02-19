@@ -250,3 +250,12 @@ export interface ApiProjectListItem extends Omit<ApiProjectObject, 'builders'> {
     name: string;
   };
 }
+
+export interface AiSearchResponse {
+  reply: string;
+  applied_filters: Record<string, unknown>;
+  sql_query: string;
+  // TODO: fix any to ai response property types
+  data: Record<string, unknown>[];
+  result_count: number;
+}

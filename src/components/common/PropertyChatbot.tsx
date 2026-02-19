@@ -2,7 +2,7 @@
 
 import { Message, useChat } from '@/context/ChatContext';
 import { useUI } from '@/hooks/useUI';
-import { api } from '@/utils/api';
+import { apiClient } from '@/lib/api/client';
 import {
   Close,
   DeleteOutlineRounded,
@@ -63,9 +63,12 @@ export default function PropertyChatbot() {
           }));
           history.push({ role: 'user', content: chatQuery });
 
-          const response = await api.post<AIResponseData>('/ai/parse-query', {
-            messages: history,
-          });
+          const response = await apiClient.post<AIResponseData>(
+            '/ai/parse-query',
+            {
+              messages: history,
+            }
+          );
 
           if (!response.data) throw new Error('Invalid response');
 
@@ -125,7 +128,7 @@ export default function PropertyChatbot() {
       }));
       history.push({ role: 'user', content: userMsg.text });
 
-      const response = await api.post<AIResponseData>('/ai/parse-query', {
+      const response = await apiClient.post<AIResponseData>('/ai/parse-query', {
         messages: history,
       });
 

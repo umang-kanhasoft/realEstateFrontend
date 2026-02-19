@@ -19,6 +19,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_GA_ID: z.string().optional(),
   NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().optional(),
   NEXT_PUBLIC_EMAIL: z.string().optional(),
+  NEXT_PUBLIC_CHAT_API: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -36,6 +37,7 @@ function validateEnv(): Env {
     NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
     NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
     NEXT_PUBLIC_EMAIL: process.env.NEXT_PUBLIC_EMAIL,
+    NEXT_PUBLIC_CHAT_API: 'http://192.168.11.135:8000',
   };
 
   const parsed = envSchema.safeParse(envVars);
@@ -65,4 +67,5 @@ export const clientEnv = {
   gaId: process.env.NEXT_PUBLIC_GA_ID,
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
   email: process.env.NEXT_PUBLIC_EMAIL,
+  chatAPI: env.NEXT_PUBLIC_CHAT_API,
 };
