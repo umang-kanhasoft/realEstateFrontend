@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
 type AuthView = 'login' | 'register' | 'forgot-password';
 
@@ -22,41 +29,52 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<AuthView>('login');
 
-  const openLogin = () => {
+  const openLogin = useCallback(() => {
     setView('login');
     setIsOpen(true);
-  };
+  }, []);
 
-  const openRegister = () => {
+  const openRegister = useCallback(() => {
     setView('register');
     setIsOpen(true);
-  };
+  }, []);
 
-  const openForgotPassword = () => {
+  const openForgotPassword = useCallback(() => {
     setView('forgot-password');
     setIsOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
 
-  const toggleView = () => {
+  const toggleView = useCallback(() => {
     setView(prev => (prev === 'login' ? 'register' : 'login'));
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      isOpen,
+      view,
+      openLogin,
+      openRegister,
+      openForgotPassword,
+      closeModal,
+      toggleView,
+    }),
+    [
+      closeModal,
+      isOpen,
+      openForgotPassword,
+      openLogin,
+      openRegister,
+      toggleView,
+      view,
+    ]
+  );
 
   return (
-    <AuthModalContext.Provider
-      value={{
-        isOpen,
-        view,
-        openLogin,
-        openRegister,
-        openForgotPassword,
-        closeModal,
-        toggleView,
-      }}
-    >
+    <AuthModalContext.Provider value={value}>
       {children}
     </AuthModalContext.Provider>
   );

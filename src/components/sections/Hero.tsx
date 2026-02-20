@@ -14,6 +14,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -27,8 +28,7 @@ const POPULAR_LOCALITIES = [
 ];
 
 // Reliable High-Quality Image (Modern Blue/Glass Facade)
-const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=2500&q=80';
+const HERO_IMAGE = '/images/banner1.webp';
 
 const Hero: React.FC = () => {
   const router = useRouter();
@@ -54,10 +54,17 @@ const Hero: React.FC = () => {
     <>
       <Box className="relative flex h-screen min-h-[700px] items-center overflow-hidden">
         {/* Background Image */}
-        <Box
-          className="absolute inset-0 -z-20 bg-cover bg-center"
-          sx={{ backgroundImage: `url(${HERO_IMAGE})` }}
-        />
+        <Box className="absolute inset-0 -z-20">
+          <Image
+            src={HERO_IMAGE}
+            alt="Modern luxury building in the city"
+            fill
+            priority
+            quality={80}
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </Box>
 
         {/* Dark Overlay for Text Readability */}
         <Box className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/20 to-black/60 backdrop-blur-[1px]" />

@@ -3,8 +3,10 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -20,6 +22,7 @@ const CompareContext = createContext<CompareContextType | undefined>(undefined);
 
 export function CompareProvider({ children }: { children: ReactNode }) {
   const [compareProperties, setCompareProperties] = useState<string[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from local storage
   useEffect(() => {
@@ -32,20 +35,21 @@ export function CompareProvider({ children }: { children: ReactNode }) {
           console.error('Failed to parse compare list', e);
         }
       }
+      setIsHydrated(true);
     }
   }, []);
 
   // Save to local storage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isHydrated) {
       localStorage.setItem(
         'compare-context-storage',
         JSON.stringify(compareProperties)
       );
     }
-  }, [compareProperties]);
+  }, [compareProperties, isHydrated]);
 
-  const addToCompare = (propertyId: string) => {
+  const addToCompare = useCallback((propertyId: string) => {
     setCompareProperties(prev => {
       if (prev.includes(propertyId)) {
         return prev.filter(id => id !== propertyId);
@@ -54,32 +58,42 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       }
       return prev;
     });
-  };
+  }, []);
 
-  const removeFromCompare = (propertyId: string) => {
+  const removeFromCompare = useCallback((propertyId: string) => {
     setCompareProperties(prev => prev.filter(id => id !== propertyId));
-  };
+  }, []);
 
-  const clearCompare = () => {
+  const clearCompare = useCallback(() => {
     setCompareProperties([]);
-  };
+  }, []);
 
-  const isInCompare = (propertyId: string) => {
-    return compareProperties.includes(propertyId);
-  };
+  const isInCompare = useCallback(
+    (propertyId: string) => {
+      return compareProperties.includes(propertyId);
+    },
+    [compareProperties]
+  );
+
+  const value = useMemo(
+    () => ({
+      compareProperties,
+      addToCompare,
+      removeFromCompare,
+      clearCompare,
+      isInCompare,
+    }),
+    [
+      addToCompare,
+      clearCompare,
+      compareProperties,
+      isInCompare,
+      removeFromCompare,
+    ]
+  );
 
   return (
-    <CompareContext.Provider
-      value={{
-        compareProperties,
-        addToCompare,
-        removeFromCompare,
-        clearCompare,
-        isInCompare,
-      }}
-    >
-      {children}
-    </CompareContext.Provider>
+    <CompareContext.Provider value={value}>{children}</CompareContext.Provider>
   );
 }
 
