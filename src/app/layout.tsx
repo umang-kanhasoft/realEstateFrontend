@@ -1,14 +1,5 @@
-import FloatingDock from '@/components/layout/FloatingDock';
-import Footer from '@/components/layout/Footer';
-import { PropertyProvider } from '@/context/PropertyContext';
-import { ThemeContextProvider } from '@/context/ThemeContext';
-import { UIProvider } from '@/context/UIContext';
+import AppClientRoot from '@/components/layout/AppClientRoot';
 import type { Metadata, Viewport } from 'next';
-import dynamic from 'next/dynamic';
-
-const Chatbot = dynamic(() => import('@/components/common/Chatbot'), {
-  ssr: false,
-});
 // Google Fonts removed to prevent build timeouts in restricted environments
 // Using system fonts instead
 const inter = { variable: 'font-sans' };
@@ -95,16 +86,6 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-import AuthModal from '@/components/auth/AuthModal'; // Import AuthModal
-import { AuthProvider } from '@/context/AuthContext';
-import { AuthModalProvider } from '@/context/AuthModalContext'; // Import AuthModalProvider
-import { ChatProvider } from '@/context/ChatContext';
-import { CompareProvider } from '@/context/CompareContext';
-import { FavoritesProvider } from '@/context/FavoritesContext';
-import { SearchProvider } from '@/context/SearchContext';
-import { SnackbarProvider } from '@/context/SnackbarContext';
-import QueryProvider from '@/providers/QueryProvider';
-
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
@@ -113,35 +94,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
         id="__next"
         style={{ backgroundColor: '#fff' }}
       >
-        <QueryProvider>
-          <ThemeContextProvider>
-            <SnackbarProvider>
-              <AuthProvider>
-                <AuthModalProvider>
-                  <PropertyProvider>
-                    <SearchProvider>
-                      <CompareProvider>
-                        <FavoritesProvider>
-                          <UIProvider>
-                            <ChatProvider>
-                              <div className="relative flex min-h-screen flex-col">
-                                <main className="flex-1">{children}</main>
-                                <FloatingDock />
-                                <Footer />
-                                <Chatbot />
-                                <AuthModal />
-                              </div>
-                            </ChatProvider>
-                          </UIProvider>
-                        </FavoritesProvider>
-                      </CompareProvider>
-                    </SearchProvider>
-                  </PropertyProvider>
-                </AuthModalProvider>
-              </AuthProvider>
-            </SnackbarProvider>
-          </ThemeContextProvider>
-        </QueryProvider>
+        <AppClientRoot>{children}</AppClientRoot>
       </body>
     </html>
   );

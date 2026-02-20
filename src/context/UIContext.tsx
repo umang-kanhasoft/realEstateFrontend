@@ -1,7 +1,6 @@
 'use client';
 
 import { ProviderProps, UIAction, UIContextValue, UIState } from '@/types';
-import { throttle } from '@/utils/helpers';
 import {
   createContext,
   useCallback,
@@ -68,19 +67,6 @@ export const UIContext = createContext<UIContextValue | undefined>(undefined);
 
 export const UIProvider = ({ children }: ProviderProps): JSX.Element => {
   const [state, dispatch] = useReducer(uiReducer, initialState);
-
-  // Track scroll position
-  useEffect(() => {
-    const handleScroll = throttle(() => {
-      dispatch({
-        type: 'UPDATE_SCROLL_POSITION',
-        payload: window.scrollY,
-      });
-    }, 100);
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {

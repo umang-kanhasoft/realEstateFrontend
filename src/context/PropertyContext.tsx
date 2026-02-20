@@ -154,6 +154,9 @@ export const mapApiProjectToProperty = (
   const areaValues = unitTypes
     .map(u => u.carpetAreaSqft)
     .filter((a): a is number => !!a);
+  const priceValues = unitTypes
+    .map(u => u.price)
+    .filter((p): p is number => !!p && p > 0);
 
   const minBeds = bedValues.length ? Math.min(...bedValues) : 0;
   const maxBeds = bedValues.length ? Math.max(...bedValues) : 0;
@@ -182,12 +185,18 @@ export const mapApiProjectToProperty = (
         ? `${minArea.toLocaleString()}-${maxArea.toLocaleString()} sqft`
         : '';
 
+  const minPrice = priceValues.length
+    ? Math.min(...priceValues)
+    : project.priceStartingFrom || 0;
+  const maxPrice = priceValues.length ? Math.max(...priceValues) : undefined;
+
   return {
     id: project.id,
     title: project.name,
     slug: project.slug,
     description: '', // Not in list object
-    price: project.priceStartingFrom || 0,
+    price: minPrice,
+    maxPrice: maxPrice && maxPrice > minPrice ? maxPrice : undefined,
     status,
     location: `${project.area}, ${project.city}`,
     images: project.mainImageUrl ? [project.mainImageUrl] : [],
