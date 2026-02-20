@@ -4,8 +4,10 @@ import { Property } from '@/types';
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -89,15 +91,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to load chat history:', error);
       // Fallback for UUID if crypto not available (unlikely in modern browsers but good practice)
-      if (!userId) {
-        const newUserId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem('chat_user_id', newUserId);
-        setUserId(newUserId);
-      }
+      const newUserId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+      localStorage.setItem('chat_user_id', newUserId);
+      setUserId(newUserId);
     } finally {
       setIsInitialized(true);
     }
-  }, [userId]);
+  }, []);
 
   // Save to localStorage whenever messages change
   useEffect(() => {
@@ -113,14 +113,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, isInitialized]);
 
-  const addMessage = (message: Message) => {
+  const addMessage = useCallback((message: Message) => {
     setMessages(prev => {
       const newMessages = [...prev, message];
       return newMessages;
     });
-  };
+  }, []);
 
-  const updateLastMessage = (updates: Partial<Message>) => {
+  const updateLastMessage = useCallback((updates: Partial<Message>) => {
     setMessages(prev => {
       if (prev.length === 0) return prev;
       const newMessages = [...prev];
@@ -128,9 +128,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       newMessages[lastIndex] = { ...newMessages[lastIndex], ...updates };
       return newMessages;
     });
-  };
+  }, []);
 
-  const clearChat = () => {
+  const clearChat = useCallback(() => {
     setMessages([
       {
         id: Date.now().toString(),
@@ -148,29 +148,36 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('chat_user_id', newUserId);
       setUserId(newUserId);
     } catch {
-      const newUserId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newUserId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       localStorage.setItem('chat_user_id', newUserId);
       setUserId(newUserId);
     }
-  };
+  }, []);
 
-  return (
-    <ChatContext.Provider
-      value={{
-        messages,
-        addMessage,
-        updateLastMessage,
-        isLoading,
-        setIsLoading,
-        isOpen,
-        setIsOpen,
-        clearChat,
-        userId,
-      }}
-    >
-      {children}
-    </ChatContext.Provider>
+  const value = useMemo(
+    () => ({
+      messages,
+      addMessage,
+      updateLastMessage,
+      isLoading,
+      setIsLoading,
+      isOpen,
+      setIsOpen,
+      clearChat,
+      userId,
+    }),
+    [
+      addMessage,
+      clearChat,
+      isLoading,
+      isOpen,
+      messages,
+      updateLastMessage,
+      userId,
+    ]
   );
+
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 
 export function useChat() {

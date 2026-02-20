@@ -4,8 +4,10 @@ import { apiClient } from '@/lib/api/client';
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -48,7 +50,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
+  checkAuth: (token?: string) => Promise<void>;
   updateUser: (data: Partial<User>) => void;
   clearError: () => void;
 }
@@ -82,40 +84,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, accessToken]);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.post<LoginResponse>('/login', {
-        email,
-        password,
-      });
+  const checkAuth = useCallback(
+    async (token?: string) => {
+      const currentToken =
+        token || accessToken || localStorage.getItem('auth_token');
+      if (!currentToken) return;
 
-      const data = response.data || response;
-      if (!data.tokens) {
-        throw new Error('Invalid response structure: Tokens missing');
+      try {
+        // Assuming there is an endpoint to get current user.
+        const response = await apiClient.get<User>('/me', {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+          },
+        });
+
+        // Handle potential response structure variations
+        // The API returns { user: { ... } }
+        const responseData = response as unknown as {
+          data?: { user?: User } | User;
+          user?: User;
+        };
+        const data = responseData.data || responseData;
+        const userData = (data as { user?: User }).user || (data as User);
+
+        setUser(userData);
+        localStorage.setItem('auth_user', JSON.stringify(userData));
+      } catch (authError) {
+        // If 401, try to refresh or logout
+        console.error('Check Auth Error', authError);
+        // only logout if explicitly unauthorized or malformed token, prevent loop if network error
+        // logout();
       }
-      const { accessToken, refreshToken } = data.tokens;
+    },
+    [accessToken]
+  );
 
-      if (!accessToken?.token || !refreshToken?.token) {
-        throw new Error('Invalid response structure: Tokens missing');
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await apiClient.post<LoginResponse>('/login', {
+          email,
+          password,
+        });
+
+        const data = response.data || response;
+        if (!data.tokens) {
+          throw new Error('Invalid response structure: Tokens missing');
+        }
+        const { accessToken, refreshToken } = data.tokens;
+
+        if (!accessToken?.token || !refreshToken?.token) {
+          throw new Error('Invalid response structure: Tokens missing');
+        }
+
+        setAccessToken(accessToken.token);
+        localStorage.setItem('auth_token', accessToken.token);
+        localStorage.setItem('refresh_token', refreshToken.token);
+
+        await checkAuth(accessToken.token);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Login failed';
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [checkAuth]
+  );
 
-      setAccessToken(accessToken.token);
-      localStorage.setItem('auth_token', accessToken.token);
-      localStorage.setItem('refresh_token', refreshToken.token);
-
-      await checkAuth(accessToken.token);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (data: RegisterData) => {
+  const register = useCallback(async (data: RegisterData) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -129,9 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       // Optional: Call logout endpoint if exists
       // await apiClient.post('/logout');
@@ -142,64 +182,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
     }
-  };
+  }, []);
 
-  const checkAuth = async (token?: string) => {
-    const currentToken =
-      token || accessToken || localStorage.getItem('auth_token');
-    if (!currentToken) return;
-
-    try {
-      // Assuming there is an endpoint to get current user.
-      const response = await apiClient.get<User>('/me', {
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-        },
-      });
-
-      // Handle potential response structure variations
-      // The API returns { user: { ... } }
-      const responseData = response as unknown as {
-        data?: { user?: User } | User;
-        user?: User;
-      };
-      const data = responseData.data || responseData;
-      const userData = (data as { user?: User }).user || (data as User);
-
-      setUser(userData);
-      localStorage.setItem('auth_user', JSON.stringify(userData));
-    } catch (error) {
-      // If 401, try to refresh or logout
-      console.error('Check Auth Error', error);
-      // only logout if explicitly unauthorized or malformed token, prevent loop if network error
-      // logout();
-    }
-  };
-
-  const updateUser = (data: Partial<User>) => {
+  const updateUser = useCallback((data: Partial<User>) => {
     setUser(prev => (prev ? { ...prev, ...data } : null));
-  };
+  }, []);
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        accessToken,
-        isLoading,
-        error,
-        login,
-        register,
-        logout,
-        checkAuth,
-        updateUser,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      accessToken,
+      isLoading,
+      error,
+      login,
+      register,
+      logout,
+      checkAuth,
+      updateUser,
+      clearError,
+    }),
+    [
+      accessToken,
+      checkAuth,
+      clearError,
+      error,
+      isLoading,
+      login,
+      logout,
+      register,
+      updateUser,
+      user,
+    ]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

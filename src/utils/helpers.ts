@@ -5,26 +5,6 @@ import {
   PropertyFilter,
 } from '@/types';
 
-export const formatPrice = (
-  price: number,
-  currency: string = 'INR'
-): string => {
-  if (currency === 'INR') {
-    if (price >= 10000000) {
-      return `₹${(price / 10000000).toFixed(2)} Cr`;
-    } else if (price >= 100000) {
-      return `₹${(price / 100000).toFixed(2)} L`;
-    }
-    return `₹${price.toLocaleString('en-IN')}`;
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    maximumFractionDigits: 0,
-  }).format(price);
-};
-
 export const formatArea = (
   area: number | string,
   unit: 'sqft' | 'sqm' = 'sqft'

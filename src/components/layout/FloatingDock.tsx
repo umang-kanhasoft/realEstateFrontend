@@ -96,7 +96,7 @@ function DockItem({
   return (
     <Tooltip title={label} placement="top" TransitionComponent={Zoom} arrow>
       {href ? (
-        <Link href={href} passHref prefetch={true}>
+        <Link href={href} prefetch={false}>
           {content}
         </Link>
       ) : (
