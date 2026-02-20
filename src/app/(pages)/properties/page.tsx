@@ -1,5 +1,6 @@
 'use client';
 
+import Loader from '@/components/common/Loader';
 import PropertyCard from '@/components/property/PropertyCard';
 import { useChat } from '@/context/ChatContext';
 import { useProperty } from '@/hooks/useProperty';
@@ -75,17 +76,24 @@ export default function PropertiesPage() {
     ...propertyState.filters,
   });
 
+  const [isInitiating, setIsInitiating] = useState(true);
+
   // Fetch properties on mount
   useEffect(() => {
-    // Only fetch if not displaying AI results
-    const hasChatQuery = searchParams.get('chat_query');
-    if (
-      (!propertyState.searchResults ||
-        propertyState.searchResults.properties.length === 0) &&
-      !hasChatQuery
-    ) {
-      fetchProperties();
-    }
+    const initFetch = async () => {
+      // Only fetch if not displaying AI results
+      const hasChatQuery = searchParams.get('chat_query');
+      if (
+        (!propertyState.searchResults ||
+          propertyState.searchResults.properties.length === 0) &&
+        !hasChatQuery
+      ) {
+        await fetchProperties();
+      }
+      setIsInitiating(false);
+    };
+
+    initFetch();
   }, [fetchProperties, propertyState.searchResults, searchParams]);
 
   // Initialize filters from URL params
@@ -280,7 +288,12 @@ export default function PropertiesPage() {
       </Box>
 
       {/* Properties Grid with Virtuoso */}
-      {filteredProperties.length > 0 ? (
+      {(propertyState.isLoading || isInitiating) &&
+      filteredProperties.length === 0 ? (
+        <Box className="flex h-[50vh] w-full items-center justify-center">
+          <Loader text="Loading properties..." />
+        </Box>
+      ) : filteredProperties.length > 0 ? (
         <Box className="h-[calc(100vh-140px)] w-full">
           {viewMode === 'grid' ? (
             <VirtuosoGrid

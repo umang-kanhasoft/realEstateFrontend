@@ -7,14 +7,10 @@
   "printWidth": 80,
   "bracketSpacing": true,
   "arrowParens": "avoid",
-  "endOfLine": "lf",
+  "endOfLine": "auto",
   "plugins": [
     "prettier-plugin-organize-imports",
     "prettier-plugin-tailwindcss"
   ],
-  "tailwindFunctions": [
-    "cn",
-    "clsx",
-    "cva"
-  ]
+  "tailwindFunctions": ["cn", "clsx", "cva"]
 }

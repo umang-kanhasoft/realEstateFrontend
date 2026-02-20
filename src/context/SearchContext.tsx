@@ -3,8 +3,10 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -50,20 +52,31 @@ const initialFilters: Partial<Filters> = {
 };
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
+const SEARCH_FILTERS_STORAGE_KEY = 'search-context-filters';
+const LEGACY_SEARCH_FILTERS_STORAGE_KEY = 'search-filters-storage';
 
 export function SearchProvider({ children }: { children: ReactNode }) {
   // Initialize state from localStorage if available, otherwise use initialFilters
   const [filters, setFiltersState] = useState<Partial<Filters>>(() => {
     if (typeof window !== 'undefined') {
-      const favorites = localStorage.getItem('search-filters-storage');
-      if (favorites) {
+      const storedFilters = localStorage.getItem(SEARCH_FILTERS_STORAGE_KEY);
+      if (storedFilters) {
         try {
-          const parsed = JSON.parse(favorites);
-          // Zustand persist saves data in { state: { filters: ... }, version: ... }
-          // We need to handle migration or just plain storage structure
-          return parsed.state?.filters || initialFilters;
+          return JSON.parse(storedFilters);
         } catch (e) {
-          console.error('Failed to parse filters from local storage', e);
+          console.error('Failed to parse search filters from local storage', e);
+        }
+      }
+
+      const legacyFilters = localStorage.getItem(
+        LEGACY_SEARCH_FILTERS_STORAGE_KEY
+      );
+      if (legacyFilters) {
+        try {
+          const parsed = JSON.parse(legacyFilters);
+          return parsed.state?.filters || parsed || initialFilters;
+        } catch (e) {
+          console.error('Failed to parse legacy search filters', e);
         }
       }
     }
@@ -72,42 +85,34 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   // Persist to localStorage whenever filters change
   useEffect(() => {
-    // Mimicking zustand's persist structure for compatibility if needed,
-    // or just saving raw filters. Let's save raw filters for cleaner context usage,
-    // but if we want to read what zustand left, we might need to be careful.
-    // For now, let's just save the filters object directly or wraps it to match similar structure if we want.
-    // But since we are migrating, let's use a simpler key or override the old one properly.
-    // Let's stick to the same key to keep user's data if possible, but the structure might differ.
-    // Zustand: { state: ..., version: 0 }
-    // Let's just save as { state: { filters } } to be compatible if we want to "upgrade" in place
-    // OR just start fresh. Let's start fresh with a new key to avoid conflicts: 'search-context-filters'
-    localStorage.setItem('search-context-filters', JSON.stringify(filters));
+    localStorage.setItem(SEARCH_FILTERS_STORAGE_KEY, JSON.stringify(filters));
   }, [filters]);
 
-  // Re-read from new key on mount if exists, else fallback to old key logic above (which I put in useState initializer)
-  // Actually, let's simplify: read from 'search-context-filters' first.
-
-  const setFilters = (newFilters: Partial<Filters>) => {
+  const setFilters = useCallback((newFilters: Partial<Filters>) => {
     setFiltersState(newFilters);
-  };
+  }, []);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFiltersState(initialFilters);
-  };
+  }, []);
 
-  const updateFilter = <K extends keyof Filters>(key: K, value: Filters[K]) => {
-    setFiltersState(prev => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+  const updateFilter = useCallback(
+    <K extends keyof Filters>(key: K, value: Filters[K]) => {
+      setFiltersState(prev => ({
+        ...prev,
+        [key]: value,
+      }));
+    },
+    []
+  );
+
+  const value = useMemo(
+    () => ({ filters, setFilters, resetFilters, updateFilter }),
+    [filters, resetFilters, setFilters, updateFilter]
+  );
 
   return (
-    <SearchContext.Provider
-      value={{ filters, setFilters, resetFilters, updateFilter }}
-    >
-      {children}
-    </SearchContext.Provider>
+    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
   );
 }
 
