@@ -21,6 +21,7 @@
     "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "warn",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
     "prefer-const": "error",
     "no-var": "error"
   },

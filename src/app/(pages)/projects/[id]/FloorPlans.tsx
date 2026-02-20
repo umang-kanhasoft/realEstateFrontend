@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/utils/format';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Chip, Dialog, Grid, IconButton, Typography } from '@mui/material';
 import Image from 'next/image';
@@ -61,16 +62,6 @@ function FloorPlans({
   const { mdGrid, smGrid } = pathname?.startsWith('/properties')
     ? { mdGrid: 6, smGrid: 6 }
     : { mdGrid: 4, smGrid: 6 };
-
-  // Format price to display in Indian format
-  const formatPrice = (price: number) => {
-    if (price >= 10000000) {
-      return `₹${(price / 10000000).toFixed(1)}Cr`;
-    } else if (price >= 100000) {
-      return `₹${(price / 100000).toFixed(1)}Lac`;
-    }
-    return `₹${price.toLocaleString('en-IN')}`;
-  };
 
   return (
     <>
@@ -144,7 +135,7 @@ function FloorPlans({
                     fontWeight={700}
                     color="primary.main"
                   >
-                    {formatPrice(item.price)}
+                    {formatCurrency(item.price)}
                   </Typography>
                 </Box>
                 <Chip

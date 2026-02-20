@@ -53,6 +53,7 @@ export interface Property {
   description?: string;
   shortDescription?: string;
   price: number;
+  maxPrice?: number;
   pricePerSqFt?: number;
   currency?: string;
   propertyType?: PropertyType;

@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -73,16 +74,19 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     [favorites]
   );
 
+  const value = useMemo(
+    () => ({
+      favorites,
+      toggleFavorite,
+      removeFavorite,
+      clearFavorites,
+      isFavorite,
+    }),
+    [clearFavorites, favorites, isFavorite, removeFavorite, toggleFavorite]
+  );
+
   return (
-    <FavoritesContext.Provider
-      value={{
-        favorites,
-        toggleFavorite,
-        removeFavorite,
-        clearFavorites,
-        isFavorite,
-      }}
-    >
+    <FavoritesContext.Provider value={value}>
       {children}
     </FavoritesContext.Provider>
   );

@@ -167,7 +167,9 @@ const PropertyCard = ({
                   variant="h6"
                   className="text-lg font-bold text-primary-600 md:text-xl"
                 >
-                  {formatCurrency(property.price)}
+                  {property.maxPrice && property.maxPrice > property.price
+                    ? `${formatCurrency(property.price)} - ${formatCurrency(property.maxPrice)}`
+                    : formatCurrency(property.price)}
                 </Typography>
                 {property.listingType === 'rent' && (
                   <Typography
@@ -372,7 +374,9 @@ const PropertyCard = ({
                 variant="h6"
                 className="font-bold text-white drop-shadow-md"
               >
-                {formatCurrency(property.price)}
+                {property.maxPrice && property.maxPrice > property.price
+                  ? `${formatCurrency(property.price)} - ${formatCurrency(property.maxPrice)}`
+                  : formatCurrency(property.price)}
                 {property.listingType === 'rent' && (
                   <span className="text-sm font-normal">/month</span>
                 )}

@@ -88,13 +88,23 @@ const mapConstructionStatusToPropertyStatus = (
 
 // Mapper function to transform ApiProjectObject to Property
 const mapApiProjectToProperty = (apiProject: ApiProjectObject): Property => {
-  const builder = apiProject.builders?.[0];
+  const unitTypes = apiProject.unitTypes || [];
+  const priceValues = unitTypes
+    .map(u => u.price)
+    .filter((p): p is number => !!p && p > 0);
+
+  const minPrice = priceValues.length
+    ? Math.min(...priceValues)
+    : apiProject.priceStartingFrom || 0;
+  const maxPrice = priceValues.length ? Math.max(...priceValues) : undefined;
+
   return {
     id: apiProject.id,
     title: apiProject.name,
     slug: apiProject.slug,
     description: apiProject.description,
-    price: apiProject.priceStartingFrom || 0,
+    price: minPrice,
+    maxPrice: maxPrice && maxPrice > minPrice ? maxPrice : undefined,
     pricePerSqFt: apiProject.pricePerSqFt || undefined,
     currency: apiProject.currency,
     propertyType: apiProject.propertyType,
@@ -113,8 +123,6 @@ const mapApiProjectToProperty = (apiProject: ApiProjectObject): Property => {
       : ['/images/house-icon.png'],
     isFeatured: apiProject.isFeatured,
     isNew: apiProject.status === 'new_launch',
-    builder: builder?.name,
-    builderId: builder?.id,
     builders: apiProject.builders || undefined,
     reraId: apiProject.reraNumber || undefined,
     ecoFriendly: apiProject.ecoFriendly,

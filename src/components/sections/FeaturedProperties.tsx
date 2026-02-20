@@ -87,12 +87,25 @@ const FeaturedProperties = (): JSX.Element => {
         ? Math.max(...unitTypes.map(u => u.carpetAreaSqft || 0))
         : 0;
 
+    const priceValues =
+      unitTypes.length > 0
+        ? unitTypes.map(u => u.price || 0).filter(p => p > 0)
+        : [];
+
+    const minPrice =
+      priceValues.length > 0
+        ? Math.min(...priceValues)
+        : project.priceStartingFrom || 0;
+    const maxPrice =
+      priceValues.length > 0 ? Math.max(...priceValues) : undefined;
+
     return {
       id: project.id,
       title: project.name,
       slug: project.slug,
       location: [project.locality, project.city].filter(Boolean).join(', '),
-      price: project.priceStartingFrom || 0,
+      price: minPrice,
+      maxPrice: maxPrice && maxPrice > minPrice ? maxPrice : undefined,
       bedrooms: minBeds === maxBeds ? minBeds : `${minBeds}-${maxBeds}`,
       bathrooms: minBaths === maxBaths ? minBaths : `${minBaths}-${maxBaths}`,
       area:
